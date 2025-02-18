@@ -148,15 +148,32 @@ SERVER.init = function () {
   serv.listen(process.env.PORT || 10000);
 
   // MongoDB init
-  var mongo_user = process.env.MONGO_USER;
-  var mongo_pass = process.env.MONGO_PASS;
-  var mongo_url =  process.env.MONGO_URL;
-  console.log(mongo_pass, mongo_user)
-  var uri = "mongodb+srv://" + mongo_user + ":" + mongo_pass + "@" + mongo_url + "/?retryWrites=true&w=majority&appName=EoeArenaSecurityCopy";
-  this.db = require("mongojs")(uri, ['users', 'characters', 'skills', 'items', 'finished_battles']);
-	
-  // Socket.io init
-  this.io = require('socket.io')(serv, {});
+  
+const { MongoClient, ServerApiVersion } = require('mongodb');
+const uri = "mongodb+srv://Claudioanjos95219:Mclaubdio804@eoearenasecuritycopy.28wy3.mongodb.net/?retryWrites=true&w=majority&appName=EoeArenaSecurityCopy";
+
+// Create a MongoClient with a MongoClientOptions object to set the Stable API version
+const client = new MongoClient(uri, {
+  serverApi: {
+    version: ServerApiVersion.v1,
+    strict: true,
+    deprecationErrors: true,
+  }
+});
+
+async function run() {
+  try {
+    // Connect the client to the server	(optional starting in v4.7)
+    await client.connect();
+    // Send a ping to confirm a successful connection
+    await client.db("admin").command({ ping: 1 });
+    console.log("Pinged your deployment. You successfully connected to MongoDB!");
+  } finally {
+    // Ensures that the client will close when you finish/error
+    await client.close();
+  }
+}
+run().catch(console.dir);
 
   // encrytpion
   md5 = require('md5');

@@ -6,7 +6,6 @@
   "dependencies": {
     "express": "^4.16.2",
     "md5": "^2.2.1",
-    "mongojs": "^2.4.1",
     "socket.io": "^2.0.4",
     "mongodb": "^6.7.0"
   },

@@ -147,7 +147,7 @@ SERVER.init = function () {
 	app.use('/client', express.static(__dirname + '/client'));
   serv.listen(process.env.PORT || 10000);
 	
-const { MongoClient } = require('mongodb');
+const { MongoClient, ServerApiVersion } = require('mongodb');
 
 // Inicialização do MongoDB
 var mongo_user = process.env.MONGO_USER;
@@ -158,13 +158,27 @@ console.log(mongo_pass, mongo_user)
 // Criando a URI de conexão
 var uri = `mongodb+srv://${mongo_user}:${mongo_pass}@${mongo_url}/?retryWrites=true&w=majority&appName=EoeArenaSecurityCopy`;
 
-async function connectToDatabase() {
+// Create a MongoClient with a MongoClientOptions object to set the Stable API version
+const client = new MongoClient(uri, {
+  serverApi: {
+    version: ServerApiVersion.v1,
+    strict: true,
+    deprecationErrors: true,
+  }
+});
+async function run() {
   try {
-    // Conectar ao MongoDB
-    const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+    // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
-
-    console.log('Conectado ao MongoDB');
+    // Send a ping to confirm a successful connection
+    await client.db("admin").command({ ping: 1 });
+    console.log("Pinged your deployment. You successfully connected to MongoDB!");
+  } finally {
+    // Ensures that the client will close when you finish/error
+    await client.close();
+  }
+}
+run().catch(console.dir);
     
     // Acessando o banco de dados e as coleções
     const db = client.db();  // Acessa o banco de dados padrão

@@ -150,15 +150,7 @@ SERVER.init = function () {
     console.log(`Servidor rodando na porta ${PORT}`);
 });
 
-  // MongoDB init
-  var mongo_user = process.env.MONGO_USER;
-  var mongo_pass = process.env.MONGO_PASS;
-  var mongo_url =  process.env.MONGO_URL;
-  console.log(mongo_pass, mongo_user)
-  var uri = "mongodb+srv://" + mongo_user + ":" + mongo_pass + "@" + mongo_url + "/?retryWrites=true&w=majority&appName=EoeArenaSecurityCopy";
-  this.db = require("mongojs")(uri, ['users', 'characters', 'skills', 'items', 'finished_battles']);
-	
-  // Socket.io init
+    // Socket.io init
   this.io = require('socket.io')(serv, {});
 
   // encrytpion

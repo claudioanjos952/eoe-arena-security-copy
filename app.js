@@ -145,7 +145,7 @@ SERVER.init = function () {
   });
 
   app.use('/client', express.static(__dirname + '/client'));
-  const PORT = process.env.PORT || 3000;
+  const PORT = process.env.PORT || 10000;
 	serv.listen(PORT, () => {
     console.log(`Servidor rodando na porta ${PORT}`);
 });

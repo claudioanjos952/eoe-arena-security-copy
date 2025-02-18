@@ -146,8 +146,17 @@ SERVER.init = function () {
   });
 	//nao mexer em nada acima disso
 	//escolha de porta deixar 10000 por padrao
-	app.use('/client', express.static(__dirname + '/client'));
-  serv.listen(process.env.PORT || 10000);
+	const express = require("express");
+const http = require("http");
+
+const app = express();
+const serv = http.createServer(app);
+
+app.use("/client", express.static(__dirname + "/client"));
+
+const PORT = process.env.PORT || 10000;
+serv.listen(PORT, () => console.log(`Servidor rodando na porta ${PORT}`));
+
 	
 const { MongoClient, ServerApiVersion } = require('mongodb');
 const { MongoClient } = require('mongodb');

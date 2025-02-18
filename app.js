@@ -155,7 +155,7 @@ SERVER.init = function () {
   var mongo_pass = process.env.MONGO_PASS;
   var mongo_url =  process.env.MONGO_URL;
   console.log(mongo_pass, mongo_user)
-  var uri = "mongodb+srv://" + mongo_user + ":" + mongo_pass + "@" + mongo_url + "/game?&appName=eoe&retryWrites=true";
+  var uri = "mongodb+srv://" + mongo_user + ":" + mongo_pass + "@" + mongo_url + "/?retryWrites=true&w=majority&appName=EoeArenaSecurityCopy";
   this.db = require("mongojs")(uri, ['users', 'characters', 'skills', 'items', 'finished_battles']);
 	
   // Socket.io init

@@ -154,12 +154,18 @@ const serv = http.createServer(app);
 
 app.use("/client", express.static(__dirname + "/client"));
 
-const PORT = process.env.PORT || 10000;
-serv.listen(PORT, () => console.log(`Servidor rodando na porta ${PORT}`));
+async function startServer() {
+    await connectToDatabase(); // Aguarda o MongoDB conectar
+    loadDatabase(); // Carrega dados do banco
 
+    // Inicia o servidor apenas depois que o banco estiver pronto
+    const PORT = process.env.PORT || 10000;
+    serv.listen(PORT, () => console.log(`Servidor rodando na porta ${PORT}`));
+}
+
+startServer();
 	
 const { MongoClient, ServerApiVersion } = require('mongodb');
-const { MongoClient } = require('mongodb');
 
 // Inicialização do MongoDB
 var mongo_user = process.env.MONGO_USER;
@@ -191,7 +197,7 @@ async function connectToDatabase() {
     // await users.findOne({ /* filtro aqui */ });
 
     return { users, characters, skills, items, finished_battles };
-
+SERVER.db = client.db(); // Agora o banco de dados estará acessível globalmente
   } catch (error) {
     console.error('Erro ao conectar ao MongoDB:', error);
   }
@@ -214,13 +220,19 @@ connectToDatabase();
   SPELLS = require('./server/spells.js');
   SKILLS = require('./server/skills.js');
 
-  SERVER.db.skills.find({}, function (err, res) {
-    SERVER.SKILL_INFO = res;
-    SERVER.db.items.find({}, function (err2, res2) {
-      SERVER.ITEM_INFO = res2;
-      console.log("Server started.");
-    });
-  });
+  async function loadDatabase() {
+    const db = await connectToDatabase();
+    if (!db) return console.error("Erro ao carregar banco de dados!");
+
+    SERVER.db = db; // Agora o banco de dados fica acessível no servidor
+
+    SERVER.SKILL_INFO = await db.collection('skills').find({}).toArray();
+    SERVER.ITEM_INFO = await db.collection('items').find({}).toArray();
+    console.log("Server started.");
+}
+
+loadDatabase();
+
 
 };
 

@@ -86,6 +86,7 @@ SERVER.User.prototype.getXP = function () {
 };
 
 SERVER.init = function () {
+SERVER.init = function () {
   // Express init
   var express = require('express');
   var app = express();
@@ -126,7 +127,26 @@ SERVER.init = function () {
         if (body.length > 0) {
           var parsed = JSON.parse(body);
           res.writeHead(200, {'Content-Type': 'application/json'});
-
+          if (parsed.ajax_action != "login" && parsed.ajax_action != "register" && parsed.ajax_action != "authenticate") {
+            var token = req.headers['cookie'].split('token=').pop().split(';').shift();
+            if (SERVER.Sessions.hasOwnProperty(token)) {
+              var user = SERVER.Sessions[token];
+              parsed._user = user;
+            } else {
+              res.end(JSON.stringify({ status: -1 }));
+              return;
+            }
+          }
+          SERVER.getPOSTResponse(parsed).then((obj) => {
+            res.end(JSON.stringify(obj));
+          });
+        }
+      });
+    }
+  });
+	app.use('/client', express.static(__dirname + '/client'));
+  serv.listen(process.env.PORT || 2000);
+	
 const { MongoClient } = require('mongodb');
 
 // Inicialização do MongoDB

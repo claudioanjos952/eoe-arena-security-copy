@@ -126,31 +126,49 @@ SERVER.init = function () {
         if (body.length > 0) {
           var parsed = JSON.parse(body);
           res.writeHead(200, {'Content-Type': 'application/json'});
-          if (parsed.ajax_action != "login" && parsed.ajax_action != "register" && parsed.ajax_action != "authenticate") {
-            var token = req.headers['cookie'].split('token=').pop().split(';').shift();
-            if (SERVER.Sessions.hasOwnProperty(token)) {
-              var user = SERVER.Sessions[token];
-              parsed._user = user;
-            } else {
-              res.end(JSON.stringify({ status: -1 }));
-              return;
-            }
-          }
-          SERVER.getPOSTResponse(parsed).then((obj) => {
-            res.end(JSON.stringify(obj));
-          });
-        }
-      });
-    }
-  });
 
-  app.use('/client', express.static(__dirname + '/client'));
-  const PORT = process.env.PORT || 10000;
-	serv.listen(PORT, () => {
-    console.log(`Servidor rodando na porta ${PORT}`);
-});
+const { MongoClient } = require('mongodb');
 
-    // Socket.io init
+// Inicialização do MongoDB
+var mongo_user = process.env.MONGO_USER;
+var mongo_pass = process.env.MONGO_PASS;
+var mongo_url = process.env.MONGO_URL;
+console.log(mongo_pass, mongo_user)
+
+// Criando a URI de conexão
+var uri = `mongodb+srv://${mongo_user}:${mongo_pass}@${mongo_url}/?retryWrites=true&w=majority&appName=EoeArenaSecurityCopy`;
+
+async function connectToDatabase() {
+  try {
+    // Conectar ao MongoDB
+    const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+    await client.connect();
+
+    console.log('Conectado ao MongoDB');
+    
+    // Acessando o banco de dados e as coleções
+    const db = client.db();  // Acessa o banco de dados padrão
+    const users = db.collection('users');
+    const characters = db.collection('characters');
+    const skills = db.collection('skills');
+    const items = db.collection('items');
+    const finished_battles = db.collection('finished_battles');
+
+    // Agora você pode usar essas coleções no seu código
+    // Exemplo de uso:
+    // await users.findOne({ /* filtro aqui */ });
+
+    return { users, characters, skills, items, finished_battles };
+
+  } catch (error) {
+    console.error('Erro ao conectar ao MongoDB:', error);
+  }
+}
+
+// Chama a função para conectar
+connectToDatabase();
+
+    // Socket.io init O MONO DEVE ESTA ALI ACIMA QWERT
   this.io = require('socket.io')(serv, {});
 
   // encrytpion

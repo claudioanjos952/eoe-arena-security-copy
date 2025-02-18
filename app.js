@@ -144,10 +144,13 @@ SERVER.init = function () {
       });
     }
   });
+	//nao mexer em nada acima disso
+	//escolha de porta deixar 10000 por padrao
 	app.use('/client', express.static(__dirname + '/client'));
   serv.listen(process.env.PORT || 10000);
 	
 const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient } = require('mongodb');
 
 // Inicialização do MongoDB
 var mongo_user = process.env.MONGO_USER;
@@ -158,27 +161,13 @@ console.log(mongo_pass, mongo_user)
 // Criando a URI de conexão
 var uri = `mongodb+srv://${mongo_user}:${mongo_pass}@${mongo_url}/?retryWrites=true&w=majority&appName=EoeArenaSecurityCopy`;
 
-// Create a MongoClient with a MongoClientOptions object to set the Stable API version
-const client = new MongoClient(uri, {
-  serverApi: {
-    version: ServerApiVersion.v1,
-    strict: true,
-    deprecationErrors: true,
-  }
-});
-async function run() {
+async function connectToDatabase() {
   try {
-    // Connect the client to the server	(optional starting in v4.7)
+    // Conectar ao MongoDB
+    const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
     await client.connect();
-    // Send a ping to confirm a successful connection
-    await client.db("admin").command({ ping: 1 });
-    console.log("Pinged your deployment. You successfully connected to MongoDB!");
-  } finally {
-    // Ensures that the client will close when you finish/error
-    await client.close();
-  }
-}
-run().catch(console.dir);
+
+    console.log('Conectado ao MongoDB');
     
     // Acessando o banco de dados e as coleções
     const db = client.db();  // Acessa o banco de dados padrão
@@ -194,13 +183,14 @@ run().catch(console.dir);
 
     return { users, characters, skills, items, finished_battles };
 
-  catch (error) {
+  } catch (error) {
     console.error('Erro ao conectar ao MongoDB:', error);
   }
 }
 
 // Chama a função para conectar
 connectToDatabase();
+
 
     // Socket.io init O MONO DEVE ESTA ALI ACIMA QWERT
   this.io = require('socket.io')(serv, {});

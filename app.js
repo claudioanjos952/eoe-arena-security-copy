@@ -145,7 +145,7 @@ SERVER.init = function () {
     }
   });
 	app.use('/client', express.static(__dirname + '/client'));
-  serv.listen(process.env.PORT || 2000);
+  serv.listen(process.env.PORT || 10000);
 	
 const { MongoClient } = require('mongodb');
 

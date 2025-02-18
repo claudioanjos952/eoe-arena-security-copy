@@ -194,7 +194,7 @@ run().catch(console.dir);
 
     return { users, characters, skills, items, finished_battles };
 
-  } catch (error) {
+  catch (error) {
     console.error('Erro ao conectar ao MongoDB:', error);
   }
 }

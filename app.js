@@ -88,9 +88,11 @@ SERVER.User.prototype.getXP = function () {
 SERVER.init = function () {
   // Express init
   var express = require('express');
+	console.log(`express requerida ${express}`);
   var app = express();
+	console.log(`app recebeu ${app}`);
   const serv = http.createServer(app);
-
+console.log(`serv recebeu ${serv}`);
   app.get('/', function (req, res) {
     res.sendFile(__dirname + '/client/index.html');
   });
@@ -105,6 +107,7 @@ SERVER.init = function () {
         var token = req.headers['cookie'].split('token=').pop().split(';').shift();
         if (SERVER.Sessions.hasOwnProperty(token)) {
           var user = SERVER.Sessions[token];
+		console.log(`user recebeu ${user}`);
           req.query._user = user;
         } else {
           res.end(JSON.stringify({ status: -1 }));
@@ -128,6 +131,7 @@ SERVER.init = function () {
           res.writeHead(200, {'Content-Type': 'application/json'});
           if (parsed.ajax_action != "login" && parsed.ajax_action != "register" && parsed.ajax_action != "authenticate") {
             var token = req.headers['cookie'].split('token=').pop().split(';').shift();
+		  console.log(`token recebeu ${token}`);
             if (SERVER.Sessions.hasOwnProperty(token)) {
               var user = SERVER.Sessions[token];
               parsed._user = user;
@@ -144,14 +148,17 @@ SERVER.init = function () {
     }
   });
 const http = require("http");
+	console.log(`http recebeu ${http}`);
 const { MongoClient, ServerApiVersion } = require("mongodb");
       const socketIo = require("socket.io");
+	console.log(`socketIo recebeu ${socketIo}`);
 const md5 = require("md5");
 const crypto = require("crypto");
 const SHARED = require("./shared/utils.js");
 const SPELLS = require("./server/spells.js");
 const SKILLS = require("./server/skills.js");
 var PORT = process.env.PORT || 27017;
+	console.log(`PORT RECEBEU ${PORT}`);
 app.use("/client", express.static(__dirname + "/client"));
 // MongoDB Connection
 var mongo_user = process.env.MONGO_USER;

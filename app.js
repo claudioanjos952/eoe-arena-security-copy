@@ -159,14 +159,17 @@ app.use("/client", express.static(__dirname + "/client"));
 var mongo_user = process.env.MONGO_USER;
 var mongo_pass = process.env.MONGO_PASS;
 var mongo_url = process.env.MONGO_URL;
+var mongo_uri = process.env.MONGO_URI;	
 console.log(mongo_pass, mongo_user);
 
-var uri = `mongodb+srv://${mongo_user}:${mongo_pass}@${mongo_url}/?retryWrites=true&w=majority&appName=EoeArenaSecurityCopy`;
+var uri = `${mongo_uri}`;
 
 async function connectDB() {
     try {
         const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
         await client.connect();
+	await client.db("admin").command({ ping: 1 });
+	console.log("Pinged your deployment. You successfully connected to MongoDB!");
         console.log("MongoDB conectado com sucesso!");
         return client.db();
     } catch (error) {

@@ -89,7 +89,7 @@ SERVER.init = function () {
   // Express init
   var express = require('express');
   var app = express();
-  var serv = require('http').Server(app);
+  const serv = http.createServer(app);
 
   app.get('/', function (req, res) {
     res.sendFile(__dirname + '/client/index.html');

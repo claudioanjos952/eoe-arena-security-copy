@@ -143,8 +143,6 @@ SERVER.init = function () {
       });
     }
   });
-
-const express = require("express");
 const http = require("http");
 const { MongoClient, ServerApiVersion } = require("mongodb");
 const socketIo = require("socket.io");

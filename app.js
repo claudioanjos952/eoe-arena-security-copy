@@ -145,7 +145,7 @@ SERVER.init = function () {
   });
 
   app.use('/client', express.static(__dirname + '/client'));
-  serv.listen(process.env.PORT || 10000);
+  serv.listen(process.env.PORT || 27020);
 
   // MongoDB init
   var mongo_user = process.env.MONGO_USER;

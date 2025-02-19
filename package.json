@@ -1,7 +1,7 @@
 {
   "name": "eoe-arena",
   "version": "0.1.0",
-  "description": "Era of Eidolon mulitplayer game remade from scratch",
+  "description": "Era of Eidolon multiplayer game remade from scratch",
   "main": "app.js",
   "dependencies": {
     "express": "^4.16.2",
@@ -14,6 +14,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node --inspect app.js"
+  },
+  "engines": {
+    "node": ">=16.0.0"
   },
   "author": "Taurius",
   "license": "ISC"

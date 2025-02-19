@@ -144,71 +144,83 @@ SERVER.init = function () {
     }
   });
 
-  app.use('/client', express.static(__dirname + '/client'));
-  serv.listen(process.env.PORT || 27020);
+const express = require("express");
+const http = require("http");
+const { MongoClient, ServerApiVersion } = require("mongodb");
+const socketIo = require("socket.io");
+const md5 = require("md5");
+const crypto = require("crypto");
+const SHARED = require("./shared/utils.js");
+const SPELLS = require("./server/spells.js");
+const SKILLS = require("./server/skills.js");
 
-  // MongoDB init
-  var mongo_user = process.env.MONGO_USER;
-  var mongo_pass = process.env.MONGO_PASS;
-  var mongo_url =  process.env.MONGO_URL;
-  console.log(mongo_pass, mongo_user)
-  var uri = "mongodb+srv://" + mongo_user + ":" + mongo_pass + "@" + mongo_url + "/?retryWrites=true&w=majority&appName=EoeArenaSecurityCopy";
-  this.db = require("mongojs")(uri, ['users', 'characters', 'skills', 'items', 'finished_battles']);
-	
-  // Socket.io init
-  this.io = require('socket.io')(serv, {});
+const app = express();
+const serv = http.createServer(app);
+const PORT = process.env.PORT || 27020;
+app.use("/client", express.static(__dirname + "/client"));
 
-  // encrytpion
-  md5 = require('md5');
-  crypto = require('crypto');
+// MongoDB Connection
+var mongo_user = process.env.MONGO_USER;
+var mongo_pass = process.env.MONGO_PASS;
+var mongo_url = process.env.MONGO_URL;
+console.log(mongo_pass, mongo_user);
 
-  // load shared utilities
-  SHARED = require('./shared/utils.js');
+var uri = `mongodb+srv://${mongo_user}:${mongo_pass}@${mongo_url}/?retryWrites=true&w=majority&appName=EoeArenaSecurityCopy`;
 
-  SPELLS = require('./server/spells.js');
-  SKILLS = require('./server/skills.js');
+async function connectDB() {
+    try {
+        const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
+        await client.connect();
+        console.log("MongoDB conectado com sucesso!");
+        return client.db();
+    } catch (error) {
+        console.error("Erro ao conectar ao MongoDB:", error);
+    }
+}
 
-  SERVER.db.skills.find({}, function (err, res) {
-    SERVER.SKILL_INFO = res;
-    SERVER.db.items.find({}, function (err2, res2) {
-      SERVER.ITEM_INFO = res2;
-      console.log("Server started.");
-    });
-  });
+async function loadDatabase() {
+    const db = await connectDB();
+    if (!db) return;
 
-};
+    SERVER.db = db;
+    SERVER.SKILL_INFO = await db.collection("skills").find({}).toArray();
+    SERVER.ITEM_INFO = await db.collection("items").find({}).toArray();
+    console.log("Server started.");
+}
+
+const io = socketIo(serv, {});
+
+serv.listen(PORT, async () => {
+    console.log(`Servidor rodando na porta ${PORT}`);
+    await loadDatabase();
+});
 
 SERVER.onSocketConnection = function (socket) {
-  SERVER.Sockets[socket.id] = socket;
+    SERVER.Sockets[socket.id] = socket;
 
-  //var player = new SERVER.Player(socket.id);
-  //SERVER.Players[socket.id] = player;
+    var onevent = socket.onevent;
+    socket.onevent = function (packet) {
+        var args = packet.data || [];
+        onevent.call(this, packet);
+        packet.data = ["*"].concat(args);
+        onevent.call(this, packet);
+    };
 
-  var onevent = socket.onevent;
-  socket.onevent = function (packet) {
-    var args = packet.data || [];
-    onevent.call (this, packet);    // original call
-    packet.data = ["*"].concat(args);
-    onevent.call(this, packet);      // additional call to catch-all
-  };
+    socket.on("*", function (evt, data) {
+        if (data.session_token && SERVER.Sessions.hasOwnProperty(data.session_token)) {
+            SERVER.handleSocketMessage(socket, evt, data);
+        } else {
+            socket.emit("auth-failure", {});
+        }
+    });
 
-  // check socket authentity
-  socket.on("*", function (evt, data) {
-    if (data.session_token && SERVER.Sessions.hasOwnProperty(data.session_token)) {
-      SERVER.handleSocketMessage(socket, evt, data);
-    } else {
-      // user authentication failure, please re-auth
-      socket.emit('auth-failure', {});
-    }
-  });
-
-  socket.on('disconnect', function () {
-    var token = SERVER.getTokenBySocket(socket);
-    delete SERVER.Sockets[socket.id];
-    if (token) SERVER.Sessions[token].dc_timestamp = + new Date();
-  })
-
+    socket.on("disconnect", function () {
+        var token = SERVER.getTokenBySocket(socket);
+        delete SERVER.Sockets[socket.id];
+        if (token) SERVER.Sessions[token].dc_timestamp = +new Date();
+    });
 };
+
 
 SERVER.handleSocketMessage = function (socket, evt, data) {
   var player = SERVER.getPlayerBySocket(socket);

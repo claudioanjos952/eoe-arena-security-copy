@@ -145,7 +145,25 @@ SERVER.init = function () {
   });
 const http = require("http");
 const { MongoClient, ServerApiVersion } = require("mongodb");
-        console.log("MongoDB conectado com sucesso!");
+      const socketIo = require("socket.io");
+const md5 = require("md5");
+const crypto = require("crypto");
+const SHARED = require("./shared/utils.js");
+const SPELLS = require("./server/spells.js");
+const SKILLS = require("./server/skills.js");
+var PORT = process.env.PORT || 27017;
+app.use("/client", express.static(__dirname + "/client"));
+// MongoDB Connection
+var mongo_user = process.env.MONGO_USER;
+var mongo_pass = process.env.MONGO_PASS;
+var mongo_url = process.env.MONGO_URL;
+console.log(mongo_pass, mongo_user);
+var uri = "mongodb+srv://" + mongo_user + ":" + mongo_pass + "@" + mongo_url + "/?retryWrites=true&w=majority&appName=EoeArenaSecurityCopy";
+async function connectDB() {
+    try {
+        const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
+        await client.connect();
+	console.log("MongoDB conectado com sucesso!");
         return client.db();
     } catch (error) {
         console.error("Erro ao conectar ao MongoDB:", error);

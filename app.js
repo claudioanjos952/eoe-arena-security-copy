@@ -152,7 +152,7 @@ const SHARED = require("./shared/utils.js");
 const SPELLS = require("./server/spells.js");
 const SKILLS = require("./server/skills.js");
 
-const PORT = process.env.PORT || 27020;
+//const PORT = process.env.PORT || 27020;
 app.use("/client", express.static(__dirname + "/client"));
 
 // MongoDB Connection

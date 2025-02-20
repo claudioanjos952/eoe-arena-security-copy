@@ -87,6 +87,11 @@ SERVER.User.prototype.getXP = function () {
 
 SERVER.init = function () {
   // Express init
+	const http = require("http");
+	const md5 = require("md5");
+const SHARED = require("./shared/utils.js");
+const SPELLS = require("./server/spells.js");
+const SKILLS = require("./server/skills.js");
 	const crypto = require("crypto"); // No topo do arquivo
   var express = require('express');
   var app = express();

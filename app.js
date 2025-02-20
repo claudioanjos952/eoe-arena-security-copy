@@ -182,7 +182,10 @@ async function connectToDatabase() {
     // Exemplo de uso:
     // await users.findOne({ /* filtro aqui */ });
 SERVER.db = client.db("sample_mflix"); // Nome do banco correto
-return SERVER.db;
+// Defina `SERVER.db.users` corretamente
+        SERVER.db.users = SERVER.db.collection("users");
+        
+	  return SERVER.db;
 	  return { users, characters, skills, items, finished_battles };
 
   } catch (error) {

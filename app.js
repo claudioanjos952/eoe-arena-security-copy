@@ -165,7 +165,7 @@ console.log("conectado na porta " + PORT);
 async function connectToDatabase() {
   try {
     // Conectar ao MongoDB
-    const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
+    const client = new MongoClient(uri, { serverApi: ServerApiVersion.v1 });
   await client.connect();
 
     console.log('Conectado ao MongoDB');
@@ -181,7 +181,7 @@ async function connectToDatabase() {
     // Agora você pode usar essas coleções no seu código
     // Exemplo de uso:
     // await users.findOne({ /* filtro aqui */ });
-SERVER.db = client.db(); // Agora o banco de dados estará acessível globalmente
+SERVER.db = client.db("sample_mflix"); // Nome do banco correto
 return SERVER.db;
 	  return { users, characters, skills, items, finished_battles };
 

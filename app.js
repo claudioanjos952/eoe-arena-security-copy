@@ -100,8 +100,7 @@ const SKILLS = require("./server/skills.js");
 	var io = socketIo(serv);
 	// Adiciona a instância do io ao objeto SERVER
 SERVER.io = io;
-console.log("definiu 103 : " + http,md5,crypto,express,app,serv,socketIo,io);
-  app.get('/', function (req, res) {
+ app.get('/', function (req, res) {
     res.sendFile(__dirname + '/client/index.html');
   });
   app.get('/shared/utils.js', function (req, res) {

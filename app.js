@@ -174,8 +174,14 @@ console.log("conectado na porta " + PORT);
 async function connectToDatabase() {
   try {
     // Conectar ao MongoDB
-    const client = new MongoClient(uri, ['users', 'characters', 'skills', 'items', 'finished_battles']);
-  console.log("client recebeu 176: ", client);
+    const client = new MongoClient(uri, {
+  serverApi: {
+    version: ServerApiVersion.v1,
+    strict: true,
+    deprecationErrors: true,
+  }
+});
+	  console.log("client recebeu 176: ", client);
 	  await client.connect();
 
     console.log('Conectado ao MongoDB');

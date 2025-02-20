@@ -143,38 +143,66 @@ SERVER.init = function () {
       });
     }
   });
-
+const { MongoClient, ServerApiVersion } = require('mongodb');
+	  
   app.use('/client', express.static(__dirname + '/client'));
-  serv.listen(process.env.PORT);
-
+  var PORT = (process.env.PORT);
+	serv.listen(process.env.PORT);
+	
+console.log("conectado na porta " + PORT);
   // MongoDB init
   var mongo_user = process.env.MONGO_USER;
   var mongo_pass = process.env.MONGO_PASS;
   var mongo_url =  process.env.MONGO_URL;
-  console.log(mongo_pass, mongo_user)
+  console.log(mongo_pass, mongo_user);
   var uri = "mongodb+srv://" + mongo_user + ":" + mongo_pass + "@" + mongo_url + "/?retryWrites=true&w=majority&appName=EoeArenaSecurityCopy";
-  this.db = require("mongojs")(uri, ['users', 'characters', 'skills', 'items', 'finished_battles']);
-	
-  // Socket.io init
-  this.io = require('socket.io')(serv, {});
+ 
+	//cuidado aqui
+async function connectToDatabase() {
+  try {
+    // Conectar ao MongoDB
+    const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
+  await client.connect();
 
-  // encrytpion
-  md5 = require('md5');
-  crypto = require('crypto');
+    console.log('Conectado ao MongoDB');
+    
+    // Acessando o banco de dados e as coleções
+    const db = client.db();  // Acessa o banco de dados padrão
+    const users = db.collection('users');
+    const characters = db.collection('characters');
+    const skills = db.collection('skills');
+    const items = db.collection('items');
+    const finished_battles = db.collection('finished_battles');
 
-  // load shared utilities
-  SHARED = require('./shared/utils.js');
+    // Agora você pode usar essas coleções no seu código
+    // Exemplo de uso:
+    // await users.findOne({ /* filtro aqui */ });
+SERVER.db = client.db(); // Agora o banco de dados estará acessível globalmente
+return SERVER.db;
+	  return { users, characters, skills, items, finished_battles };
 
-  SPELLS = require('./server/spells.js');
-  SKILLS = require('./server/skills.js');
+  } catch (error) {
+    console.error('Erro ao conectar ao MongoDB:', error);
+  }
+}
 
-  SERVER.db.skills.find({}, function (err, res) {
-    SERVER.SKILL_INFO = res;
-    SERVER.db.items.find({}, function (err2, res2) {
-      SERVER.ITEM_INFO = res2;
-      console.log("Server started.");
-    });
-  });
+// Chama a função para conectar
+connectToDatabase();
+
+
+  async function loadDatabase() {
+    const db = await connectToDatabase();
+    if (!db) return console.error("Erro ao carregar banco de dados!");
+
+    SERVER.db = db; // Agora o banco de dados fica acessível no servidor
+
+    SERVER.SKILL_INFO = await db.collection('skills').find({}).toArray();
+    SERVER.ITEM_INFO = await db.collection('items').find({}).toArray();
+    console.log("Server started.");
+}
+
+loadDatabase();
+
 
 };
 

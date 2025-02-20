@@ -162,17 +162,19 @@ const { MongoClient, ServerApiVersion } = require('mongodb');
 	
 console.log("conectado na porta " + PORT);
   // MongoDB init
+	var mongo_ini =  process.env.MONGO_INI;
   var mongo_user = process.env.MONGO_USER;
   var mongo_pass = process.env.MONGO_PASS;
   var mongo_url =  process.env.MONGO_URL;
-  console.log(mongo_pass, mongo_user);
-  var uri = "mongodb+srv://" + mongo_user + ":" + mongo_pass + "@" + mongo_url + "/?retryWrites=true&w=majority&appName=EoeArenaSecurityCopy";
+	var mongo_end =  process.env.MONGO_END;
+  console.log(mongo_ini, mongo_user, mongo_pass, mongo_url, mongo_end);
+  var uri = mongo_ini + mongo_user + ":" + mongo_pass + "@" + mongo_url + mongo_end;
  
 	//cuidado aqui
 async function connectToDatabase() {
   try {
     // Conectar ao MongoDB
-    const client = new MongoClient(uri, { serverApi: ServerApiVersion.v1 });
+    const client = new MongoClient(uri, ['users', 'characters', 'skills', 'items', 'finished_battles']);
   console.log("client recebeu 176: ", client);
 	  await client.connect();
 

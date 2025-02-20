@@ -87,6 +87,7 @@ SERVER.User.prototype.getXP = function () {
 
 SERVER.init = function () {
   // Express init
+	const crypto = require("crypto"); // No topo do arquivo
   var express = require('express');
   var app = express();
   var serv = require('http').Server(app);
@@ -313,20 +314,25 @@ SERVER.getUser = function (data) {
 };
 
 SERVER.createUser = function (data) {
-  // do checks if user name exists etc
   return new Promise((resolve, reject) => {
     if (data.username.length > 16) {
       resolve({ status: 0, msg: "Username is too long. Max 16 characters." });
     } else {
       SERVER.db.users.findOne({ name: data.username }, function (err, res) {
-        if (res) { // found something
+        if (res) { // Nome já existe
           resolve({ status: 0, msg: "Username is taken by somebody else." });
-        } else { // found nothing
+        } else { // Criar conta
+          const token = crypto.randomBytes(16).toString("hex"); // Gera um token seguro
           SERVER.db.characters.insert(JSON.parse(JSON.stringify(SERVER.level0char)), function (err2, res2) {
             if (res2) {
-              SERVER.db.users.insert({ name: data.username, pass: data.password, char_id: res2._id }, function (err3, res3) {
+              SERVER.db.users.insert({ 
+                name: data.username, 
+                pass: data.password, 
+                char_id: res2._id, 
+                token: token  // Salva o token no banco
+              }, function (err3, res3) {
                 if (res3) {
-                  resolve({ status: 1 });
+                  resolve({ status: 1, token: token });
                 } else {
                   resolve({ status: 0, msg: "Cannot create an account with this username." });
                 }
@@ -341,12 +347,13 @@ SERVER.createUser = function (data) {
   });
 };
 
+
 SERVER.loginUser = function (data) {
   return new Promise((resolve, reject) => {
     SERVER.db.users.findOne({ name: data.username, pass: data.password }, function (err, res) {
       if (res) { // found something
-        var token = Math.random().toString();
-        var user = new SERVER.User({
+        var token = crypto.randomBytes(16).toString("hex"); // Gera um token seguro
+ var user = new SERVER.User({
           id: res._id, // id from database
           socket: SERVER.getSocketById(data.socket_id),
           username: data.username,
@@ -354,6 +361,7 @@ SERVER.loginUser = function (data) {
         });
         SERVER.Sessions[token] = user;
         user.getObject().then((obj) => {
+		obj.token = token; // Adiciona o token ao objeto
           resolve({
             status: 1,
             token: token,

@@ -100,7 +100,7 @@ const SKILLS = require("./server/skills.js");
 	var io = socketIo(serv);
 	// Adiciona a instância do io ao objeto SERVER
 SERVER.io = io;
-
+console.log("definiu 103 : " + http,md5,crypto,express,app,serv,socketIo,io);
   app.get('/', function (req, res) {
     res.sendFile(__dirname + '/client/index.html');
   });
@@ -115,6 +115,7 @@ SERVER.io = io;
         var token = req.headers['cookie'].split('token=').pop().split(';').shift();
         if (SERVER.Sessions.hasOwnProperty(token)) {
           var user = SERVER.Sessions[token];
+		console.log("user recebeu 118 : ", user);
           req.query._user = user;
         } else {
           res.end(JSON.stringify({ status: -1 }));
@@ -172,7 +173,8 @@ async function connectToDatabase() {
   try {
     // Conectar ao MongoDB
     const client = new MongoClient(uri, { serverApi: ServerApiVersion.v1 });
-  await client.connect();
+  console.log("client recebeu 176: ", client);
+	  await client.connect();
 
     console.log('Conectado ao MongoDB');
     
@@ -184,7 +186,7 @@ async function connectToDatabase() {
     const skills = db.collection('skills');
     const items = db.collection('items');
     const finished_battles = db.collection('finished_battles');
-
+console.log("lista receberam 189: ", db,users,characters,skills,items,finished_battles);
     // Agora você pode usar essas coleções no seu código
     // Exemplo de uso:
     // await users.findOne({ /* filtro aqui */ });
@@ -208,7 +210,7 @@ connectToDatabase();
     if (!db) return console.error("Erro ao carregar banco de dados!");
 
     SERVER.db = db; // Agora o banco de dados fica acessível no servidor
-
+console.log("SERVER.db recebeu 213: ", SERVER.db);
     SERVER.SKILL_INFO = await db.collection('skills').find({}).toArray();
     SERVER.ITEM_INFO = await db.collection('items').find({}).toArray();
     console.log("Server started.");
@@ -328,7 +330,8 @@ SERVER.createUser = function (data) {
           resolve({ status: 0, msg: "Username is taken by somebody else." });
         } else { // Criar conta
           const token = crypto.randomBytes(16).toString("hex"); // Gera um token seguro
-          SERVER.db.characters.insert(JSON.parse(JSON.stringify(SERVER.level0char)), function (err2, res2) {
+         console.log("token recebeu 333: ", token);
+		SERVER.db.characters.insert(JSON.parse(JSON.stringify(SERVER.level0char)), function (err2, res2) {
             if (res2) {
               SERVER.db.users.insert({ 
                 name: data.username, 

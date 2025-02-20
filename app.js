@@ -177,7 +177,8 @@ async function connectToDatabase() {
     console.log('Conectado ao MongoDB');
     
     // Acessando o banco de dados e as coleções
-    const db = client.db();  // Acessa o banco de dados padrão
+	  SERVER.db = client.db("sample_mflix"); // Nome do banco correto
+    const db = client.db("sample_mflix");  // Acessa o banco de dados padrão
     const users = db.collection('users');
     const characters = db.collection('characters');
     const skills = db.collection('skills');
@@ -187,7 +188,6 @@ async function connectToDatabase() {
     // Agora você pode usar essas coleções no seu código
     // Exemplo de uso:
     // await users.findOne({ /* filtro aqui */ });
-SERVER.db = client.db("sample_mflix"); // Nome do banco correto
 // Defina `SERVER.db.users` corretamente
         SERVER.db.users = SERVER.db.collection("users");
         

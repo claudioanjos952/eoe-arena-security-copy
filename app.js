@@ -10,7 +10,6 @@ const SKILLS = require("./server/skills.js");
 	var socketIo = require("socket.io");
 	var io = socketIo(serv);
 	// Adiciona a instância do io ao objeto SERVER
-SERVER.io = io;
 var SERVER = {
   io: null,
   db: null,
@@ -98,6 +97,7 @@ SERVER.User.prototype.getXP = function () {
 
 SERVER.init = function () {
   // Express init
+	SERVER.io = io;
  app.get('/', function (req, res) {
     res.sendFile(__dirname + '/client/index.html');
   });

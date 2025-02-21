@@ -350,10 +350,6 @@ SERVER.createUser = async function (data) {
       token: token
     };
 
-    // Adiciona email apenas se ele for fornecido
-    if (data.email) {
-      userData.email = data.email;
-    }
 
     const res3 = await SERVER.db.users.insertOne(userData);
 

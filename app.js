@@ -85,12 +85,12 @@ SERVER.User.prototype.getXP = function () {
 
 SERVER.init = function () {
   // Express init
-	const http = require("http");
-	const md5 = require("md5");
+	const http = require('http');
+	const md5 = require('md5');
 const SHARED = require("./shared/utils.js");
 const SPELLS = require("./server/spells.js");
 const SKILLS = require("./server/skills.js");
-	const crypto = require("crypto"); // No topo do arquivo
+	const crypto = require('crypto'); // No topo do arquivo
   var express = require('express');
   var app = express();
   var serv = require('http').Server(app);
@@ -336,6 +336,7 @@ SERVER.createUser = async function (data) {
     }
 
     // Criar conta
+	  console.log("Crypto module verificando crypto antes: ", crypto);
     var token = crypto.randomBytes(16).toString("hex"); // Gera um token seguro
     console.log("token recebeu 333: ", token);
 

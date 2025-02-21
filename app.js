@@ -353,9 +353,9 @@ if (res) { // Nome já existe
             } else {
               resolve({ status: 0, msg: "Account creation failed." });
             }
-          });
+          };
         }
-      });
+      };
     }
   });
 };

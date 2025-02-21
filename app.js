@@ -336,8 +336,7 @@ SERVER.createUser = async function (data) {
     }
 
     // Criar conta
-	  console.log("Crypto module verificando crypto antes: ", crypto);
-    var token = crypto.randomBytes(16).toString("hex"); // Gera um token seguro
+	     var token = crypto.randomBytes(16).toString("hex"); // Gera um token seguro
     console.log("token recebeu 333: ", token);
 
     const res2 = await SERVER.db.characters.insertOne(SERVER.level0char);
@@ -356,8 +355,8 @@ SERVER.createUser = async function (data) {
       return { status: 0, msg: "Cannot create an account with this username." };
     }
 
-    console.log("name recebeu 346: ", data.username);
-    console.log("pass recebeu 348: ", data.password);
+    console.log("name create recebeu 346: ", data.username);
+    console.log("pass create recebeu 348: ", data.password);
 
     return { status: 1, token: token };
   } catch (err) {
@@ -368,10 +367,7 @@ SERVER.createUser = async function (data) {
 
 
 SERVER.loginUser = async function (data) {
-  if (!SERVER.db || !SERVER.db.users) {
-    console.error("Banco de dados não inicializado!");
-    return { status: 0, msg: "Database not initialized." };
-  }
+  
 
   try {
     // Verificando se o usuário existe
@@ -380,10 +376,12 @@ SERVER.loginUser = async function (data) {
     if (!userRes) {
       return { status: 0, msg: "Invalid username or password." };
     }
-
-    console.log("Crypto module verificando crypto antes:", crypto);
+if (!SERVER.db || !SERVER.db.users) {
+    console.error("Banco de dados não inicializado!");
+    return { status: 0, msg: "Database not initialized." };
+  }
     var token = crypto.randomBytes(16).toString("hex"); // Gera um novo token seguro
-
+console.log(">>>token no login recebeu 384: ", token);
     // Atualiza o token no banco de dados
     await SERVER.db.users.updateOne({ name: data.username }, { $set: { token: token } });
 
@@ -393,7 +391,8 @@ SERVER.loginUser = async function (data) {
       username: data.username,
       char_id: userRes.char_id,
     });
-
+console.log("name login recebeu 394: ", data.username);
+    console.log("pass login recebeu 395: ", data.password);
     SERVER.Sessions[token] = user;
 
     const obj = await user.getObject();

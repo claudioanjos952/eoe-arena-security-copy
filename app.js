@@ -1,8 +1,5 @@
 const http = require('http');
 	const md5 = require('md5');
-const SHARED = require("./shared/utils.js");
-const SPELLS = require("./server/spells.js");
-const SKILLS = require("./server/skills.js");
 	const crypto = require('crypto'); // No topo do arquivo
   var express = require('express');
   var app = express();
@@ -10,6 +7,8 @@ const SKILLS = require("./server/skills.js");
 	var socketIo = require("socket.io");
 	var io = socketIo(serv);
 	// Adiciona a instância do io ao objeto SERVER
+var SHARED = {};
+
 var SERVER = {
   io: null,
   db: null,
@@ -211,6 +210,10 @@ connectToDatabase().then(() => {
     SERVER.db = db; // Agora o banco de dados fica acessível no servidor
     console.log(">>>> SERVER.db recebeu 213: server.db");
 
+const SHARED = require("./shared/utils.js");
+const SPELLS = require("./server/spells.js");
+const SKILLS = require("./server/skills.js");
+  
     // Aguardar as promessas de toArray()
     SERVER.SKILL_INFO = await db.collection('skills').find({}).toArray();
     SERVER.ITEM_INFO = await db.collection('items').find({}).toArray();
@@ -220,6 +223,8 @@ connectToDatabase().then(() => {
 
 loadDatabase();
 };
+
+
 
 SERVER.onSocketConnection = function (socket) {
   SERVER.Sockets[socket.id] = socket;

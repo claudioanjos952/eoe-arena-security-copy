@@ -172,49 +172,53 @@ async function connectToDatabase() {
   try {
     // Conectar ao MongoDB
     const client = new MongoClient(uri, { serverApi: ServerApiVersion.v1 });
-	   await client.connect();
+    await client.connect();
 
     console.log('Conectado ao MongoDB');
 
-const db = client.db("sample_mflix");  // Acessa o banco de dados padrão
-    const users = db.collection('users');
-    const characters = db.collection('characters');
-    const skills = db.collection('skills');
-    const items = db.collection('items');
-    const finished_battles = db.collection('finished_battles');
-   // Agora você pode usar essas coleções no seu código
-    // Exemplo de uso:
-    // await users.findOne({ /* filtro aqui */ });
-// Defina `SERVER.db.users` corretamente
-        SERVER.db = client.db("sample_mflix"); // Certifique-se de que esse é o nome correto do banco no Atlas
-// Defina `SERVER.db.users` corretamente
-        SERVER.db.users = SERVER.db.collection("users");
-        
-	  return { db: SERVER.db, users, characters, skills, items, finished_battles };
+    // Acessa o banco de dados
+    const db = client.db("sample_mflix"); // Nome do banco de dados
+    SERVER.db = db;  // Atribui o banco de dados a SERVER.db
+
+    // Configura as coleções no SERVER.db
+    SERVER.db.users = db.collection("users");
+    SERVER.db.characters = db.collection("characters");
+    SERVER.db.skills = db.collection("skills");
+    SERVER.db.items = db.collection("items");
+    SERVER.db.finished_battles = db.collection("finished_battles");
+
+    return SERVER.db;  // Apenas retorna o objeto de banco de dados
 
   } catch (error) {
     console.error('Erro ao conectar ao MongoDB:', error);
+    throw error;  // Propaga o erro
   }
 }
 
 // Chama a função para conectar
-connectToDatabase();
+connectToDatabase().then(() => {
+  console.log("Banco de dados carregado com sucesso!");
+}).catch((error) => {
+  console.error("Erro ao carregar o banco de dados:", error);
+});
+
 
   async function loadDatabase() {
     var db = await connectToDatabase();
     if (!db) return console.error("Erro ao carregar banco de dados!");
 
     SERVER.db = db; // Agora o banco de dados fica acessível no servidor
-console.log(">>>> SERVER.db recebeu 213: server.db");
-    SERVER.SKILL_INFO =  db.collection('skills').find({}).toArray();
-    SERVER.ITEM_INFO =  db.collection('items').find({}).toArray();
+    console.log(">>>> SERVER.db recebeu 213: server.db");
+
+    // Aguardar as promessas de toArray()
+    SERVER.SKILL_INFO = await db.collection('skills').find({}).toArray();
+    SERVER.ITEM_INFO = await db.collection('items').find({}).toArray();
+    
     console.log("Server started.");
 }
 
 loadDatabase();
 
-
-};
 
 SERVER.onSocketConnection = function (socket) {
   SERVER.Sockets[socket.id] = socket;

@@ -319,46 +319,53 @@ SERVER.getUser = function (data) {
 };
 
 SERVER.createUser = async function (data) {
-  return new Promise((resolve, reject) => {
+  return new Promise(async (resolve, reject) => {
     if (data.username.length > 16) {
       resolve({ status: 0, msg: "Username is too long. Max 16 characters." });
-    } else {
-      const res = SERVER.db.users.findOne({ name: data.username });
-if (res) { // Nome já existe
-          resolve({ status: 0, msg: "Username is taken by somebody else." });
-        } else if (!SERVER.db || !SERVER.db.users) {
-  console.error("Banco de dados não inicializado!");
-  return;
-}
+      return;
+    } 
+    try {
+      const res = await SERVER.db.users.findOne({ name: data.username });
+      if (res) { // Nome já existe
+        resolve({ status: 0, msg: "Username is taken by somebody else." });
+        return;
+      }
 
-{ // Criar conta
-          var token = crypto.randomBytes(16).toString("hex"); // Gera um token seguro
-         console.log("token recebeu 333: ", token);
-		SERVER.db.characters.insertOne(SERVER.level0char, function (err2, res2) {
-  if (res2) {
-              SERVER.db.users.insert({ 
-                name: data.username, 
-		       pass: data.password, 
-              		char_id: res2._id, 
-                token: token  // Salva o token no banco
-              }, function (err3, res3) {
-                if (res3) {
-                  resolve({ status: 1, token: token });
-                } else {
-                  resolve({ status: 0, msg: "Cannot create an account with this username." });
-                }
-              });
-		console.log("name recebeu 346: ", data.username);
-               console.log("pass recebeu 348: ", data.password);
-            } else {
-              resolve({ status: 0, msg: "Account creation failed." });
-            }
-          };
+      if (!SERVER.db || !SERVER.db.users) {
+        console.error("Banco de dados não inicializado!");
+        reject({ status: 0, msg: "Database not initialized." });
+        return;
+      }
+
+      // Criar conta
+      var token = crypto.randomBytes(16).toString("hex"); // Gera um token seguro
+      console.log("token recebeu 333: ", token);
+      SERVER.db.characters.insertOne(SERVER.level0char, function (err2, res2) {
+        if (err2 || !res2) {
+          resolve({ status: 0, msg: "Account creation failed." });
+          return;
         }
-      };
+        SERVER.db.users.insertOne({ 
+          name: data.username, 
+          pass: data.password, 
+          char_id: res2._id, 
+          token: token  // Salva o token no banco
+        }, function (err3, res3) {
+          if (err3 || !res3) {
+            resolve({ status: 0, msg: "Cannot create an account with this username." });
+          } else {
+            resolve({ status: 1, token: token });
+          }
+        });
+        console.log("name recebeu 346: ", data.username);
+        console.log("pass recebeu 348: ", data.password);
+      });
+    } catch (err) {
+      reject({ status: 0, msg: "An unexpected error occurred." });
     }
   });
 };
+
 
 
 SERVER.loginUser = async function (data) {

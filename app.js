@@ -308,7 +308,7 @@ SERVER.getUser = async function (data) {
 
   var user = SERVER.Sessions[data.token];
   let obj = await user.getObject(); // Agora `await` está correto
-
+console.log(">>>getuser obj recebeu: ", obj);
   var prevSocket = user.socket?.id;
   user.socket = SERVER.Sockets[data.socket_id];
   delete SERVER.Sockets[prevSocket];
@@ -325,7 +325,7 @@ SERVER.createUser = async function (data) {
 
   try {
     // Verificando se o nome de usuário já existe
-    const res = await SERVER.db.users.findOne({ name: data.username });
+    let res = await SERVER.db.users.findOne({ name: data.username });
     if (res) { // Nome já existe
       return { status: 0, msg: "Username is taken by somebody else." };
     }
@@ -339,12 +339,12 @@ SERVER.createUser = async function (data) {
 	     var token = crypto.randomBytes(16).toString("hex"); // Gera um token seguro
     console.log("token recebeu 333: ", token);
 
-    const res2 = await SERVER.db.characters.insertOne(SERVER.level0char);
+    let res2 = await SERVER.db.characters.insertOne(SERVER.level0char);
     if (!res2) {
       return { status: 0, msg: "Account creation failed." };
     }
 
-    const res3 = await SERVER.db.users.insertOne({ 
+    let res3 = await SERVER.db.users.insertOne({ 
       name: data.username, 
       pass: data.password, 
       char_id: res2._id, 
@@ -371,7 +371,7 @@ SERVER.loginUser = async function (data) {
 
   try {
     // Verificando se o usuário existe
-    const userRes = await SERVER.db.users.findOne({ name: data.username, pass: data.password });
+    let userRes = await SERVER.db.users.findOne({ name: data.username, pass: data.password });
 
     if (!userRes) {
       return { status: 0, msg: "Invalid username or password." };
@@ -395,9 +395,9 @@ console.log("name login recebeu 394: ", data.username);
     console.log("pass login recebeu 395: ", data.password);
     SERVER.Sessions[token] = user;
 
-    const obj = await user.getObject();
+    let obj = await user.getObject();
     obj.token = token; // Adiciona o token ao objeto
-
+console.log(">>>loginuser obj recebeu: ", obj);
     return {
       status: 1,
       token: token,
@@ -424,7 +424,7 @@ SERVER.getItems = async function (type, order) {
 
 SERVER.getSkills = async function (type, order) {
   return new Promise((resolve, reject) => {
-  const skills =  SERVER.db.skills.find({ type: type }, { _id: 0 }, function (err, res) {
+  let skills =  SERVER.db.skills.find({ type: type }, { _id: 0 }, function (err, res) {
       if (res[0]) {
         resolve(res.sort((a, b) => { return a.req[order] - b.req[order] }));
       }

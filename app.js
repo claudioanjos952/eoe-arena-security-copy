@@ -321,13 +321,13 @@ SERVER.getUser = function (data) {
 };
 
 SERVER.createUser = async function (data) {
-  return new Promise(async (resolve, reject) => {
+  return new Promise( (resolve, reject) => {
     if (data.username.length > 16) {
       resolve({ status: 0, msg: "Username is too long. Max 16 characters." });
       return;
     } 
     try {
-      const res = await SERVER.db.users.findOne({ name: data.username });
+      const res = SERVER.db.users.findOne({ name: data.username });
       if (res) { // Nome já existe
         resolve({ status: 0, msg: "Username is taken by somebody else." });
         return;

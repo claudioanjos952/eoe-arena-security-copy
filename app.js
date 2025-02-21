@@ -299,7 +299,7 @@ SERVER.handleSocketMessage = function (socket, evt, data) {
 };
 
 // Authentication
-SERVER.getUser = async function (data) {
+SERVER.getUser = function (data) {
   return new Promise((resolve, reject) => {
     if (!SERVER.Sessions.hasOwnProperty(data.token)) {
       // user with this token is not authenticated
@@ -307,7 +307,7 @@ SERVER.getUser = async function (data) {
     } else {
       // user is authenticated, return user info
       var user = SERVER.Sessions[data.token];
-    let obj = await  user.getObject().then((obj) => {
+    user.getObject().then((obj) => {
         var prevSocket = user.socket?.id;
         user.socket = SERVER.Sockets[data.socket_id];
         delete SERVER.Sockets[prevSocket];

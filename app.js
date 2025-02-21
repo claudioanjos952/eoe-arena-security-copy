@@ -301,72 +301,70 @@ SERVER.handleSocketMessage = function (socket, evt, data) {
 };
 
 // Authentication
-SERVER.getUser = function (data) {
-  return new Promise((resolve, reject) => {
-    if (!SERVER.Sessions.hasOwnProperty(data.token)) {
-      // user with this token is not authenticated
-      resolve({ status: 0 });
-    } else {
-      // user is authenticated, return user info
-      var user = SERVER.Sessions[data.token];
-    user.getObject().then((obj) => {
-        var prevSocket = user.socket?.id;
-        user.socket = SERVER.Sockets[data.socket_id];
-        delete SERVER.Sockets[prevSocket];
-        delete user.dc_timestamp;
-        resolve({ status: 1, user: obj });
-      });
-    }
-  });
+SERVER.getUser = async function (data) {
+  if (!SERVER.Sessions.hasOwnProperty(data.token)) {
+    return { status: 0 };
+  }
+
+  var user = SERVER.Sessions[data.token];
+  let obj = await user.getObject(); // Agora `await` está correto
+
+  var prevSocket = user.socket?.id;
+  user.socket = SERVER.Sockets[data.socket_id];
+  delete SERVER.Sockets[prevSocket];
+  delete user.dc_timestamp;
+
+  return { status: 1, user: obj };
 };
+
 
 SERVER.createUser = async function (data) {
-  return new Promise( (resolve, reject) => {
-    if (data.username.length > 16) {
-      resolve({ status: 0, msg: "Username is too long. Max 16 characters." });
-      return;
-    } 
-    try {
-      const res = SERVER.db.users.findOne({ name: data.username });
-      if (res) { // Nome já existe
-        resolve({ status: 0, msg: "Username is taken by somebody else." });
-        return;
-      }
+  if (data.username.length > 16) {
+    return { status: 0, msg: "Username is too long. Max 16 characters." };
+  }
 
-      if (!SERVER.db || !SERVER.db.users) {
-        console.error("Banco de dados não inicializado!");
-        reject({ status: 0, msg: "Database not initialized." });
-        return;
-      }
-
-      // Criar conta
-      var token = crypto.randomBytes(16).toString("hex"); // Gera um token seguro
-      console.log("token recebeu 333: ", token);
-      SERVER.db.characters.insertOne(SERVER.level0char, function (err2, res2) {
-        if (err2 || !res2) {
-          resolve({ status: 0, msg: "Account creation failed." });
-          return;
-        }
-        SERVER.db.users.insertOne({ 
-          name: data.username, 
-          pass: data.password, 
-          char_id: res2._id, 
-          token: token  // Salva o token no banco
-        }, function (err3, res3) {
-          if (err3 || !res3) {
-            resolve({ status: 0, msg: "Cannot create an account with this username." });
-          } else {
-            resolve({ status: 1, token: token });
-          }
-        });
-        console.log("name recebeu 346: ", data.username);
-        console.log("pass recebeu 348: ", data.password);
-      });
-    } catch (err) {
-      reject({ status: 0, msg: "An unexpected error occurred." });
+  try {
+    // Verificando se o nome de usuário já existe
+    const res = await SERVER.db.users.findOne({ name: data.username });
+    if (res) { // Nome já existe
+      return { status: 0, msg: "Username is taken by somebody else." };
     }
-  });
+
+    if (!SERVER.db || !SERVER.db.users) {
+      console.error("Banco de dados não inicializado!");
+      throw new Error("Database not initialized.");
+    }
+
+    // Criar conta
+    var token = crypto.randomBytes(16).toString("hex"); // Gera um token seguro
+    console.log("token recebeu 333: ", token);
+
+    const res2 = await SERVER.db.characters.insertOne(SERVER.level0char);
+    if (!res2) {
+      return { status: 0, msg: "Account creation failed." };
+    }
+
+    const res3 = await SERVER.db.users.insertOne({ 
+      name: data.username, 
+      pass: data.password, 
+      char_id: res2._id, 
+      token: token  // Salva o token no banco
+    });
+
+    if (!res3) {
+      return { status: 0, msg: "Cannot create an account with this username." };
+    }
+
+    console.log("name recebeu 346: ", data.username);
+    console.log("pass recebeu 348: ", data.password);
+
+    return { status: 1, token: token };
+  } catch (err) {
+    console.error(err);
+    return { status: 0, msg: "An unexpected error occurred." };
+  }
 };
+
 
 SERVER.loginUser = async function (data) {
   return new Promise((resolve, reject) => {

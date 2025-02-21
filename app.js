@@ -344,10 +344,8 @@ SERVER.createUser = function (data) {
             if (res2) {
               SERVER.db.users.insert({ 
                 name: data.username, 
-		      console.log("name recebeu 346: ", name);
-                pass: data.password, 
-              console.log("pass recebeu 348: ", pass);
-			char_id: res2._id, 
+		       pass: data.password, 
+              		char_id: res2._id, 
                 token: token  // Salva o token no banco
               }, function (err3, res3) {
                 if (res3) {
@@ -356,6 +354,8 @@ SERVER.createUser = function (data) {
                   resolve({ status: 0, msg: "Cannot create an account with this username." });
                 }
               });
+		console.log("name recebeu 346: ", data.username);
+               console.log("pass recebeu 348: ", data.password);
             } else {
               resolve({ status: 0, msg: "Account creation failed." });
             }
@@ -387,6 +387,8 @@ SERVER.loginUser = function (data) {
             user: obj,
           });
         });
+	      console.log("o valor demobj é 390: ", obj);
+	
       } else { // found nothing
         resolve({ status: 0 });
       }

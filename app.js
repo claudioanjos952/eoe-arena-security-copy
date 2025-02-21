@@ -151,7 +151,6 @@ SERVER.io = io;
       });
     }
   });
-};
 const { MongoClient, ServerApiVersion } = require('mongodb');
 	  
   app.use('/client', express.static(__dirname + '/client'));
@@ -219,7 +218,7 @@ connectToDatabase().then(() => {
 }
 
 loadDatabase();
-
+};
 
 SERVER.onSocketConnection = function (socket) {
   SERVER.Sockets[socket.id] = socket;

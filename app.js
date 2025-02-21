@@ -109,7 +109,7 @@ SERVER.io = io;
   app.get('/ajax', function (req, res) {
     if (req.headers['x-requested-with'] === 'XMLHttpRequest') {
       if (Object.keys(req.query).length > 0) {
-        console.log("GET request with params: " + JSON.stringify(req.query));
+     //   console.log("GET request with params: " + JSON.stringify(req.query));
         res.writeHead(200, {'Content-Type': 'application/json'});
         var token = req.headers['cookie'].split('token=').pop().split(';').shift();
         if (SERVER.Sessions.hasOwnProperty(token)) {
@@ -180,26 +180,27 @@ async function connectToDatabase() {
     deprecationErrors: true,
   }
 });
-	  console.log("client recebeu 176: ", client);
+	  console.log("se tu nao sabe esse é o obj >>>: ", obj, "<<< nao deve nem funcionar");
+	//  console.log("client recebeu 176: ", client);
 	  await client.connect();
 
     console.log('Conectado ao MongoDB');
     
-    // Acessando o banco de dados e as coleções
-	  SERVER.db = client.db("sample_mflix"); // Nome do banco correto
-    const db = client.db("sample_mflix");  // Acessa o banco de dados padrão
-    const users = db.collection('users');
-    const characters = db.collection('characters');
-    const skills = db.collection('skills');
-    const items = db.collection('items');
-    const finished_battles = db.collection('finished_battles');
-console.log("lista receberam 189: ", db,users,characters,skills,items,finished_battles);
+      var db = client.db("admin");  // Acessa o banco de dados padrão
+    var users = db.collection('users');
+    var characters = db.collection('characters');
+    var skills = db.collection('skills');
+    var items = db.collection('items');
+    var finished_battles = db.collection('finished_battles');
+console.log("lista receberam 194: ", db,users,characters,skills,items,finished_battles);
     // Agora você pode usar essas coleções no seu código
     // Exemplo de uso:
     // await users.findOne({ /* filtro aqui */ });
 // Defina `SERVER.db.users` corretamente
         SERVER.db.users = SERVER.db.collection("users");
-        
+        // Acessando o banco de dados e as coleções
+	  SERVER.db = client.db("admin"); // Nome do banco correto
+  
 	  return SERVER.db;
 	  return { users, characters, skills, items, finished_battles };
 
@@ -210,10 +211,10 @@ console.log("lista receberam 189: ", db,users,characters,skills,items,finished_b
 
 // Chama a função para conectar
 connectToDatabase();
-
+console.log("chamou conectToDataBase 213 " + SERVER.db + "carregou server.db");
 
   async function loadDatabase() {
-    const db = await connectToDatabase();
+    var db = await connectToDatabase();
     if (!db) return console.error("Erro ao carregar banco de dados!");
 
     SERVER.db = db; // Agora o banco de dados fica acessível no servidor
@@ -262,6 +263,7 @@ SERVER.onSocketConnection = function (socket) {
 
 SERVER.handleSocketMessage = function (socket, evt, data) {
   var player = SERVER.getPlayerBySocket(socket);
+	console.log("player recebeu 265: ", player);
   if (!player) return;
 
   switch (evt) {
@@ -342,8 +344,10 @@ SERVER.createUser = function (data) {
             if (res2) {
               SERVER.db.users.insert({ 
                 name: data.username, 
+		      console.log("name recebeu 346: ", name);
                 pass: data.password, 
-                char_id: res2._id, 
+              console.log("pass recebeu 348: ", pass);
+			char_id: res2._id, 
                 token: token  // Salva o token no banco
               }, function (err3, res3) {
                 if (res3) {

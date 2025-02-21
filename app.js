@@ -338,13 +338,11 @@ SERVER.createUser = async function (data) {
     var token = crypto.randomBytes(16).toString("hex"); // Gera um token seguro
     console.log("token recebeu 333: ", token);
 
-    // Crie um novo personagem com dados únicos
-    const newChar = {
-      name: `${data.username}'s character`,
-      level: 1,
-      // ... outros atributos do personagem
-    };
+    // Remover o campo _id do objeto predefinido para evitar duplicação
+    let newChar = { ...SERVER.level0char };  // Cria uma cópia do objeto
+    delete newChar._id;  // Remover o _id para o MongoDB gerar um novo automaticamente
 
+    // Insere o personagem no banco de dados
     const res2 = await SERVER.db.characters.insertOne(newChar);
     if (!res2) {
       return { status: 0, msg: "Account creation failed." };
@@ -353,8 +351,8 @@ SERVER.createUser = async function (data) {
     let userData = {
       name: data.username,
       pass: data.password,
-      char_id: res2.insertedId, // Agora associamos o novo personagem ao usuário
-      token: token
+      char_id: res2.insertedId,  // Usa o novo _id gerado para o personagem
+      token: token,
     };
 
     const res3 = await SERVER.db.users.insertOne(userData);
@@ -372,6 +370,7 @@ SERVER.createUser = async function (data) {
     return { status: 0, msg: "An unexpected error occurred." };
   }
 };
+
 
 SERVER.loginUser = async function (data) {
   

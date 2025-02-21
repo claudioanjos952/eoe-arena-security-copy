@@ -366,41 +366,51 @@ SERVER.createUser = async function (data) {
   });
 };
 
-
-
 SERVER.loginUser = async function (data) {
-  return new Promise((resolve, reject) => 
-	 if (!SERVER.db || !SERVER.db.users) {
-  console.error("Banco de dados não inicializado!");
-  return;
-}
- {
-  const res =  SERVER.db.users.findOne({ name: data.username, pass: data.password }, function (err, res) {
-      if (res) { // found something
+  return new Promise((resolve, reject) => {
+    if (!SERVER.db || !SERVER.db.users) {
+      console.error("Banco de dados não inicializado!");
+      reject({ status: 0, msg: "Database not initialized." });
+      return; // Rejeitar a Promise
+    }
+
+    SERVER.db.users.findOne({ name: data.username, pass: data.password }, function (err, userRes) {
+      if (err) {
+        console.error("Erro ao buscar usuário:", err);
+        reject({ status: 0, msg: "Error finding user." });
+        return;
+      }
+
+      if (userRes) { // found something
         var token = crypto.randomBytes(16).toString("hex"); // Gera um token seguro
- var user = new SERVER.User({
-          id: res._id, // id from database
+        var user = new SERVER.User({
+          id: userRes._id, // id from database
           socket: SERVER.getSocketById(data.socket_id),
           username: data.username,
-          char_id: res.char_id,
+          char_id: userRes.char_id,
         });
+
         SERVER.Sessions[token] = user;
+
         user.getObject().then((obj) => {
-		obj.token = token; // Adiciona o token ao objeto
+          obj.token = token; // Adiciona o token ao objeto
           resolve({
             status: 1,
             token: token,
             user: obj,
           });
+        }).catch((err) => {
+          console.error("Erro ao obter objeto do usuário:", err);
+          reject({ status: 0, msg: "Failed to get user object." });
         });
-	      console.log("o valor demobj é 390: ", obj);
-	
+
       } else { // found nothing
-        resolve({ status: 0 });
+        resolve({ status: 0, msg: "Invalid username or password." });
       }
     });
   });
 };
+
 
 SERVER.getItems = async function (type, order) {
   return new Promise((resolve, reject) => {

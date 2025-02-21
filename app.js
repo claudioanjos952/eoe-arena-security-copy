@@ -186,7 +186,7 @@ async function connectToDatabase() {
 
     console.log('Conectado ao MongoDB');
     
-      var db = client.db("admin");  // Acessa o banco de dados padrão
+      var db = client.db("sample_mflix");  // Acessa o banco de dados padrão
     var users = db.collection('users');
     var characters = db.collection('characters');
     var skills = db.collection('skills');
@@ -199,7 +199,7 @@ console.log("lista receberam 194: ", db,users,characters,skills,items,finished_b
 // Defina `SERVER.db.users` corretamente
         SERVER.db.users = SERVER.db.collection("users");
         // Acessando o banco de dados e as coleções
-	  SERVER.db = client.db("admin"); // Nome do banco correto
+	  SERVER.db = client.db("sample_mflix"); // Nome do banco correto
   
 	  return SERVER.db;
 	  return { users, characters, skills, items, finished_battles };

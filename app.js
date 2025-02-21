@@ -174,8 +174,7 @@ async function connectToDatabase() {
   try {
     // Conectar ao MongoDB
     const client = new MongoClient(uri, { serverApi: ServerApiVersion.v1 });
-	  console.log("client recebeu 176: ", client);
-	  await client.connect();
+	   await client.connect();
 
     console.log('Conectado ao MongoDB');
 

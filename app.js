@@ -1,5 +1,3 @@
-var SHARED = {};
-
 var SERVER = {
   io: null,
   db: null,
@@ -193,8 +191,7 @@ console.log("lista receberam 194: ", db,users,characters,skills,items,finished_b
 // Defina `SERVER.db.users` corretamente
         SERVER.db.users = SERVER.db.collection("users");
         
-	  return SERVER.db;
-	  return { users, characters, skills, items, finished_battles };
+	  return { db: SERVER.db, users, characters, skills, items, finished_battles };
 
   } catch (error) {
     console.error('Erro ao conectar ao MongoDB:', error);
@@ -326,14 +323,19 @@ SERVER.createUser = function (data) {
     if (data.username.length > 16) {
       resolve({ status: 0, msg: "Username is too long. Max 16 characters." });
     } else {
-      SERVER.db.users.findOne({ name: data.username }, function (err, res) {
-        if (res) { // Nome já existe
+      const res = await SERVER.db.users.findOne({ name: data.username });
+if (res) { // Nome já existe
           resolve({ status: 0, msg: "Username is taken by somebody else." });
-        } else { // Criar conta
+        } else if (!SERVER.db || !SERVER.db.users) {
+  console.error("Banco de dados não inicializado!");
+  return;
+}
+
+{ // Criar conta
           var token = crypto.randomBytes(16).toString("hex"); // Gera um token seguro
          console.log("token recebeu 333: ", token);
-		SERVER.db.characters.insert(JSON.parse(JSON.stringify(SERVER.level0char)), function (err2, res2) {
-            if (res2) {
+		SERVER.db.characters.insertOne(SERVER.level0char, function (err2, res2) {
+  if (res2) {
               SERVER.db.users.insert({ 
                 name: data.username, 
 		       pass: data.password, 
@@ -360,7 +362,12 @@ SERVER.createUser = function (data) {
 
 
 SERVER.loginUser = function (data) {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve, reject) => 
+	 if (!SERVER.db || !SERVER.db.users) {
+  console.error("Banco de dados não inicializado!");
+  return;
+}
+ {
     SERVER.db.users.findOne({ name: data.username, pass: data.password }, function (err, res) {
       if (res) { // found something
         var token = crypto.randomBytes(16).toString("hex"); // Gera um token seguro
@@ -469,7 +476,7 @@ SERVER.levelUpStat = function (obj) {
         pts: -1,
       } };
       update.$inc[obj.stat] = plus;
-      SERVER.db.characters.update({ _id: obj._user.char_id }, update, function (err, res) {
+      SERVER.db.characters.updateOne({ _id: obj._user.char_id }, update, function (err, res) {
         if (res) {
           obj._user.character.stats[obj.stat] += plus;
           obj._user.character.points--;

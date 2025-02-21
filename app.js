@@ -929,6 +929,7 @@ SERVER.Game.prototype.begin = function (challenge) {
 
   var d1 = this.getDataForClient(this.player1);
   d1.p.weapon = weps.indexOf(SHARED.getWeaponType(c1.weapon));
+		console.log(">>>ldefinindo armas : LINHA 932", d1.p.weapon);
   d1.p.bow = bows.indexOf(SHARED.getWeaponType(c1.bow));
   d1.p.bomb = bombs.indexOf(SHARED.getWeaponType(c1.bomb));
   d1.e.weapon = weps.indexOf(SHARED.getWeaponType(c2.weapon));
@@ -1045,7 +1046,9 @@ SERVER.getSkillInfo = function (id) {
   for (var i = 0; i < SERVER.SKILL_INFO.length; ++i) {
     if (SERVER.SKILL_INFO[i].id == id)
       return SERVER.SKILL_INFO[i];
+	  
   }
+	console.log(">>>>> lista de skills carregadas : LINHA150", SERVER.SKILL_INFO);
   return null;
 };
 
@@ -1054,6 +1057,8 @@ SERVER.getItemInfo = function (id) {
     if (SERVER.ITEM_INFO[i].id == id)
       return SERVER.ITEM_INFO[i];
   }
+	  	console.log(">>>> lista de itens carregados : LINHA1058 ", Server.skill_info);
+  
   return null;
 };
 

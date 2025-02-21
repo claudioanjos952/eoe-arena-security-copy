@@ -335,8 +335,7 @@ SERVER.createUser = async function (data) {
       throw new Error("Database not initialized.");
     }
 
-    console.log("Crypto module verificando crypto antes: ", crypto);
-    var token = crypto.randomBytes(16).toString("hex"); // Gera um token seguro
+     var token = crypto.randomBytes(16).toString("hex"); // Gera um token seguro
     console.log("token recebeu 333: ", token);
 
     const res2 = await SERVER.db.characters.insertOne(SERVER.level0char);
@@ -400,7 +399,9 @@ console.log(">>>token no login recebeu 384: ", token);
       char_id: userRes.char_id,
     });
 console.log("name login recebeu 394: ", data.username);
-    console.log("pass login recebeu 395: ", data.password);
+   console.log("obj antes do await login recebeu 394: ", obj);
+   
+	  console.log("pass login recebeu 395: ", data.password);
     SERVER.Sessions[token] = user;
 
     let obj = await user.getObject();

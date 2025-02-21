@@ -7,7 +7,9 @@ const http = require('http');
 	var socketIo = require("socket.io");
 	var io = socketIo(serv);
 	// Adiciona a instância do io ao objeto SERVER
-var SHARED = {};
+var SHARED = require("./shared/utils.js");
+var SPELLS = require("./server/spells.js");
+var SKILLS = require("./server/skills.js");
 
 var SERVER = {
   io: null,
@@ -209,10 +211,6 @@ connectToDatabase().then(() => {
 
     SERVER.db = db; // Agora o banco de dados fica acessível no servidor
     console.log(">>>> SERVER.db recebeu 213: server.db");
-
-const SHARED = require("./shared/utils.js");
-const SPELLS = require("./server/spells.js");
-const SKILLS = require("./server/skills.js");
   
     // Aguardar as promessas de toArray()
     SERVER.SKILL_INFO = await db.collection('skills').find({}).toArray();

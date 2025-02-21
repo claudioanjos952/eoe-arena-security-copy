@@ -2,6 +2,7 @@
   "name": "eoe-arena",
   "version": "0.1.0",
   "description": "Era of Eidolon multiplayer game remade from scratch",
+  "type": "commonjs",
   "main": "app.js",
   "dependencies": {
     "express": "^4.16.2",

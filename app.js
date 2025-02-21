@@ -182,8 +182,7 @@ const db = client.db("sample_mflix");  // Acessa o banco de dados padrão
     const skills = db.collection('skills');
     const items = db.collection('items');
     const finished_battles = db.collection('finished_battles');
-console.log("lista receberam 194: ", db,users,characters,skills,items,finished_battles);
-    // Agora você pode usar essas coleções no seu código
+   // Agora você pode usar essas coleções no seu código
     // Exemplo de uso:
     // await users.findOne({ /* filtro aqui */ });
 // Defina `SERVER.db.users` corretamente
@@ -200,16 +199,15 @@ console.log("lista receberam 194: ", db,users,characters,skills,items,finished_b
 
 // Chama a função para conectar
 connectToDatabase();
-console.log("chamou conectToDataBase 213 " + SERVER.db + "carregou server.db");
 
   async function loadDatabase() {
     var db = await connectToDatabase();
     if (!db) return console.error("Erro ao carregar banco de dados!");
 
     SERVER.db = db; // Agora o banco de dados fica acessível no servidor
-console.log("SERVER.db recebeu 213: ", SERVER.db);
-    SERVER.SKILL_INFO = await db.collection('skills').find({}).toArray();
-    SERVER.ITEM_INFO = await db.collection('items').find({}).toArray();
+console.log(">>>> SERVER.db recebeu 213: server.db");
+    SERVER.SKILL_INFO =  db.collection('skills').find({}).toArray();
+    SERVER.ITEM_INFO =  db.collection('items').find({}).toArray();
     console.log("Server started.");
 }
 

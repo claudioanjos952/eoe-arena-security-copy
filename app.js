@@ -183,23 +183,23 @@ async function connectToDatabase() {
 	  console.log("se tu nao sabe esse é o obj >>>: ", obj, "<<< nao deve nem funcionar");
 	//  console.log("client recebeu 176: ", client);
 	  await client.connect();
-SERVER.db = client.db("sample_mflix"); // Certifique-se de que esse é o nome correto do banco no Atlas
-// Defina `SERVER.db.users` corretamente
-        SERVER.db.users = SERVER.db.collection("users");
-        
+
     console.log('Conectado ao MongoDB');
 
-var db = client.db("sample_mflix");  // Acessa o banco de dados padrão
-    var users = db.collection('users');
-    var characters = db.collection('characters');
-    var skills = db.collection('skills');
-    var items = db.collection('items');
-    var finished_battles = db.collection('finished_battles');
+const db = client.db("sample_mflix");  // Acessa o banco de dados padrão
+    const users = db.collection('users');
+    const characters = db.collection('characters');
+    const skills = db.collection('skills');
+    const items = db.collection('items');
+    const finished_battles = db.collection('finished_battles');
 console.log("lista receberam 194: ", db,users,characters,skills,items,finished_battles);
     // Agora você pode usar essas coleções no seu código
     // Exemplo de uso:
     // await users.findOne({ /* filtro aqui */ });
 // Defina `SERVER.db.users` corretamente
+        SERVER.db = client.db("sample_mflix"); // Certifique-se de que esse é o nome correto do banco no Atlas
+// Defina `SERVER.db.users` corretamente
+        SERVER.db.users = SERVER.db.collection("users");
         
 	  return SERVER.db;
 	  return { users, characters, skills, items, finished_battles };

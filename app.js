@@ -368,49 +368,49 @@ SERVER.createUser = async function (data) {
 
 
 SERVER.loginUser = async function (data) {
-  return new Promise((resolve, reject) => {
-    if (!SERVER.db || !SERVER.db.users) {
-      console.error("Banco de dados não inicializado!");
-      reject({ status: 0, msg: "Database not initialized." });
-      return; // Rejeitar a Promise
+  if (!SERVER.db || !SERVER.db.users) {
+    console.error("Banco de dados não inicializado!");
+    return { status: 0, msg: "Database not initialized." };
+  }
+
+  try {
+    // Verificando se o usuário existe
+    const userRes = await SERVER.db.users.findOne({ name: data.username, pass: data.password });
+
+    if (!userRes) {
+      return { status: 0, msg: "Invalid username or password." };
     }
 
-    SERVER.db.users.findOne({ name: data.username, pass: data.password }, function (err, userRes) {
-      if (err) {
-        console.error("Erro ao buscar usuário:", err);
-        reject({ status: 0, msg: "Error finding user." });
-        return;
-      }
+    console.log("Crypto module verificando crypto antes:", crypto);
+    var token = crypto.randomBytes(16).toString("hex"); // Gera um novo token seguro
 
-      if (userRes) { // found something
-        var token = crypto.randomBytes(16).toString("hex"); // Gera um token seguro
-        var user = new SERVER.User({
-          id: userRes._id, // id from database
-          socket: SERVER.getSocketById(data.socket_id),
-          username: data.username,
-          char_id: userRes.char_id,
-        });
+    // Atualiza o token no banco de dados
+    await SERVER.db.users.updateOne({ name: data.username }, { $set: { token: token } });
 
-        SERVER.Sessions[token] = user;
-
-        user.getObject().then((obj) => {
-          obj.token = token; // Adiciona o token ao objeto
-          resolve({
-            status: 1,
-            token: token,
-            user: obj,
-          });
-        }).catch((err) => {
-          console.error("Erro ao obter objeto do usuário:", err);
-          reject({ status: 0, msg: "Failed to get user object." });
-        });
-
-      } else { // found nothing
-        resolve({ status: 0, msg: "Invalid username or password." });
-      }
+    var user = new SERVER.User({
+      id: userRes._id, // ID do banco
+      socket: SERVER.getSocketById(data.socket_id),
+      username: data.username,
+      char_id: userRes.char_id,
     });
-  });
+
+    SERVER.Sessions[token] = user;
+
+    const obj = await user.getObject();
+    obj.token = token; // Adiciona o token ao objeto
+
+    return {
+      status: 1,
+      token: token,
+      user: obj,
+    };
+
+  } catch (err) {
+    console.error("Erro no login:", err);
+    return { status: 0, msg: "An unexpected error occurred." };
+  }
 };
+
 
 
 SERVER.getItems = async function (type, order) {

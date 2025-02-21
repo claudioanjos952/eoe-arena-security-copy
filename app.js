@@ -1,3 +1,16 @@
+const http = require('http');
+	const md5 = require('md5');
+const SHARED = require("./shared/utils.js");
+const SPELLS = require("./server/spells.js");
+const SKILLS = require("./server/skills.js");
+	const crypto = require('crypto'); // No topo do arquivo
+  var express = require('express');
+  var app = express();
+  var serv = require('http').Server(app);
+	var socketIo = require("socket.io");
+	var io = socketIo(serv);
+	// Adiciona a instância do io ao objeto SERVER
+SERVER.io = io;
 var SERVER = {
   io: null,
   db: null,
@@ -85,19 +98,6 @@ SERVER.User.prototype.getXP = function () {
 
 SERVER.init = function () {
   // Express init
-	const http = require('http');
-	const md5 = require('md5');
-const SHARED = require("./shared/utils.js");
-const SPELLS = require("./server/spells.js");
-const SKILLS = require("./server/skills.js");
-	const crypto = require('crypto'); // No topo do arquivo
-  var express = require('express');
-  var app = express();
-  var serv = require('http').Server(app);
-	var socketIo = require("socket.io");
-	var io = socketIo(serv);
-	// Adiciona a instância do io ao objeto SERVER
-SERVER.io = io;
  app.get('/', function (req, res) {
     res.sendFile(__dirname + '/client/index.html');
   });

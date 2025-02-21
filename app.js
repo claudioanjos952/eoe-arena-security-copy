@@ -319,7 +319,6 @@ console.log(">>>getuser obj recebeu: ", obj);
 
 
 SERVER.createUser = async function (data) {
-SERVER.createUser = async function (data) {
   if (data.username.length > 16) {
     return { status: 0, msg: "Username is too long. Max 16 characters." };
   }

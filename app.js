@@ -323,7 +323,7 @@ SERVER.createUser = async function (data) {
     if (data.username.length > 16) {
       resolve({ status: 0, msg: "Username is too long. Max 16 characters." });
     } else {
-      const res = await SERVER.db.users.findOne({ name: data.username });
+      const res = SERVER.db.users.findOne({ name: data.username });
 if (res) { // Nome já existe
           resolve({ status: 0, msg: "Username is taken by somebody else." });
         } else if (!SERVER.db || !SERVER.db.users) {
@@ -368,7 +368,7 @@ SERVER.loginUser = async function (data) {
   return;
 }
  {
-  const res = await  SERVER.db.users.findOne({ name: data.username, pass: data.password }, function (err, res) {
+  const res =  SERVER.db.users.findOne({ name: data.username, pass: data.password }, function (err, res) {
       if (res) { // found something
         var token = crypto.randomBytes(16).toString("hex"); // Gera um token seguro
  var user = new SERVER.User({
@@ -397,7 +397,7 @@ SERVER.loginUser = async function (data) {
 
 SERVER.getItems = async function (type, order) {
   return new Promise((resolve, reject) => {
-   const items = await SERVER.db.items.find({ type: type }, { _id: 0, desc: 0 }, function (err, res) {
+   const items = SERVER.db.items.find({ type: type }, { _id: 0, desc: 0 }, function (err, res) {
       if (res[0]) {
         resolve(res.sort((a, b) => { return a.req[order] - b.req[order] }));
       }
@@ -407,7 +407,7 @@ SERVER.getItems = async function (type, order) {
 
 SERVER.getSkills = async function (type, order) {
   return new Promise((resolve, reject) => {
-  const skills = await  SERVER.db.skills.find({ type: type }, { _id: 0 }, function (err, res) {
+  const skills =  SERVER.db.skills.find({ type: type }, { _id: 0 }, function (err, res) {
       if (res[0]) {
         resolve(res.sort((a, b) => { return a.req[order] - b.req[order] }));
       }
@@ -420,10 +420,10 @@ SERVER.getGETResponse = async function (obj) {
     // TODO: get cookie token and check if exists
     switch (obj.ajax_action) {
       case 'get-items':
-      return await  SERVER.getItems(parseInt(obj.type), parseInt(obj.order)).then(resolve);
+      return  SERVER.getItems(parseInt(obj.type), parseInt(obj.order)).then(resolve);
         break;
       case 'get-skills':
-      return await  SERVER.getSkills(parseInt(obj.type), parseInt(obj.order)).then(resolve);
+      return  SERVER.getSkills(parseInt(obj.type), parseInt(obj.order)).then(resolve);
         break;
       default:
         resolve({});
@@ -438,28 +438,28 @@ SERVER.getPOSTResponse = async function (obj) {
     console.log("[" + time.toString().substring(16, 24) + "|" + obj.ajax_action + "]" + " T:" + obj.token);
     switch (obj.ajax_action) {
       case "login":
-      return await  SERVER.loginUser(obj).then(resolve);
+      return  SERVER.loginUser(obj).then(resolve);
         break;
       case "register":
-       return await SERVER.createUser(obj).then(resolve);
+       return  SERVER.createUser(obj).then(resolve);
         break;
       case "authenticate":
-       return await SERVER.getUser(obj).then(resolve);
+       return  SERVER.getUser(obj).then(resolve);
         break;
       case "equip-item":
-      return await  SERVER.equipItem(obj).then(resolve);
+      return   SERVER.equipItem(obj).then(resolve);
         break;
       case "get-character":
-       return await obj._user.getCharacter().then(resolve);
+       return  obj._user.getCharacter().then(resolve);
         break;
       case "activate-skill":
-       return await SERVER.activateSkill(obj).then(resolve);
+       return  SERVER.activateSkill(obj).then(resolve);
         break;
       case "deactivate-skill":
-      return await  SERVER.deactivateSkill(obj).then(resolve);
+      return   SERVER.deactivateSkill(obj).then(resolve);
         break;
       case "level-stat":
-      return await  SERVER.levelUpStat(obj).then(resolve);
+      return   SERVER.levelUpStat(obj).then(resolve);
         break;
       default:
         resolve({});
@@ -476,7 +476,7 @@ SERVER.levelUpStat = async function (obj) {
         pts: -1,
       } };
       update.$inc[obj.stat] = plus;
-    await  SERVER.db.characters.updateOne({ _id: obj._user.char_id }, update, function (err, res) {
+      SERVER.db.characters.updateOne({ _id: obj._user.char_id }, update, function (err, res) {
         if (res) {
           obj._user.character.stats[obj.stat] += plus;
           obj._user.character.points--;
@@ -492,7 +492,7 @@ SERVER.equipItem = async function (obj) {
     // check if user has requirements
     var char = obj._user.character;
     obj.id = parseInt(obj.id);
-   const res = await SERVER.db.items.findOne({ id: obj.id }, function (err, res) {
+   const res =  SERVER.db.items.findOne({ id: obj.id }, function (err, res) {
       if (res) {
         if (SERVER.meetRequirements(char, res.req)) {
           var types = ['none', 'weapon', 'bow', 'armor', 'charm', 'bomb', 'trap'];

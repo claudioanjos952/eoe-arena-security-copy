@@ -675,19 +675,25 @@ SERVER.Player.prototype.getActiveActions = async function () {
   ];
   try {
     const res = await SERVER.db.skills.find({ id: { $in: skills_id } });
-    const skills = res.reduce((acc, skill) => {
-      const key = `${types[skill.type]}-${skill.name.replace(/\s/g, '_').toUpperCase()}`;
-      acc[key] = { id: skill.id, cost: skill.energy };
-      return acc;
-    }, {});
-    skills['END-END_TURN'] = { id: -1, cost: 0 };
-    skills['END-FORFEIT_GAME'] = { id: -2, cost: 0 };
-    return skills;
+    if (Array.isArray(res)) {
+      const skills = res.reduce((acc, skill) => {
+        const key = `${types[skill.type]}-${skill.name.replace(/\s/g, '_').toUpperCase()}`;
+        acc[key] = { id: skill.id, cost: skill.energy };
+        return acc;
+      }, {});
+      skills['END-END_TURN'] = { id: -1, cost: 0 };
+      skills['END-FORFEIT_GAME'] = { id: -2, cost: 0 };
+      return skills;
+    } else {
+      console.error('Erro: A resposta da consulta ao banco de dados não é um array.');
+      return {};
+    }
   } catch (err) {
-    console.error('Error: getActiveActionArray() - cannot get skills from db', err);
+    console.error('Erro: getActiveActionArray() - não foi possível obter as habilidades do banco de dados', err);
     throw err;
   }
 };
+
 
 
 SERVER.updateUserChallenges = function (user_id) {

@@ -151,6 +151,7 @@ SERVER.io = io;
       });
     }
   });
+};
 const { MongoClient, ServerApiVersion } = require('mongodb');
 	  
   app.use('/client', express.static(__dirname + '/client'));
@@ -1822,4 +1823,3 @@ var ACTIONS = {
     }
   }
 }
-	    }

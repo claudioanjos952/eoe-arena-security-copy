@@ -336,7 +336,7 @@ SERVER.createUser = function (data) {
         if (res) { // Nome já existe
           resolve({ status: 0, msg: "Username is taken by somebody else." });
         } else { // Criar conta
-          const token = crypto.randomBytes(16).toString("hex"); // Gera um token seguro
+          var token = crypto.randomBytes(16).toString("hex"); // Gera um token seguro
          console.log("token recebeu 333: ", token);
 		SERVER.db.characters.insert(JSON.parse(JSON.stringify(SERVER.level0char)), function (err2, res2) {
             if (res2) {

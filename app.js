@@ -335,10 +335,17 @@ SERVER.createUser = async function (data) {
       throw new Error("Database not initialized.");
     }
 
-     var token = crypto.randomBytes(16).toString("hex"); // Gera um token seguro
+    var token = crypto.randomBytes(16).toString("hex"); // Gera um token seguro
     console.log("token recebeu 333: ", token);
 
-    const res2 = await SERVER.db.characters.insertOne(SERVER.level0char);
+    // Crie um novo personagem com dados únicos
+    const newChar = {
+      name: `${data.username}'s character`,
+      level: 1,
+      // ... outros atributos do personagem
+    };
+
+    const res2 = await SERVER.db.characters.insertOne(newChar);
     if (!res2) {
       return { status: 0, msg: "Account creation failed." };
     }
@@ -346,10 +353,9 @@ SERVER.createUser = async function (data) {
     let userData = {
       name: data.username,
       pass: data.password,
-      char_id: res2.insertedId, 
+      char_id: res2.insertedId, // Agora associamos o novo personagem ao usuário
       token: token
     };
-
 
     const res3 = await SERVER.db.users.insertOne(userData);
 
@@ -366,8 +372,6 @@ SERVER.createUser = async function (data) {
     return { status: 0, msg: "An unexpected error occurred." };
   }
 };
-
-
 
 SERVER.loginUser = async function (data) {
   
@@ -395,13 +399,12 @@ console.log(">>>token no login recebeu 384: ", token);
       char_id: userRes.char_id,
     });
 console.log("name login recebeu 394: ", data.username);
-   console.log("obj antes do await login recebeu 394: ", obj);
-   
 	  console.log("pass login recebeu 395: ", data.password);
     SERVER.Sessions[token] = user;
 
     let obj = await user.getObject();
-    obj.token = token; // Adiciona o token ao objeto
+  console.log("obj depois do await login recebeu 394: ", obj);   
+	  obj.token = token; // Adiciona o token ao objeto
 console.log(">>>loginuser obj recebeu: ", obj);
     return {
       status: 1,

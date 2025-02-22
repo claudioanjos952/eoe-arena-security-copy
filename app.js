@@ -145,14 +145,15 @@ SERVER.init = function () {
   });
 
   app.use('/client', express.static(__dirname + '/client'));
-  serv.listen(process.env.PORT || 2000);
+  serv.listen(process.env.PORT);
 
   // MongoDB init
   var mongo_user = process.env.MONGO_USER;
   var mongo_pass = process.env.MONGO_PASS;
   var mongo_url =  process.env.MONGO_URL;
+	var mongo_end =  process.env.MONGO_END;
   console.log(mongo_pass, mongo_user)
-  var uri = "mongodb+srv://" + mongo_user + ":" + mongo_pass + "@" + mongo_url + "/game?&appName=eoe&retryWrites=true";
+  var uri = "mongodb+srv://" + mongo_user + ":" + mongo_pass + "@" + mongo_url + mongo_end;
   this.db = require("mongojs")(uri, ['users', 'characters', 'skills', 'items', 'finished_battles']);
 	
   // Socket.io init

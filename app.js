@@ -158,7 +158,7 @@ SERVER.init = function () {
 
     // Conectar ao MongoDB
     const client = new MongoClient(uri, { serverApi: ServerApiVersion.v1 });
-    await client.connect();
+client.connect();
 
     console.log('Conectado ao MongoDB');
 

@@ -152,7 +152,8 @@ SERVER.init = function () {
       });
     }
   });
-const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
+
+    const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const fs = require('fs');  // Para ler arquivos
 const path = require('path');  // Para manipulação de caminhos de arquivos
 
@@ -170,6 +171,37 @@ var mongo_url = process.env.MONGO_URL;
 var mongo_end = process.env.MONGO_END;
 console.log(mongo_ini, mongo_user, mongo_pass, mongo_url, mongo_end);
 var uri = mongo_ini + mongo_user + ":" + mongo_pass + "@" + mongo_url + mongo_end;
+
+// Função para corrigir o formato do JSON
+function corrigirFormatoJSON(caminhoDoArquivo) {
+  // Ler o arquivo com o formato errado
+  fs.readFile(caminhoDoArquivo, 'utf8', (err, data) => {
+    if (err) {
+      console.log('Erro ao ler o arquivo:', err);
+      return;
+    }
+
+    // Corrigir a formatação do JSON
+    // Separar os objetos e colocá-los dentro de um array
+    let jsonCorrigido = `[${data.split('\n').filter(Boolean).join(',')}]`;
+
+    try {
+      // Validar o JSON corrigido
+      let json = JSON.parse(jsonCorrigido);
+      
+      // Se for válido, gravar o arquivo corrigido
+      fs.writeFile(caminhoDoArquivo, JSON.stringify(json, null, 2), (err) => {
+        if (err) {
+          console.log('Erro ao salvar o arquivo corrigido:', err);
+        } else {
+          console.log('Arquivo corrigido salvo com sucesso!');
+        }
+      });
+    } catch (error) {
+      console.log('Erro ao parsear o JSON corrigido:', error);
+    }
+  });
+}
 
 async function connectToDatabase() {
   try {
@@ -205,9 +237,16 @@ async function loadDatabase() {
     SERVER.db = db; // Agora o banco de dados fica acessível no servidor
     console.log(">>>> SERVER.db recebeu 213: server.db");
   
-    // Carregar os dados de skills e items dos arquivos JSON
-    const skillsData = JSON.parse(fs.readFileSync(path.join(__dirname, '_MongoDB setup', 'skills_exported.json')));
-    const itemsData = JSON.parse(fs.readFileSync(path.join(__dirname, '_MongoDB setup', 'items_exported.json')));
+    // Corrigir a formatação do JSON antes de carregar
+    const skillsPath = path.join(__dirname, '_MongoDB setup', 'skills_exported.json');
+    const itemsPath = path.join(__dirname, '_MongoDB setup', 'items_exported.json');
+
+    corrigirFormatoJSON(skillsPath);  // Corrige o arquivo de skills
+    corrigirFormatoJSON(itemsPath);   // Corrige o arquivo de items
+
+    // Após corrigir o formato, carregar os dados dos arquivos corrigidos
+    const skillsData = JSON.parse(fs.readFileSync(skillsPath, 'utf8'));
+    const itemsData = JSON.parse(fs.readFileSync(itemsPath, 'utf8'));
 
     // Converte o _id para ObjectId, caso necessário
     skillsData.forEach(item => {
@@ -250,9 +289,7 @@ async function loadDatabase() {
 }
 
 loadDatabase();
-
-
-	}
+}
 
 SERVER.onSocketConnection = function (socket) {
   SERVER.Sockets[socket.id] = socket;

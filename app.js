@@ -216,8 +216,12 @@ connectToDatabase().then(() => {
     SERVER.ITEM_INFO = await db.collection('items').find({}).toArray();
     
     console.log("Server started.");
-	  console.log(">>>testando se encontra item na lista de spells.zap >>>",SPELLS.zap);
-	  
+	  if (typeof SPELLS.zap === 'function') {
+    console.log("SPELLS.zap está definida corretamente.");
+} else {
+    console.log("SPELLS.zap não é uma função!");
+}
+
 }
 
 loadDatabase();

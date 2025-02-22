@@ -153,8 +153,29 @@ SERVER.init = function () {
   var mongo_url =  process.env.MONGO_URL;
 	var mongo_end =  process.env.MONGO_END;
   console.log(mongo_pass, mongo_user)
-  var uri = "mongodb+srv://" + mongo_user + ":" + mongo_pass + "@" + mongo_url + mongo_end;
-  this.db = client.db("sample_mflix")	
+  var uri = mongo_ini + mongo_user + ":" + mongo_pass + "@" + mongo_url + mongo_end;
+ 
+
+    // Conectar ao MongoDB
+    const client = new MongoClient(uri, { serverApi: ServerApiVersion.v1 });
+    await client.connect();
+
+    console.log('Conectado ao MongoDB');
+
+    // Acessa o banco de dados
+    const db = client.db("sample_mflix"); // Nome do banco de dados
+    SERVER.db = db;  // Atribui o banco de dados a SERVER.db
+
+    // Configura as coleções no SERVER.db
+    SERVER.db.users = db.collection("users");
+    SERVER.db.characters = db.collection("characters");
+    SERVER.db.skills = db.collection("skills");
+    SERVER.db.items = db.collection("items");
+    SERVER.db.finished_battles = db.collection("finished_battles");
+
+    return SERVER.db;  // Apenas retorna o objeto de banco de dados
+
+
   // Socket.io init
   this.io = require('socket.io')(serv, {});
 

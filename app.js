@@ -1680,38 +1680,36 @@ SERVER.GameAction.prototype.process = function () {
 }
 
 SERVER.GameAction.prototype.MAGIC = function (action, data) {
-  if (SPELLS.close_range.indexOf(action) != -1) {
-    this.clientData.data.type = 'close_range';
-    this.time = 1250;
-  } else if (SPELLS.long_range.indexOf(action) != -1) {
-    this.clientData.data.type = 'long_range';
-    this.time = 2000;
-  } else if (SPELLS.debuff.indexOf(action) != -1) {
-    this.clientData.data.type = 'debuff';
-    this.time = 1250;
-  } else {
-    this.clientData.data.type = 'other';
-    this.time = 1250;
-  }
+    console.log(`Ação mágica recebida: ${action}`); // Verificar qual ação está sendo enviada
 
-  if (!SHARED.arePositionsTouching(this.playerTile.pos, this.enemyTile.pos) && this.clientData.data.type == 'close_range') {
-    // too far
-    this.clientData.data.status = 'far';
-  } else if (SHARED.arePositionsTouching(this.playerTile.pos, this.enemyTile.pos) && this.clientData.data.type == 'long_range') {
-    // too close
-    this.clientData.data.status = 'close';
-  } else if (this.doesPlayerFizzle(this.skill_info.precision / 100)) {
-    // player fizzled the spell
-    this.clientData.data.status = 'fizzle';
-  } else if (this.doesEnemyResist(1) && this.clientData.data.type != 'other') {
-    // enemy resisted the spell
-    this.clientData.data.status = 'resist';
-  } else {
-    // spell didn't fizzle and was not resisted, range is ok
-    SPELLS[this.action](this);
-  }
+    if (SPELLS.close_range.includes(action)) {
+        this.clientData.data.type = 'close_range';
+        this.time = 1250;
+    } else if (SPELLS.long_range.includes(action)) {
+        this.clientData.data.type = 'long_range';
+        this.time = 2000;
+    } else if (SPELLS.debuff.includes(action)) {
+        this.clientData.data.type = 'debuff';
+        this.time = 1250;
+    } else {
+        this.clientData.data.type = 'other';
+        this.time = 1250;
+    }
 
+    if (!SHARED.arePositionsTouching(this.playerTile.pos, this.enemyTile.pos) && this.clientData.data.type == 'close_range') {
+        this.clientData.data.status = 'far';
+    } else if (SHARED.arePositionsTouching(this.playerTile.pos, this.enemyTile.pos) && this.clientData.data.type == 'long_range') {
+        this.clientData.data.status = 'close';
+    } else if (this.doesPlayerFizzle(this.skill_info.precision / 100)) {
+        this.clientData.data.status = 'fizzle';
+    } else if (this.doesEnemyResist(1) && this.clientData.data.type != 'other') {
+        this.clientData.data.status = 'resist';
+    } else {
+        console.log(`Chamando SPELLS.${action}`); // Log antes de executar a skill
+        SPELLS[action](this);
+    }
 };
+
 
 SERVER.GameAction.prototype.SKILL = function (type, action) {
   if (type == 'move') {

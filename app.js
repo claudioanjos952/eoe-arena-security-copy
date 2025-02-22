@@ -252,7 +252,7 @@ async function loadDatabase() {
 loadDatabase();
 
 
-
+	}
 
 SERVER.onSocketConnection = function (socket) {
   SERVER.Sockets[socket.id] = socket;

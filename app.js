@@ -216,10 +216,8 @@ connectToDatabase().then(() => {
     SERVER.ITEM_INFO = await db.collection('items').find({}).toArray();
     
     console.log("Server started.");
+	  console.log(">>>testando se encontra item na lista de spells.zap >>>",SPELLS.zap);
 	  
-console.log(">>>lista de shared é",SHARED,"<<<<fim da losta shared");
-console.log(">>>lista de spells é",SPELLS,"<<<<fim da losta SPELLS");
-console.log(">>>lista de SKILLS é",SKILLS,"<<<<fim da losta SPELLS");
 }
 
 loadDatabase();
@@ -405,8 +403,7 @@ console.log("name login recebeu 394: ", data.username);
     SERVER.Sessions[token] = user;
 
     let obj = await user.getObject();
-  console.log("obj depois do await login recebeu 394: ", obj);   
-	  obj.token = token; // Adiciona o token ao objeto
+   obj.token = token; // Adiciona o token ao objeto
 console.log(">>>loginuser obj recebeu: ", obj);
     return {
       status: 1,
@@ -926,9 +923,7 @@ SERVER.Game.prototype.begin = function (challenge) {
   var bows = ['bow', 'fire-bow'];
   var bombs = ['bomb', 'fire-bomb'];
 
-	console.log(">>>verificando: LINHA 931 SHARED >>>>>> ", SHARED, ">>>> SPELLS ",SPELLS, ">>>>> SKILLS ", SKILLS);
-
-  var d1 = this.getDataForClient(this.player1);
+	  var d1 = this.getDataForClient(this.player1);
   d1.p.weapon = weps.indexOf(SHARED.getWeaponType(c1.weapon));
   d1.p.bow = bows.indexOf(SHARED.getWeaponType(c1.bow));
   d1.p.bomb = bombs.indexOf(SHARED.getWeaponType(c1.bomb));
@@ -1048,8 +1043,7 @@ SERVER.getSkillInfo = function (id) {
       return SERVER.SKILL_INFO[i];
 	  
   }
-	console.log(">>>>> lista de skills carregadas : LINHA150", SERVER.SKILL_INFO);
-  return null;
+	 return null;
 };
 
 SERVER.getItemInfo = function (id) {
@@ -1057,8 +1051,7 @@ SERVER.getItemInfo = function (id) {
     if (SERVER.ITEM_INFO[i].id == id)
       return SERVER.ITEM_INFO[i];
   }
-	  	console.log(">>>> lista de itens carregados : LINHA1058 ", Server.skill_info);
-  
+	  	
   return null;
 };
 

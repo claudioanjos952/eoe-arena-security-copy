@@ -11,6 +11,10 @@ var SHARED = require("./shared/utils.js");
 var SPELLS = require("./server/spells.js");
 var SKILLS = require("./server/skills.js");
 
+console.log(">>>lista de shared é",SHARED,"<<<<fim da losta shared");
+console.log(">>>lista de spells é",SPELLS,"<<<<fim da losta SPELLS");
+console.log(">>>lista de SKILLS é",SKILLS,"<<<<fim da losta SPELLS");
+
 var SERVER = {
   io: null,
   db: null,

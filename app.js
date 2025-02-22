@@ -155,131 +155,77 @@ SERVER.init = function () {
 
 //quase perco o juizo nisso
 
-const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
-const fs = require('fs');  
-const path = require('path');  
-
-
-app.use('/client', express.static(__dirname + '/client'));
-var PORT = process.env.PORT;
-serv.listen(PORT);
-console.log("Conectado na porta " + PORT);
-
-// MongoDB init
-var mongo_ini = process.env.MONGO_INI;
-var mongo_user = process.env.MONGO_USER;
-var mongo_pass = process.env.MONGO_PASS;
-var mongo_url = process.env.MONGO_URL;
-var mongo_end = process.env.MONGO_END;
-console.log(mongo_ini, mongo_user, mongo_pass, mongo_url, mongo_end);
-var uri = mongo_ini + mongo_user + ":" + mongo_pass + "@" + mongo_url + mongo_end;
-
-// Função para corrigir o formato do JSON
-function corrigirFormatoJSON(caminhoDoArquivo) {
-  fs.readFile(caminhoDoArquivo, 'utf8', (err, data) => {
-    if (err) {
-      console.log('Erro ao ler o arquivo:', err);
-      return;
-    }
-
-    // Corrigir todas as ocorrências de "}{" e adicionar colchetes no início e no fim
-    let jsonCorrigido = "[ " + data.replace(/}\s*{\s*/g, "},\n{") + " ]";
-
-    fs.writeFile(caminhoDoArquivo, jsonCorrigido, (err) => {
-      if (err) {
-        console.log('Erro ao salvar o arquivo corrigido:', err);
-      } else {
-        console.log('Arquivo corrigido salvo com sucesso:', caminhoDoArquivo);
-      }
-    });
-  });
-}
-
-// Caminhos dos arquivos JSON a serem corrigidos
-const skillsPath = path.join(__dirname, '_MongoDB setup', 'skills_exported.json');
-const itemsPath = path.join(__dirname, '_MongoDB setup', 'items_exported.json');
-
-// Corrigir os arquivos antes de carregar os dados
-corrigirFormatoJSON(skillsPath);
-corrigirFormatoJSON(itemsPath);
-
+const { MongoClient, ServerApiVersion } = require('mongodb');
+	  
+  app.use('/client', express.static(__dirname + '/client'));
+  var PORT = (process.env.PORT);
+	serv.listen(process.env.PORT);
+	
+console.log("conectado na porta " + PORT);
+  // MongoDB init
+	var mongo_ini =  process.env.MONGO_INI;
+  var mongo_user = process.env.MONGO_USER;
+  var mongo_pass = process.env.MONGO_PASS;
+  var mongo_url =  process.env.MONGO_URL;
+	var mongo_end =  process.env.MONGO_END;
+  console.log(mongo_ini, mongo_user, mongo_pass, mongo_url, mongo_end);
+  var uri = mongo_ini + mongo_user + ":" + mongo_pass + "@" + mongo_url + mongo_end;
+ 
+	//cuidado aqui
 async function connectToDatabase() {
   try {
+    // Conectar ao MongoDB
     const client = new MongoClient(uri, { serverApi: ServerApiVersion.v1 });
     await client.connect();
 
     console.log('Conectado ao MongoDB');
-    const db = client.db("sample_mflix");
 
-    SERVER.db = db;  
+    // Acessa o banco de dados
+    const db = client.db("sample_mflix"); // Nome do banco de dados
+    SERVER.db = db;  // Atribui o banco de dados a SERVER.db
+
+    // Configura as coleções no SERVER.db
     SERVER.db.users = db.collection("users");
     SERVER.db.characters = db.collection("characters");
     SERVER.db.skills = db.collection("skills");
     SERVER.db.items = db.collection("items");
     SERVER.db.finished_battles = db.collection("finished_battles");
 
-    return SERVER.db;  
+    return SERVER.db;  // Apenas retorna o objeto de banco de dados
 
   } catch (error) {
     console.error('Erro ao conectar ao MongoDB:', error);
-    throw error;  
+    throw error;  // Propaga o erro
   }
 }
 
-async function loadDatabase() {
+// Chama a função para conectar
+connectToDatabase().then(() => {
+  console.log("Banco de dados carregado com sucesso!");
+}).catch((error) => {
+  console.error("Erro ao carregar o banco de dados:", error);
+});
+
+
+  async function loadDatabase() {
     var db = await connectToDatabase();
     if (!db) return console.error("Erro ao carregar banco de dados!");
 
-    SERVER.db = db;  
-    console.log(">>>> SERVER.db conectado.");
-
-    // Corrigir a formatação dos JSON antes de carregar
-    corrigirFormatoJSON(skillsPath);  
-    corrigirFormatoJSON(itemsPath);   
-
-    // Ler os arquivos corrigidos e convertê-los em JSON válido
-    const skillsData = JSON.parse(fs.readFileSync(skillsPath, 'utf8'));
-    const itemsData = JSON.parse(fs.readFileSync(itemsPath, 'utf8'));
-
-    // Converte _id para ObjectId, se necessário
-    skillsData.forEach(item => {
-      if (item._id && typeof item._id === 'object' && item._id.$oid) {
-        item._id = ObjectId(item._id.$oid);
-      }
-    });
-
-    itemsData.forEach(item => {
-      if (item._id && typeof item._id === 'object' && item._id.$oid) {
-        item._id = ObjectId(item._id.$oid);
-      }
-    });
-
-    try {
-      await db.collection('skills').insertMany(skillsData);
-      console.log(`Inseridos ${skillsData.length} itens na coleção 'skills'.`);
-    } catch (error) {
-      console.error('Erro ao inserir dados na coleção "skills":', error);
-    }
-
-    try {
-      await db.collection('items').insertMany(itemsData);
-      console.log(`Inseridos ${itemsData.length} itens na coleção 'items'.`);
-    } catch (error) {
-      console.error('Erro ao inserir dados na coleção "items":', error);
-    }
-
+    SERVER.db = db; // Agora o banco de dados fica acessível no servidor
+    console.log(">>>> SERVER.db recebeu 213: server.db");
+  
+    // Aguardar as promessas de toArray()
     SERVER.SKILL_INFO = await db.collection('skills').find({}).toArray();
     SERVER.ITEM_INFO = await db.collection('items').find({}).toArray();
     
-    console.log("Server iniciado.");
-    if (typeof SPELLS.zap === 'function') {
-        console.log("SPELLS.zap está definida corretamente.");
-    } else {
-        console.log("SPELLS.zap não é uma função!");
-    }
+    console.log("Server started.");
+	  console.log(">>>testando se encontra item na lista de spells.zap >>>",SPELLS.zap);
+	  
 }
 
 loadDatabase();
+
+
 
 
 

@@ -152,23 +152,25 @@ SERVER.init = function () {
       });
     }
   });
-const { MongoClient, ServerApiVersion } = require('mongodb');
-	  
-  app.use('/client', express.static(__dirname + '/client'));
-  var PORT = (process.env.PORT);
-	serv.listen(process.env.PORT);
-	
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
+const fs = require('fs');  // Para ler arquivos
+const path = require('path');  // Para manipulação de caminhos de arquivos
+
+app.use('/client', express.static(__dirname + '/client'));
+var PORT = (process.env.PORT);
+serv.listen(process.env.PORT);
+
 console.log("conectado na porta " + PORT);
-  // MongoDB init
-	var mongo_ini =  process.env.MONGO_INI;
-  var mongo_user = process.env.MONGO_USER;
-  var mongo_pass = process.env.MONGO_PASS;
-  var mongo_url =  process.env.MONGO_URL;
-	var mongo_end =  process.env.MONGO_END;
-  console.log(mongo_ini, mongo_user, mongo_pass, mongo_url, mongo_end);
-  var uri = mongo_ini + mongo_user + ":" + mongo_pass + "@" + mongo_url + mongo_end;
- 
-	//cuidado aqui
+
+// MongoDB init
+var mongo_ini = process.env.MONGO_INI;
+var mongo_user = process.env.MONGO_USER;
+var mongo_pass = process.env.MONGO_PASS;
+var mongo_url = process.env.MONGO_URL;
+var mongo_end = process.env.MONGO_END;
+console.log(mongo_ini, mongo_user, mongo_pass, mongo_url, mongo_end);
+var uri = mongo_ini + mongo_user + ":" + mongo_pass + "@" + mongo_url + mongo_end;
+
 async function connectToDatabase() {
   try {
     // Conectar ao MongoDB
@@ -196,36 +198,59 @@ async function connectToDatabase() {
   }
 }
 
-// Chama a função para conectar
-connectToDatabase().then(() => {
-  console.log("Banco de dados carregado com sucesso!");
-}).catch((error) => {
-  console.error("Erro ao carregar o banco de dados:", error);
-});
-
-
-  async function loadDatabase() {
+async function loadDatabase() {
     var db = await connectToDatabase();
     if (!db) return console.error("Erro ao carregar banco de dados!");
 
     SERVER.db = db; // Agora o banco de dados fica acessível no servidor
     console.log(">>>> SERVER.db recebeu 213: server.db");
   
+    // Carregar os dados de skills e items dos arquivos JSON
+    const skillsData = JSON.parse(fs.readFileSync(path.join(__dirname, '_MongoDB setup', 'skills_exported.json')));
+    const itemsData = JSON.parse(fs.readFileSync(path.join(__dirname, '_MongoDB setup', 'items_exported.json')));
+
+    // Converte o _id para ObjectId, caso necessário
+    skillsData.forEach(item => {
+      if (item._id && typeof item._id === 'object' && item._id.$oid) {
+        item._id = ObjectId(item._id.$oid);  // Converte _id para ObjectId do MongoDB
+      }
+    });
+
+    itemsData.forEach(item => {
+      if (item._id && typeof item._id === 'object' && item._id.$oid) {
+        item._id = ObjectId(item._id.$oid);  // Converte _id para ObjectId do MongoDB
+      }
+    });
+
+    // Inserir os dados na coleção skills e items
+    try {
+      await db.collection('skills').insertMany(skillsData);
+      console.log(`Inseridos ${skillsData.length} itens na coleção 'skills'.`);
+    } catch (error) {
+      console.error('Erro ao inserir dados na coleção "skills":', error);
+    }
+
+    try {
+      await db.collection('items').insertMany(itemsData);
+      console.log(`Inseridos ${itemsData.length} itens na coleção 'items'.`);
+    } catch (error) {
+      console.error('Erro ao inserir dados na coleção "items":', error);
+    }
+
     // Aguardar as promessas de toArray()
     SERVER.SKILL_INFO = await db.collection('skills').find({}).toArray();
     SERVER.ITEM_INFO = await db.collection('items').find({}).toArray();
     
     console.log("Server started.");
-	  if (typeof SPELLS.zap === 'function') {
-    console.log("SPELLS.zap está definida corretamente.");
-} else {
-    console.log("SPELLS.zap não é uma função!");
-}
-
+    if (typeof SPELLS.zap === 'function') {
+        console.log("SPELLS.zap está definida corretamente.");
+    } else {
+        console.log("SPELLS.zap não é uma função!");
+    }
 }
 
 loadDatabase();
-};
+
 
 
 

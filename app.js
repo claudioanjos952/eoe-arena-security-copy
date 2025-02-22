@@ -144,7 +144,7 @@ SERVER.init = function () {
     }
   });
 
-  app.use('/client', express.static(__dirname + '/client'));
+  app.use('sample_mflix', express.static(__dirname + 'sample_mflix'));
   serv.listen(process.env.PORT);
 
   // MongoDB init

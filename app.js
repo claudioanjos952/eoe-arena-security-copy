@@ -11,10 +11,6 @@ var SHARED = require("./shared/utils.js");
 var SPELLS = require("./server/spells.js");
 var SKILLS = require("./server/skills.js");
 
-console.log(">>>lista de shared é",SHARED,"<<<<fim da losta shared");
-console.log(">>>lista de spells é",SPELLS,"<<<<fim da losta SPELLS");
-console.log(">>>lista de SKILLS é",SKILLS,"<<<<fim da losta SPELLS");
-
 var SERVER = {
   io: null,
   db: null,
@@ -221,6 +217,10 @@ connectToDatabase().then(() => {
     SERVER.ITEM_INFO = await db.collection('items').find({}).toArray();
     
     console.log("Server started.");
+	  
+console.log(">>>lista de shared é",SHARED,"<<<<fim da losta shared");
+console.log(">>>lista de spells é",SPELLS,"<<<<fim da losta SPELLS");
+console.log(">>>lista de SKILLS é",SKILLS,"<<<<fim da losta SPELLS");
 }
 
 loadDatabase();
@@ -316,7 +316,6 @@ SERVER.getUser = async function (data) {
 
   var user = SERVER.Sessions[data.token];
   let obj = await user.getObject(); // Agora `await` está correto
-console.log(">>>getuser obj recebeu: ", obj);
   var prevSocket = user.socket?.id;
   user.socket = SERVER.Sockets[data.socket_id];
   delete SERVER.Sockets[prevSocket];
@@ -344,8 +343,7 @@ SERVER.createUser = async function (data) {
     }
 
     var token = crypto.randomBytes(16).toString("hex"); // Gera um token seguro
-    console.log("token recebeu 333: ", token);
-
+    
     // Remover o campo _id do objeto predefinido para evitar duplicação
     let newChar = { ...SERVER.level0char };  // Cria uma cópia do objeto
     delete newChar._id;  // Remover o _id para o MongoDB gerar um novo automaticamente
@@ -395,8 +393,7 @@ if (!SERVER.db || !SERVER.db.users) {
     return { status: 0, msg: "Database not initialized." };
   }
     var token = crypto.randomBytes(16).toString("hex"); // Gera um novo token seguro
-console.log(">>>token no login recebeu 384: ", token);
-    // Atualiza o token no banco de dados
+  // Atualiza o token no banco de dados
     await SERVER.db.users.updateOne({ name: data.username }, { $set: { token: token } });
 
     var user = new SERVER.User({
@@ -931,9 +928,10 @@ SERVER.Game.prototype.begin = function (challenge) {
   var bows = ['bow', 'fire-bow'];
   var bombs = ['bomb', 'fire-bomb'];
 
+	console.log(">>>verificando: LINHA 931 SHARED >>>>>> ", SHARED, ">>>> SPELLS ",SPELLS, ">>>>> SKILLS ", SKILLS);
+
   var d1 = this.getDataForClient(this.player1);
   d1.p.weapon = weps.indexOf(SHARED.getWeaponType(c1.weapon));
-		console.log(">>>ldefinindo armas : LINHA 932", d1.p.weapon);
   d1.p.bow = bows.indexOf(SHARED.getWeaponType(c1.bow));
   d1.p.bomb = bombs.indexOf(SHARED.getWeaponType(c1.bomb));
   d1.e.weapon = weps.indexOf(SHARED.getWeaponType(c2.weapon));

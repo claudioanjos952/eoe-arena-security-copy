@@ -2,7 +2,7 @@ var SHARED = {};
 
 var SERVER = {
   io: null,
-  db: client.db("sample_mflix"),
+  db: null,
   Sockets: {},
   Sessions: {},
   Players: {},

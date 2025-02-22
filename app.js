@@ -174,34 +174,32 @@ var uri = mongo_ini + mongo_user + ":" + mongo_pass + "@" + mongo_url + mongo_en
 
 // Função para corrigir o formato do JSON
 function corrigirFormatoJSON(caminhoDoArquivo) {
-  // Ler o arquivo com o formato errado
   fs.readFile(caminhoDoArquivo, 'utf8', (err, data) => {
     if (err) {
       console.log('Erro ao ler o arquivo:', err);
       return;
     }
 
-    // Corrigir a formatação do JSON
-    // Separar os objetos e colocá-los dentro de um array
-    let jsonCorrigido = `[${data.split('\n').filter(Boolean).join(',')}]`;
+    // Corrigir o formato
+    let jsonCorrigido = "[" + data.replace(/}\s*{/, "},\n{") + "]";
 
-    try {
-      // Validar o JSON corrigido
-      let json = JSON.parse(jsonCorrigido);
-      
-      // Se for válido, gravar o arquivo corrigido
-      fs.writeFile(caminhoDoArquivo, JSON.stringify(json, null, 2), (err) => {
-        if (err) {
-          console.log('Erro ao salvar o arquivo corrigido:', err);
-        } else {
-          console.log('Arquivo corrigido salvo com sucesso!');
-        }
-      });
-    } catch (error) {
-      console.log('Erro ao parsear o JSON corrigido:', error);
-    }
+    fs.writeFile(caminhoDoArquivo, jsonCorrigido, (err) => {
+      if (err) {
+        console.log('Erro ao salvar o arquivo corrigido:', err);
+      } else {
+        console.log('Arquivo corrigido salvo com sucesso:', caminhoDoArquivo);
+      }
+    });
   });
 }
+
+// Caminhos dos arquivos JSON a serem corrigidos
+const skillsPath = path.join(__dirname, '_MongoDB setup', 'skills_exported.json');
+const itemsPath = path.join(__dirname, '_MongoDB setup', 'items_exported.json');
+
+// Corrigir os arquivos antes de carregar os dados
+corrigirFormatoJSON(skillsPath);
+corrigirFormatoJSON(itemsPath);
 
 async function connectToDatabase() {
   try {

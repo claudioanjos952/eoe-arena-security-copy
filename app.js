@@ -2,7 +2,7 @@ var SHARED = {};
 
 var SERVER = {
   io: null,
-  db: null,
+  db: client.db("sample_mflix"),
   Sockets: {},
   Sessions: {},
   Players: {},
@@ -144,7 +144,7 @@ SERVER.init = function () {
     }
   });
 
-  app.use('sample_mflix', express.static(__dirname + 'sample_mflix'));
+  app.use('/client', express.static(__dirname + '/client'));
   serv.listen(process.env.PORT);
 
   // MongoDB init
@@ -154,8 +154,7 @@ SERVER.init = function () {
 	var mongo_end =  process.env.MONGO_END;
   console.log(mongo_pass, mongo_user)
   var uri = "mongodb+srv://" + mongo_user + ":" + mongo_pass + "@" + mongo_url + mongo_end;
-  this.db = require("mongojs")(uri, ['users', 'characters', 'skills', 'items', 'finished_battles']);
-	
+  this.db = client.db("sample_mflix")	
   // Socket.io init
   this.io = require('socket.io')(serv, {});
 

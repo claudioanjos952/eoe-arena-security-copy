@@ -114,8 +114,7 @@ SERVER.init = function () {
         var token = req.headers['cookie'].split('token=').pop().split(';').shift();
         if (SERVER.Sessions.hasOwnProperty(token)) {
           var user = SERVER.Sessions[token];
-		console.log("user recebeu 118 : ", user);
-          req.query._user = user;
+		   req.query._user = user;
         } else {
           res.end(JSON.stringify({ status: -1 }));
           return;
@@ -262,8 +261,7 @@ SERVER.onSocketConnection = function (socket) {
 
 SERVER.handleSocketMessage = function (socket, evt, data) {
   var player = SERVER.getPlayerBySocket(socket);
-	console.log("player recebeu 265: ", player);
-  if (!player) return;
+	  if (!player) return;
 
   switch (evt) {
     case 'challenge-player':

@@ -10,7 +10,6 @@ const http = require('http');
 var SHARED = require("./shared/utils.js");
 var SPELLS = require("./server/spells.js");
 var SKILLS = require("./server/skills.js");
-const { ObjectId } = require('mongodb'); // Adicionar isso no topo do arquivo
 
 var SERVER = {
   io: null,
@@ -40,9 +39,8 @@ SERVER.User = function (data) {
 
 SERVER.User.prototype.getCharacter = async function () {
   try {
-    
-const res = await SERVER.db.characters.findOne({ _id: new ObjectId(this.char_id) });
-  if (res) {
+    const res = await SERVER.db.characters.findOne({ _id: this.char_id });
+    if (res) {
       return {
         name: this.name,
         stats: {
@@ -427,14 +425,9 @@ console.log(">>>loginuser obj recebeu: ", obj);
 };
 
 SERVER.getItems = async function (type, order) {
-  if (!SERVER.db || !SERVER.db.items) {
-    return { status: 0, msg: "Banco de dados não inicializado!" };
- console.error("Erro ao acessar o banco de dados:", err);
-
-  }
   try {
-    const items = await SERVER.db.items.find({ type: type }, { _id: new ObjectId(this.char_id), desc: 0 }).toArray();
-   if (items.length > 0) {
+    const items = await SERVER.db.items.find({ type: type }, { _id: 0, desc: 0 }).toArray();
+    if (items.length > 0) {
       return items.sort((a, b) => a.req[order] - b.req[order]);
     } else {
       throw new Error("No items found.");
@@ -445,12 +438,8 @@ SERVER.getItems = async function (type, order) {
 };
 
 SERVER.getSkills = async function (type, order) {
-  if (!SERVER.db || !SERVER.db.items) {
-    return { status: 0, msg: "Banco de dados não inicializado!" };
-  console.error("Erro ao acessar o banco de dados:", err);
-  }
   try {
-    const items = await SERVER.db.skills.find({ type: type }, { _id: 0, desc: new ObjectId(this.char_id) }).toArray();
+    const skills = await SERVER.db.skills.find({ type: type }, { _id: 0 }).toArray();
     if (skills.length > 0) {
       return skills.sort((a, b) => a.req[order] - b.req[order]);
     } else {
@@ -511,8 +500,7 @@ SERVER.getPOSTResponse = async function (obj) {
 SERVER.levelUpStat = async function (obj) {
   if (obj._user.character.points <= 0) {
     return { status: 0, msg: "Você não tem mais pontos de habilidade." };
-console.error("Erro nao tem pontos de habilidade:", err);
-   }
+  }
 
   const plus = SHARED.getStatPlusAmount(obj._user.character.stats[obj.stat]);
   const update = { 
@@ -523,20 +511,16 @@ console.error("Erro nao tem pontos de habilidade:", err);
   };
 
   try {
-    const res = await SERVER.db.characters.updateOne({ _id: new ObjectId(this.char_id) }, update);
+    const res = await SERVER.db.characters.updateOne({ _id: obj._user.char_id }, update);
     if (res.modifiedCount > 0) {
       obj._user.character.stats[obj.stat] += plus;
       obj._user.character.points--;
       return { status: 1 };
     } else {
       return { status: 0, msg: "Falha ao aumentar o atributo." };
-    console.error("Erro ao aumentar atributo:", err);
-
     }
   } catch (err) {
     return { status: 0, msg: "Erro ao acessar o banco de dados.", error: err };
-  console.error("Erro ao acessar o banco de dados:", err);
-
   }
 };
 
@@ -549,44 +533,35 @@ SERVER.equipItem = async function (obj) {
     const item = await SERVER.db.items.findOne({ id: obj.id });
     if (!item) {
       return { status: 0, msg: "O item que você está tentando equipar não existe." };
-    console.error("Erro item nao existe:", err);
-}
+    }
 
     if (!SERVER.meetRequirements(char, item.req)) {
       return { status: 0, msg: "Você não atende aos requisitos para equipar este item." };
-   console.error("Erro nao atende requisitos:", err);
- }
+    }
 
     const types = ['none', 'weapon', 'bow', 'armor', 'charm', 'bomb', 'trap'];
     const update = { $set: {} };
     update.$set[types[item.type]] = obj.id;
     char[types[item.type]] = obj.id;
 
-    const res = await SERVER.db.characters.update({ _id: new ObjectId(this.char_id) }, update);
+    const res = await SERVER.db.characters.update({ _id: char.id }, update);
     if (res.modifiedCount > 0) {
-      const itemsCursor = SERVER.db.items.find({ id: { $in: [char.weapon, char.bow, char.armor, char.bomb, char.trap] } });
-const items = await itemsCursor.toArray();
-if (!items || items.length === 0) {
-  return { status: 0, msg: "Erro ao calcular o peso: nenhum item encontrado." };
-}
-const totalWeight = items.reduce((sum, item) => sum + (item.weight || 0), 0);
-  char.kg = totalWeight;
+      const items = await SERVER.db.items.find({ id: { $in: [char.weapon, char.bow, char.armor, char.bomb, char.trap] } });
+      const totalWeight = items.reduce((sum, item) => sum + item.weight, 0);
+      char.kg = totalWeight;
 
-      const weightUpdate = await SERVER.db.characters.update({ _id: new ObjectId(this.char_id) }, { $set: { kg: totalWeight } });
+      const weightUpdate = await SERVER.db.characters.update({ _id: char.id }, { $set: { kg: totalWeight } });
       if (weightUpdate.modifiedCount > 0) {
         return { status: 1 };
       } else {
         return { status: 0, msg: "Falha ao recalcular o peso." };
-     console.error("Erro ao calcular peso:", err);
- }
+      }
     } else {
       return { status: 0, msg: "Falha ao equipar o item." };
-   console.error("Erro ao equipar item:", err);
- }
+    }
   } catch (err) {
     return { status: 0, msg: "Erro ao acessar o banco de dados.", error: err };
- console.error("Erro ao acessar o banco de dados:", err);
- }
+  }
 };
 
 
@@ -602,13 +577,11 @@ SERVER.activateSkill = async function (obj) {
 
     if (!skill.enabled) {
       return { status: 0, msg: 'A habilidade está desativada e não pode ser ativada.' };
-  console.error("habilidade desabilidata:", err);
-   }
+    }
 
     if (!SERVER.meetRequirements(char, skill.req)) {
       return { status: 0, msg: `Você não atende aos requisitos para usar esta ${skill.type > 4 ? 'magia' : 'habilidade'}.` };
-   console.error("nao atende requisitos:", err);
- }
+    }
 
     const types = ['none', 'melee', 'range', 'movement', 'defense', 'magic', 'magic2', 'magic', 'magic2'];
     if (char[types[skill.type]].length + 1 > SHARED.skillLimit[types[skill.type]]) {
@@ -617,7 +590,7 @@ SERVER.activateSkill = async function (obj) {
 
     char[types[skill.type]].push(obj.id);
     const update = { $set: { [types[skill.type]]: char[types[skill.type]] } };
-    const res = await SERVER.db.characters.update({ _id: new ObjectId(this.char_id) }, update);
+    const res = await SERVER.db.characters.update({ _id: char.id }, update);
 
     if (res.modifiedCount > 0) {
       return { status: 1 };
@@ -626,7 +599,6 @@ SERVER.activateSkill = async function (obj) {
     }
   } catch (err) {
     return { status: 0, msg: 'Erro ao acessar o banco de dados.', error: err };
- console.error("Erro:", err);
   }
 };
 
@@ -645,22 +617,19 @@ SERVER.deactivateSkill = async function (obj) {
     const index = char[types[skill.type]].indexOf(obj.id);
     if (index < 0) {
       return { status: 0, msg: 'Você não pode desativar o que está inativo.' };
-    console.error("Erro:", err);
- }
+    }
 
     char[types[skill.type]].splice(index, 1);
     const update = { $set: { [types[skill.type]]: char[types[skill.type]] } };
-    const res = await SERVER.db.characters.update({ _id: new ObjectId(this.char_id) }, update);
+    const res = await SERVER.db.characters.update({ _id: char.id }, update);
 
     if (res.modifiedCount > 0) {
       return { status: 1 };
     } else {
       return { status: 0, msg: `Erro. Não é possível desativar esta ${skill.type > 4 ? 'magia' : 'habilidade'}.` };
-   console.error("Erro:", err);
-  }
+    }
   } catch (err) {
     return { status: 0, msg: 'Erro ao acessar o banco de dados.', error: err };
- console.error("Erro:", err);
   }
 };
 

@@ -10,6 +10,7 @@ const http = require('http');
 var SHARED = require("./shared/utils.js");
 var SPELLS = require("./server/spells.js");
 var SKILLS = require("./server/skills.js");
+const { ObjectId } = require('mongodb'); // Adicionar isso no topo do arquivo
 
 var SERVER = {
   io: null,
@@ -39,8 +40,9 @@ SERVER.User = function (data) {
 
 SERVER.User.prototype.getCharacter = async function () {
   try {
-    const res = await SERVER.db.characters.findOne({ _id: this.char_id });
-    if (res) {
+    
+const res = await SERVER.db.characters.findOne({ _id: new ObjectId(this.char_id) });
+  if (res) {
       return {
         name: this.name,
         stats: {
@@ -425,9 +427,12 @@ console.log(">>>loginuser obj recebeu: ", obj);
 };
 
 SERVER.getItems = async function (type, order) {
+  if (!SERVER.db || !SERVER.db.items) {
+    return { status: 0, msg: "Banco de dados não inicializado!" };
+  }
   try {
     const items = await SERVER.db.items.find({ type: type }, { _id: 0, desc: 0 }).toArray();
-    if (items.length > 0) {
+   if (items.length > 0) {
       return items.sort((a, b) => a.req[order] - b.req[order]);
     } else {
       throw new Error("No items found.");
@@ -438,8 +443,14 @@ SERVER.getItems = async function (type, order) {
 };
 
 SERVER.getSkills = async function (type, order) {
+  if (!SERVER.db || !SERVER.db.items) {
+    return { status: 0, msg: "Banco de dados não inicializado!" };
+  }
   try {
-    const skills = await SERVER.db.skills.find({ type: type }, { _id: 0 }).toArray();
+    const items = await SERVER.db.items.find({ type: type }, { _id: new ObjectId(this.char_id), desc: 0 }).toArray();
+
+	try {
+    const skills = await SERVER.db.skills.find({ type: type }, { _id: new ObjectId(this.char_id) }).toArray();
     if (skills.length > 0) {
       return skills.sort((a, b) => a.req[order] - b.req[order]);
     } else {
@@ -511,7 +522,7 @@ SERVER.levelUpStat = async function (obj) {
   };
 
   try {
-    const res = await SERVER.db.characters.updateOne({ _id: obj._user.char_id }, update);
+    const res = await SERVER.db.characters.updateOne({ _id: new ObjectId(this.char_id) }, update);
     if (res.modifiedCount > 0) {
       obj._user.character.stats[obj.stat] += plus;
       obj._user.character.points--;
@@ -544,13 +555,13 @@ SERVER.equipItem = async function (obj) {
     update.$set[types[item.type]] = obj.id;
     char[types[item.type]] = obj.id;
 
-    const res = await SERVER.db.characters.update({ _id: char.id }, update);
+    const res = await SERVER.db.characters.update({ _id: new ObjectId(this.char_id) }, update);
     if (res.modifiedCount > 0) {
       const items = await SERVER.db.items.find({ id: { $in: [char.weapon, char.bow, char.armor, char.bomb, char.trap] } });
       const totalWeight = items.reduce((sum, item) => sum + item.weight, 0);
       char.kg = totalWeight;
 
-      const weightUpdate = await SERVER.db.characters.update({ _id: char.id }, { $set: { kg: totalWeight } });
+      const weightUpdate = await SERVER.db.characters.update({ _id: new ObjectId(this.char_id) }, { $set: { kg: totalWeight } });
       if (weightUpdate.modifiedCount > 0) {
         return { status: 1 };
       } else {
@@ -590,7 +601,7 @@ SERVER.activateSkill = async function (obj) {
 
     char[types[skill.type]].push(obj.id);
     const update = { $set: { [types[skill.type]]: char[types[skill.type]] } };
-    const res = await SERVER.db.characters.update({ _id: char.id }, update);
+    const res = await SERVER.db.characters.update({ _id: new ObjectId(this.char_id) }, update);
 
     if (res.modifiedCount > 0) {
       return { status: 1 };
@@ -621,7 +632,7 @@ SERVER.deactivateSkill = async function (obj) {
 
     char[types[skill.type]].splice(index, 1);
     const update = { $set: { [types[skill.type]]: char[types[skill.type]] } };
-    const res = await SERVER.db.characters.update({ _id: char.id }, update);
+    const res = await SERVER.db.characters.update({ _id: new ObjectId(this.char_id) }, update);
 
     if (res.modifiedCount > 0) {
       return { status: 1 };

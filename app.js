@@ -237,8 +237,8 @@ SERVER.onSocketConnection = async function (socket) {
 
 };
 
-SERVER.handleSocketMessage =  function (socket, evt, data) {
-  var player = SERVER.getPlayerBySocket(socket);
+SERVER.handleSocketMessage = async function (socket, evt, data) {
+  var player =  await SERVER.getPlayerBySocket(socket);
   if (!player) return;
 
   switch (evt) {
@@ -250,7 +250,7 @@ SERVER.handleSocketMessage =  function (socket, evt, data) {
       }
       break;
     case 'challenge-response':
-      var ch = SERVER.Challenges[data.ch_id];
+      var ch = await SERVER.Challenges[data.ch_id];
       if (typeof ch === 'undefined' || ch.receiver.user.id != player.user.id || ch.game) {
         socket.emit('alert', { content: "Sorry but this challenge does not exist anymore." });
       } else {
@@ -262,7 +262,7 @@ SERVER.handleSocketMessage =  function (socket, evt, data) {
       }
       break;
     case 'challenge-withdraw':
-      var ch = SERVER.Challenges[data.ch_id];
+      var ch = await SERVER.Challenges[data.ch_id];
       if (typeof ch === 'undefined' || ch.sender.user.id != player.user.id || ch.game) {
         socket.emit('alert', { content: "Sorry but this challenge does not exist anymore." });
       } else {
@@ -270,7 +270,7 @@ SERVER.handleSocketMessage =  function (socket, evt, data) {
       }
       break;
     case 'turn-actions':
-      var game = SERVER.getGameByPlayer(player);
+      var game = await SERVER.getGameByPlayer(player);
       if (game) {
         game.comitActions(player, data.actions);
       }
@@ -318,7 +318,7 @@ SERVER.createUser = function (data) {
             if (res2) {
               SERVER.db.users.insert({ name: data.username, pass: data.password, char_id: res2._id }, function (err3, res3) {
                 if (res3) {
-                  resolve({ status: 1 });
+                  resolve({ status: 1, msg: "res3 foi bem sucedido" });
                 } else {
                   resolve({ status: 0, msg: "Cannot create an account with this username." });
                 }
@@ -379,51 +379,51 @@ SERVER.getSkills = function (type, order) {
   });
 };
 
-SERVER.getGETResponse = function (obj) {
-  return new Promise((resolve, reject) => {
+SERVER.getGETResponse = async function (obj) {
+  
     // TODO: get cookie token and check if exists
     switch (obj.ajax_action) {
       case 'get-items':
-        SERVER.getItems(parseInt(obj.type), parseInt(obj.order)).then(resolve);
+        resolve= await SERVER.getItems(parseInt(obj.type), parseInt(obj.order)).then(resolve);
         break;
       case 'get-skills':
-        SERVER.getSkills(parseInt(obj.type), parseInt(obj.order)).then(resolve);
+        resolve = await SERVER.getSkills(parseInt(obj.type), parseInt(obj.order)).then(resolve);
         break;
       default:
         resolve({});
         break;
     }
-  });
+	return resolve;
 };
 
-SERVER.getPOSTResponse = function (obj) {
+SERVER.getPOSTResponse = async function (obj) {
   return new Promise((resolve, reject) => {
     var time = new Date();
     console.log("[" + time.toString().substring(16, 24) + "|" + obj.ajax_action + "]" + " T:" + obj.token);
     switch (obj.ajax_action) {
       case "login":
-        SERVER.loginUser(obj).then(resolve);
+        await SERVER.loginUser(obj).then(resolve);
         break;
       case "register":
-        SERVER.createUser(obj).then(resolve);
+        await SERVER.createUser(obj).then(resolve);
         break;
       case "authenticate":
-        SERVER.getUser(obj).then(resolve);
+        await SERVER.getUser(obj).then(resolve);
         break;
       case "equip-item":
-        SERVER.equipItem(obj).then(resolve);
+        aeait SERVER.equipItem(obj).then(resolve);
         break;
       case "get-character":
-        obj._user.getCharacter().then(resolve);
+       await  obj._user.getCharacter().then(resolve);
         break;
       case "activate-skill":
-        SERVER.activateSkill(obj).then(resolve);
+       await  SERVER.activateSkill(obj).then(resolve);
         break;
       case "deactivate-skill":
-        SERVER.deactivateSkill(obj).then(resolve);
+       await SERVER.deactivateSkill(obj).then(resolve);
         break;
       case "level-stat":
-        SERVER.levelUpStat(obj).then(resolve);
+        await SERVER.levelUpStat(obj).then(resolve);
         break;
       default:
         resolve({});

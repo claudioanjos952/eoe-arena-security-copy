@@ -218,10 +218,10 @@ SERVER.onSocketConnection = async function (socket) {
   //SERVER.Players[socket.id] = player;
 
   var onevent = socket.onevent;
-await  socket.onevent = function (packet) {
+  socket.onevent = function (packet) {
     var args = packet.data || [];
   await  onevent.call (this, packet);    // original call
-   await packet.data = ["*"].concat(args);
+    packet.data = ["*"].concat(args);
    await onevent.call(this, packet);      // additional call to catch-all
   };
 

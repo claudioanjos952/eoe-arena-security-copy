@@ -13,7 +13,7 @@ var SKILLS = require("./server/skills.js")
 var SHARED = {};
 
 var SERVER = {
-  io: null,
+  io: io,
   db: null,
   Sockets: {},
   Sessions: {},
@@ -97,7 +97,7 @@ SERVER.User.prototype.getXP = function () {
   return 150;
 };
 
-SERVER.init = async function () {
+SERVER.init = function () {
   // Express init
   var express = require('express');
   var app = express();
@@ -161,6 +161,7 @@ SERVER.init = async function () {
   app.use('/client', express.static(__dirname + '/client'));
   var PORT = (process.env.PORT);
 	serv.listen(process.env.PORT);
+	SERVER.io.sockets.on('connection', SERVER.onSocketConnection);
 	
 console.log("conectado na porta " + PORT);
   // MongoDB init
@@ -1379,8 +1380,6 @@ SERVER.getGameByPlayer = function (player) {
 };
 
 SERVER.init();
-SERVER.io.sockets.on('connection', SERVER.onSocketConnection);
-
 
 SERVER.getOnlineUsers = function () {
   var users = [];

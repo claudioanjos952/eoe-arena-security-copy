@@ -159,8 +159,12 @@ console.log("conectado na porta " + PORT);
 	var mongo_end =  process.env.MONGO_END;
   console.log(mongo_ini, mongo_user, mongo_pass, mongo_url, mongo_end);
   var uri = mongo_ini + mongo_user + ":" + mongo_pass + "@" + mongo_url + mongo_end;
-   this.db = require("mongodb")(uri, ['users', 'characters', 'skills', 'items', 'finished_battles']);
-	
+   // Configura as coleções no SERVER.db
+    this.db.users = db.collection("users");
+    this.db.characters = db.collection("characters");
+    this.db.skills = db.collection("skills");
+    this.db.items = db.collection("items");
+    this.db.finished_battles = db.collection("finished_battles");	
   // Socket.io init
   this.io = require('socket.io')(serv, {});
 

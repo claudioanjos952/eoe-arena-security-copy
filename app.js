@@ -1,6 +1,6 @@
-var http = require('http');
-	var md5 = require('md5');
-	var crypto = require('crypto'); // No topo do arquivo
+const http = require('http');
+	const md5 = require('md5');
+	const crypto = require('crypto'); // No topo do arquivo
   var express = require('express');
   var app = express();
   var serv = require('http').Server(app);
@@ -9,11 +9,10 @@ var http = require('http');
 	// Adiciona a instância do io ao objeto SERVER
 var SHARED = require("./shared/utils.js");
 var SPELLS = require("./server/spells.js");
-var SKILLS = require("./server/skills.js")
-var SHARED = {};
+var SKILLS = require("./server/skills.js");
 
 var SERVER = {
-  io: io,
+  io: null,
   db: null,
   Sockets: {},
   Sessions: {},
@@ -38,72 +37,70 @@ SERVER.User = function (data) {
   });
 };
 
-SERVER.User.prototype.getCharacter = function () {
-  var scope = this;
-  return new Promise((resolve, reject) => {
-    SERVER.db.characters.findOne({ _id: scope.char_id }, function (err, res) {
-      if (res) {
-        var character = {
-          name: scope.name,
-          stats: {
-            to: res.to,
-            st: res.st,
-            dx: res.dx,
-            in: res.in,
-            wi: res.wi,
-            sp: res.sp
-          },
-          xp: res.xp,
-          respect: res.respect,
-          kg: res.kg,
-          points: res.pts,
-          xplock: res.xplock || 0,
-          weapon: res.weapon,
-          bow: res.bow,
-          armor: res.armor,
-          bomb: res.bomb,
-          trap: res.trap,
-          movement: res.movement || [],
-          defense: res.defense || [],
-          melee: res.melee || [],
-          range: res.range || [],
-          magic: res.magic || [],
-          magic2: res.magic2 || [],
-          taunts: res.taunts || [],
-          id: scope.char_id,
-        };
-        resolve(character);
-      } else {
-        reject("Can't find character by ID.");
-      }
-    });
-  });
+SERVER.User.prototype.getCharacter = async function () {
+  try {
+    const res = await SERVER.db.characters.findOne({ _id: this.char_id });
+    if (res) {
+      return {
+        name: this.name,
+        stats: {
+          to: res.to,
+          st: res.st,
+          dx: res.dx,
+          in: res.in,
+          wi: res.wi,
+          sp: res.sp
+        },
+        xp: res.xp,
+        respect: res.respect,
+        kg: res.kg,
+        points: res.pts,
+        xplock: res.xplock || 0,
+        weapon: res.weapon,
+        bow: res.bow,
+        armor: res.armor,
+        bomb: res.bomb,
+        trap: res.trap,
+        movement: res.movement || [],
+        defense: res.defense || [],
+        melee: res.melee || [],
+        range: res.range || [],
+        magic: res.magic || [],
+        magic2: res.magic2 || [],
+        taunts: res.taunts || [],
+        id: this.char_id,
+      };
+    } else {
+      throw new Error("Can't find character by ID.");
+    }
+  } catch (err) {
+    throw err;
+  }
 };
 
-SERVER.User.prototype.getObject = function () {
-  var scope = this;
-  var obj = {
+
+SERVER.User.prototype.getObject = async function () {
+  const obj = {
     id: this.id,
   };
-  return new Promise((resolve, reject) => {
-    scope.getCharacter().then((char) => {
-      obj.character = char;
-      resolve(obj);
-    });
-  });
+  try {
+    const char = await this.getCharacter();
+    obj.character = char;
+    return obj;
+  } catch (err) {
+    throw err;
+  }
 };
+
 
 SERVER.User.prototype.getXP = function () {
   return 150;
 };
 
-SERVER.init = async function () {
+SERVER.init = function () {
   // Express init
-  var express = require('express');
-  var app = express();
-  var serv = require('http').Server(app);
-
-  app.get('/', function (req, res) {
+	SERVER.io = io;
+ app.get('/', function (req, res) {
     res.sendFile(__dirname + '/client/index.html');
   });
   app.get('/shared/utils.js', function (req, res) {
@@ -112,12 +109,12 @@ SERVER.init = async function () {
   app.get('/ajax', function (req, res) {
     if (req.headers['x-requested-with'] === 'XMLHttpRequest') {
       if (Object.keys(req.query).length > 0) {
-        console.log("GET request with params: " + JSON.stringify(req.query));
+     //   console.log("GET request with params: " + JSON.stringify(req.query));
         res.writeHead(200, {'Content-Type': 'application/json'});
         var token = req.headers['cookie'].split('token=').pop().split(';').shift();
         if (SERVER.Sessions.hasOwnProperty(token)) {
           var user = SERVER.Sessions[token];
-          req.query._user = user;
+		   req.query._user = user;
         } else {
           res.end(JSON.stringify({ status: -1 }));
           return;
@@ -156,7 +153,9 @@ SERVER.init = async function () {
     }
   });
 
-  var { MongoClient, ServerApiVersion } = require('mongodb');
+//quase perco o juizo nisso
+
+const { MongoClient, ServerApiVersion } = require('mongodb');
 	  
   app.use('/client', express.static(__dirname + '/client'));
   var PORT = (process.env.PORT);
@@ -171,41 +170,69 @@ console.log("conectado na porta " + PORT);
 	var mongo_end =  process.env.MONGO_END;
   console.log(mongo_ini, mongo_user, mongo_pass, mongo_url, mongo_end);
   var uri = mongo_ini + mongo_user + ":" + mongo_pass + "@" + mongo_url + mongo_end;
-   // Configura as coleções no SERVER.db
-
-var client = new MongoClient(uri, { serverApi: ServerApiVersion.v1 });
+ 
+	//cuidado aqui
+async function connectToDatabase() {
+  try {
+    // Conectar ao MongoDB
+    const client = new MongoClient(uri, { serverApi: ServerApiVersion.v1 });
     await client.connect();
 
     console.log('Conectado ao MongoDB');
 
     // Acessa o banco de dados
-    var db = client.db("sample_mflix");
-	SERVER.db = db;
-	
-	this.db.users = db.collection("users");
-    this.db.characters = db.collection("characters");
-    this.db.skills = db.collection("skills");
-    this.db.items = db.collection("items");
-    this.db.finished_battles = db.collection("finished_battles");	
-	return this.db;
-  // Socket.io init
-  this.io = require('socket.io')(serv, {});
-	consele.log(">>>> this.io tem valor de : ", this.io, " : fim dos dados <<<<");
+    const db = client.db("sample_mflix"); // Nome do banco de dados
+    SERVER.db = db;  // Atribui o banco de dados a SERVER.db
 
-  // encrytpion
+    // Configura as coleções no SERVER.db
+    SERVER.db.users = db.collection("users");
+    SERVER.db.characters = db.collection("characters");
+    SERVER.db.skills = db.collection("skills");
+    SERVER.db.items = db.collection("items");
+    SERVER.db.finished_battles = db.collection("finished_battles");
 
-  SERVER.db.skills.find({}, function (err, res) {
-    SERVER.SKILL_INFO = res;
-    SERVER.db.items.find({}, function (err2, res2) {
-      SERVER.ITEM_INFO = res2;
-      console.log("Server started.");
-    });
-  });
+    return SERVER.db;  // Apenas retorna o objeto de banco de dados
 
-};
+  } catch (error) {
+    console.error('Erro ao conectar ao MongoDB:', error);
+    throw error;  // Propaga o erro
+  }
+}
+
+// Chama a função para conectar
+connectToDatabase().then(() => {
+  console.log("Banco de dados carregado com sucesso!");
+}).catch((error) => {
+  console.error("Erro ao carregar o banco de dados:", error);
+});
 
 
-SERVER.onSocketConnection = async function (socket) {
+  async function loadDatabase() {
+    var db = await connectToDatabase();
+    if (!db) return console.error("Erro ao carregar banco de dados!");
+
+    SERVER.db = db; // Agora o banco de dados fica acessível no servidor
+    console.log(">>>> SERVER.db recebeu 213: server.db");
+  
+    // Aguardar as promessas de toArray()
+    SERVER.SKILL_INFO = await db.collection('skills').find({}).toArray();
+    SERVER.ITEM_INFO = await db.collection('items').find({}).toArray();
+    
+    console.log("Server started.");
+	  console.log(">>>testando se encontra item na lista de spells.zap >>>",SPELLS.zap);
+	  
+}
+
+loadDatabase();
+
+
+
+
+
+
+}
+
+SERVER.onSocketConnection = function (socket) {
   SERVER.Sockets[socket.id] = socket;
 
   //var player = new SERVER.Player(socket.id);
@@ -237,9 +264,9 @@ SERVER.onSocketConnection = async function (socket) {
 
 };
 
-SERVER.handleSocketMessage = async function (socket, evt, data) {
-  var player =  await SERVER.getPlayerBySocket(socket);
-  if (!player) return;
+SERVER.handleSocketMessage = function (socket, evt, data) {
+  var player = SERVER.getPlayerBySocket(socket);
+	  if (!player) return;
 
   switch (evt) {
     case 'challenge-player':
@@ -250,7 +277,7 @@ SERVER.handleSocketMessage = async function (socket, evt, data) {
       }
       break;
     case 'challenge-response':
-      var ch = await SERVER.Challenges[data.ch_id];
+      var ch = SERVER.Challenges[data.ch_id];
       if (typeof ch === 'undefined' || ch.receiver.user.id != player.user.id || ch.game) {
         socket.emit('alert', { content: "Sorry but this challenge does not exist anymore." });
       } else {
@@ -262,7 +289,7 @@ SERVER.handleSocketMessage = async function (socket, evt, data) {
       }
       break;
     case 'challenge-withdraw':
-      var ch = await SERVER.Challenges[data.ch_id];
+      var ch = SERVER.Challenges[data.ch_id];
       if (typeof ch === 'undefined' || ch.sender.user.id != player.user.id || ch.game) {
         socket.emit('alert', { content: "Sorry but this challenge does not exist anymore." });
       } else {
@@ -270,7 +297,7 @@ SERVER.handleSocketMessage = async function (socket, evt, data) {
       }
       break;
     case 'turn-actions':
-      var game = await SERVER.getGameByPlayer(player);
+      var game = SERVER.getGameByPlayer(player);
       if (game) {
         game.comitActions(player, data.actions);
       }
@@ -285,259 +312,327 @@ SERVER.handleSocketMessage = async function (socket, evt, data) {
 };
 
 // Authentication
-SERVER.getUser = function (data) {
-  return new Promise((resolve, reject) => {
-    if (!SERVER.Sessions.hasOwnProperty(data.token)) {
-      // user with this token is not authenticated
-      resolve({ status: 0 });
-    } else {
-      // user is authenticated, return user info
-      var user = SERVER.Sessions[data.token];
-     user.getObject().then((obj) => {
-        var prevSocket = user.socket?.id;
-      user.socket = SERVER.Sockets[data.socket_id];
-        delete SERVER.Sockets[prevSocket];
-        delete user.dc_timestamp;
-        resolve({ status: 1, user: obj });
-      });
+SERVER.getUser = async function (data) {
+  if (!SERVER.Sessions.hasOwnProperty(data.token)) {
+    return { status: 0 };
+  }
+
+  var user = SERVER.Sessions[data.token];
+  let obj = await user.getObject(); // Agora `await` está correto
+  var prevSocket = user.socket?.id;
+  user.socket = SERVER.Sockets[data.socket_id];
+  delete SERVER.Sockets[prevSocket];
+  delete user.dc_timestamp;
+
+  return { status: 1, user: obj };
+};
+
+
+SERVER.createUser = async function (data) {
+  if (data.username.length > 16) {
+    return { status: 0, msg: "Username is too long. Max 16 characters." };
+  }
+
+  try {
+    // Verifica se o nome já existe
+    const res = await SERVER.db.users.findOne({ name: data.username });
+    if (res) {
+      return { status: 0, msg: "Username is taken by somebody else." };
     }
-  });
-};
 
-SERVER.createUser = function (data) {
-  // do checks if user name exists etc
-  return new Promise((resolve, reject) => {
-    if (data.username.length > 16) {
-      resolve({ status: 0, msg: "Username is too long. Max 16 characters." });
-    } else {
-      SERVER.db.users.findOne({ name: data.username }, function (err, res) {
-        if (res) { // found something
-          resolve({ status: 0, msg: "Username is taken by somebody else." });
-        } else { // found nothing
-          SERVER.db.characters.insert(JSON.parse(JSON.stringify(SERVER.level0char)), function (err2, res2) {
-            if (res2) {
-              SERVER.db.users.insert({ name: data.username, pass: data.password, char_id: res2._id }, function (err3, res3) {
-                if (res3) {
-                  resolve({ status: 1, msg: "res3 foi bem sucedido" });
-                } else {
-                  resolve({ status: 0, msg: "Cannot create an account with this username." });
-                }
-              });
-            } else {
-              resolve({ status: 0, msg: "Account creation failed." });
-            }
-          });
-        }
-      });
+    if (!SERVER.db || !SERVER.db.users) {
+      console.error("Banco de dados não inicializado!");
+      throw new Error("Database not initialized.");
     }
-  });
+
+    var token = crypto.randomBytes(16).toString("hex"); // Gera um token seguro
+    
+    // Remover o campo _id do objeto predefinido para evitar duplicação
+    let newChar = { ...SERVER.level0char };  // Cria uma cópia do objeto
+    delete newChar._id;  // Remover o _id para o MongoDB gerar um novo automaticamente
+
+    // Insere o personagem no banco de dados
+    const res2 = await SERVER.db.characters.insertOne(newChar);
+    if (!res2) {
+      return { status: 0, msg: "Account creation failed." };
+    }
+
+    let userData = {
+      name: data.username,
+      pass: data.password,
+      char_id: res2.insertedId,  // Usa o novo _id gerado para o personagem
+      token: token,
+    };
+
+    const res3 = await SERVER.db.users.insertOne(userData);
+
+    if (!res3) {
+      return { status: 0, msg: "Cannot create an account with this username." };
+    }
+
+    console.log("name recebeu 346: ", data.username);
+    console.log("pass recebeu 348: ", data.password);
+
+    return { status: 1, token: token };
+  } catch (err) {
+    console.error(err);
+    return { status: 0, msg: "An unexpected error occurred." };
+  }
 };
 
-SERVER.loginUser = function (data) {
-  return new Promise((resolve, reject) => {
-    SERVER.db.users.findOne({ name: data.username, pass: data.password }, function (err, res) {
-      if (res) { // found something
-        var token = Math.random().toString();
-        var user = new SERVER.User({
-          id: res._id, // id from database
-          socket: SERVER.getSocketById(data.socket_id),
-          username: data.username,
-          char_id: res.char_id,
-        });
-        SERVER.Sessions[token] = user;
-        user.getObject().then((obj) => {
-          resolve({
-            status: 1,
-            token: token,
-            user: obj,
-          });
-        });
-      } else { // found nothing
-        resolve({ status: 0 });
-      }
+
+SERVER.loginUser = async function (data) {
+  
+
+  try {
+    // Verificando se o usuário existe
+    let userRes = await SERVER.db.users.findOne({ name: data.username, pass: data.password });
+
+    if (!userRes) {
+      return { status: 0, msg: "Invalid username or password." };
+    }
+if (!SERVER.db || !SERVER.db.users) {
+    console.error("Banco de dados não inicializado!");
+    return { status: 0, msg: "Database not initialized." };
+  }
+    var token = crypto.randomBytes(16).toString("hex"); // Gera um novo token seguro
+  // Atualiza o token no banco de dados
+    await SERVER.db.users.updateOne({ name: data.username }, { $set: { token: token } });
+
+    var user = new SERVER.User({
+      id: userRes._id, // ID do banco
+      socket: SERVER.getSocketById(data.socket_id),
+      username: data.username,
+      char_id: userRes.char_id,
     });
-  });
+console.log("name login recebeu 394: ", data.username);
+	  console.log("pass login recebeu 395: ", data.password);
+    SERVER.Sessions[token] = user;
+
+    let obj = await user.getObject();
+   obj.token = token; // Adiciona o token ao objeto
+console.log(">>>loginuser obj recebeu: ", obj);
+    return {
+      status: 1,
+      token: token,
+      user: obj,
+    };
+
+  } catch (err) {
+    console.error("Erro no login:", err);
+    return { status: 0, msg: "An unexpected error occurred." };
+  }
 };
 
-SERVER.getItems = function (type, order) {
-  return new Promise((resolve, reject) => {
-    SERVER.db.items.find({ type: type }, { _id: 0, desc: 0 }, function (err, res) {
-      if (res[0]) {
-        resolve(res.sort((a, b) => { return a.req[order] - b.req[order] }));
-      }
-    });
-  });
+SERVER.getItems = async function (type, order) {
+  try {
+    const items = await SERVER.db.items.find({ type: type }, { _id: 0, desc: 0 }).toArray();
+    if (items.length > 0) {
+      return items.sort((a, b) => a.req[order] - b.req[order]);
+    } else {
+      throw new Error("No items found.");
+    }
+  } catch (err) {
+    throw err;
+  }
 };
 
-SERVER.getSkills = function (type, order) {
-  return new Promise((resolve, reject) => {
-    SERVER.db.skills.find({ type: type }, { _id: 0 }, function (err, res) {
-      if (res[0]) {
-        resolve(res.sort((a, b) => { return a.req[order] - b.req[order] }));
-      }
-    });
-  });
+SERVER.getSkills = async function (type, order) {
+  try {
+    const skills = await SERVER.db.skills.find({ type: type }, { _id: 0 }).toArray();
+    if (skills.length > 0) {
+      return skills.sort((a, b) => a.req[order] - b.req[order]);
+    } else {
+      throw new Error("No skills found.");
+    }
+  } catch (err) {
+    throw err;
+  }
 };
+
 
 SERVER.getGETResponse = async function (obj) {
-  
-    // TODO: get cookie token and check if exists
+  // TODO: obter o token do cookie e verificar se existe
+  try {
     switch (obj.ajax_action) {
       case 'get-items':
-        resolve= await SERVER.getItems(parseInt(obj.type), parseInt(obj.order)).then(resolve);
-        break;
+        return await SERVER.getItems(parseInt(obj.type), parseInt(obj.order));
       case 'get-skills':
-        resolve = await SERVER.getSkills(parseInt(obj.type), parseInt(obj.order)).then(resolve);
-        break;
+        return await SERVER.getSkills(parseInt(obj.type), parseInt(obj.order));
       default:
-        resolve({});
-        break;
+        return {};
     }
-	return resolve;
+  } catch (err) {
+    throw err;
+  }
 };
 
 SERVER.getPOSTResponse = async function (obj) {
-  
-    var time = new Date();
-    console.log("[" + time.toString().substring(16, 24) + "|" + obj.ajax_action + "]" + " T:" + obj.token);
+  var time = new Date();
+  console.log("[" + time.toString().substring(16, 24) + "|" + obj.ajax_action + "]" + " T:" + obj.token);
+
+  try {
     switch (obj.ajax_action) {
       case "login":
-       var resolve = await SERVER.loginUser(obj).then(resolve);
-        break;
+        return await SERVER.loginUser(obj);
       case "register":
-        var resolve = await  SERVER.createUser(obj).then(resolve);
-        break;
+        return await SERVER.createUser(obj);
       case "authenticate":
-        var resolve = await SERVER.getUser(obj).then(resolve);
-        break;
+        return await SERVER.getUser(obj);
       case "equip-item":
-        var resolve = await SERVER.equipItem(obj).then(resolve);
-        break;
+        return await SERVER.equipItem(obj);
       case "get-character":
-       var resolve = await  obj._user.getCharacter().then(resolve);
-        break;
+        return await obj._user.getCharacter();
       case "activate-skill":
-       var resolve = await  SERVER.activateSkill(obj).then(resolve);
-        break;
+        return await SERVER.activateSkill(obj);
       case "deactivate-skill":
-       var resolve = await SERVER.deactivateSkill(obj).then(resolve);
-        break;
+        return await SERVER.deactivateSkill(obj);
       case "level-stat":
-        var resolve = await SERVER.levelUpStat(obj).then(resolve);
-        break;
+        return await SERVER.levelUpStat(obj);
       default:
-        resolve({});
-        break;
+        return {};
     }
-  return resolve;
+  } catch (err) {
+    throw err;
+  }
 };
 
-SERVER.levelUpStat = function (obj) {
-  return new Promise ((resolve, reject) => {
-    if (obj._user.character.points > 0) {
-      var plus = SHARED.getStatPlusAmount(obj._user.character.stats[obj.stat]);
-      update = { $inc: {
-        pts: -1,
-      } };
-      update.$inc[obj.stat] = plus;
-      SERVER.db.characters.update({ _id: obj._user.char_id }, update, function (err, res) {
-        if (res) {
-          obj._user.character.stats[obj.stat] += plus;
-          obj._user.character.points--;
-          resolve ({ status: 1 });
-        } else     resolve ({ status: 0, msg: "Leveling up stat failed." });
-      });
-    } else resolve ({ status: 0, msg: "You don't have any more skill points." });
-  });
+SERVER.levelUpStat = async function (obj) {
+  if (obj._user.character.points <= 0) {
+    return { status: 0, msg: "Você não tem mais pontos de habilidade." };
+  }
+
+  const plus = SHARED.getStatPlusAmount(obj._user.character.stats[obj.stat]);
+  const update = { 
+    $inc: {
+      pts: -1,
+      [obj.stat]: plus
+    }
+  };
+
+  try {
+    const res = await SERVER.db.characters.updateOne({ _id: obj._user.char_id }, update);
+    if (res.modifiedCount > 0) {
+      obj._user.character.stats[obj.stat] += plus;
+      obj._user.character.points--;
+      return { status: 1 };
+    } else {
+      return { status: 0, msg: "Falha ao aumentar o atributo." };
+    }
+  } catch (err) {
+    return { status: 0, msg: "Erro ao acessar o banco de dados.", error: err };
+  }
 };
 
-SERVER.equipItem = function (obj) {
-  return new Promise ((resolve, reject) => {
-    // check if user has requirements
-    var char = obj._user.character;
-    obj.id = parseInt(obj.id);
-    SERVER.db.items.findOne({ id: obj.id }, function (err, res) {
-      if (res) {
-        if (SERVER.meetRequirements(char, res.req)) {
-          var types = ['none', 'weapon', 'bow', 'armor', 'charm', 'bomb', 'trap'];
-          var update = { $set: {} };
-          update.$set[types[res.type]] = obj.id;
-          char[types[res.type]] = obj.id;
-          SERVER.db.characters.update({ _id: char.id }, update, function (err2, res2) {
-            if (res) { // item equipped, recalculate char weight
-              SERVER.db.items.find({ id: {
-                $in: [char.weapon, char.bow, char.armor, char.bomb, char.trap]
-              }}, function (err3, res3) {
-                var w = 0;
-                for (var i = 0; i < res3.length; ++i) {
-                  w += res3[i].weight;
-                }
-                char.kg = w;
-                SERVER.db.characters.update({ _id: char.id }, { $set: { kg: w } }, function (err4, res4) {
-                  if (res) resolve({ status: 1 });
-                  else resolve({ status: 0, msg: "Failed weight recalculation." });
-                });
-              });
-            } else resolve({ status: 0, msg: "Failed to equip the item." });
-          });
-        } else {
-          resolve({ status: 0, msg: "You don't meet the requirements to equip this item." });
-        }
-      } else resolve({ status: 0, msg: "The item you are trying to equip does not exist." });
-    });
-  });
+
+SERVER.equipItem = async function (obj) {
+  const char = obj._user.character;
+  obj.id = parseInt(obj.id);
+
+  try {
+    const item = await SERVER.db.items.findOne({ id: obj.id });
+    if (!item) {
+      return { status: 0, msg: "O item que você está tentando equipar não existe." };
+    }
+
+    if (!SERVER.meetRequirements(char, item.req)) {
+      return { status: 0, msg: "Você não atende aos requisitos para equipar este item." };
+    }
+
+    const types = ['none', 'weapon', 'bow', 'armor', 'charm', 'bomb', 'trap'];
+    const update = { $set: {} };
+    update.$set[types[item.type]] = obj.id;
+    char[types[item.type]] = obj.id;
+
+    const res = await SERVER.db.characters.update({ _id: char.id }, update);
+    if (res.modifiedCount > 0) {
+      const items = await SERVER.db.items.find({ id: { $in: [char.weapon, char.bow, char.armor, char.bomb, char.trap] } });
+      const totalWeight = items.reduce((sum, item) => sum + item.weight, 0);
+      char.kg = totalWeight;
+
+      const weightUpdate = await SERVER.db.characters.update({ _id: char.id }, { $set: { kg: totalWeight } });
+      if (weightUpdate.modifiedCount > 0) {
+        return { status: 1 };
+      } else {
+        return { status: 0, msg: "Falha ao recalcular o peso." };
+      }
+    } else {
+      return { status: 0, msg: "Falha ao equipar o item." };
+    }
+  } catch (err) {
+    return { status: 0, msg: "Erro ao acessar o banco de dados.", error: err };
+  }
 };
 
-SERVER.activateSkill = function (obj) {
-  return new Promise ((resolve, reject) => {
-    // check if user has requirements
-    var char = obj._user.character;
-    obj.id = parseInt(obj.id);
-    SERVER.db.skills.findOne({ id: obj.id }, function (err, res) {
-      if (res) {
-        if (res.enabled) {
-          if (SERVER.meetRequirements(char, res.req)) {
-            var types = ['none', 'melee', 'range', 'movement', 'defense', 'magic', 'magic2', 'magic', 'magic2'];
-            if (char[types[res.type]].length + 1 <= SHARED.skillLimit[types[res.type]]) {
-              var update = { $set: {} };
-              char[types[res.type]].push(obj.id);
-              update.$set[types[res.type]] = char[types[res.type]];
-              SERVER.db.characters.update({ _id: char.id }, update, function (err2, res2) {
-                if (res) {
-                  resolve({ status: 1 });
-                } else resolve({ status: 0, msg: "Error. Cannot activate this " + (res.type > 4 ? "spell." : "skill.") });
-              });
-            } else resolve({ status: 0, msg: "You have reached the limit of active " + (res.type > 4 ? "spells" : "skills") + " of this type." });
-          } else resolve({ status: 0, msg: "You don't meet the requirements to use this " + (res.type > 4 ? "spell" : "skill") + "." });
-        } else resolve({ status: 0, msg: "The skill is disabled and cannot be activated." });
-      } else resolve({ status: 0, msg: "The " + (res.type > 4 ? "spell" : "skill") + " you are trying to activate does not exist." });
-    });
-  });
+
+SERVER.activateSkill = async function (obj) {
+  const char = obj._user.character;
+  obj.id = parseInt(obj.id);
+
+  try {
+    const skill = await SERVER.db.skills.findOne({ id: obj.id });
+    if (!skill) {
+      return { status: 0, msg: `A ${skill.type > 4 ? 'magia' : 'habilidade'} que você está tentando ativar não existe.` };
+    }
+
+    if (!skill.enabled) {
+      return { status: 0, msg: 'A habilidade está desativada e não pode ser ativada.' };
+    }
+
+    if (!SERVER.meetRequirements(char, skill.req)) {
+      return { status: 0, msg: `Você não atende aos requisitos para usar esta ${skill.type > 4 ? 'magia' : 'habilidade'}.` };
+    }
+
+    const types = ['none', 'melee', 'range', 'movement', 'defense', 'magic', 'magic2', 'magic', 'magic2'];
+    if (char[types[skill.type]].length + 1 > SHARED.skillLimit[types[skill.type]]) {
+      return { status: 0, msg: `Você atingiu o limite de ${skill.type > 4 ? 'magias' : 'habilidades'} ativas deste tipo.` };
+    }
+
+    char[types[skill.type]].push(obj.id);
+    const update = { $set: { [types[skill.type]]: char[types[skill.type]] } };
+    const res = await SERVER.db.characters.update({ _id: char.id }, update);
+
+    if (res.modifiedCount > 0) {
+      return { status: 1 };
+    } else {
+      return { status: 0, msg: `Erro. Não é possível ativar esta ${skill.type > 4 ? 'magia' : 'habilidade'}.` };
+    }
+  } catch (err) {
+    return { status: 0, msg: 'Erro ao acessar o banco de dados.', error: err };
+  }
 };
 
-SERVER.deactivateSkill = function (obj) {
-  return new Promise ((resolve, reject) => {
-    // check if user has requirements
-    var char = obj._user.character;
-    obj.id = parseInt(obj.id);
-    SERVER.db.skills.findOne({ id: obj.id }, function (err, res) {
-      if (res) {
-        var types = ['none', 'melee', 'range', 'movement', 'defense', 'magic', 'magic2', 'magic', 'magic2'];
-        var update = { $set: {} };
-        var index = char[types[res.type]].indexOf(obj.id);
-        if (index >= 0) {
-          char[types[res.type]].splice(index, 1);
-          update.$set[types[res.type]] = char[types[res.type]];
-          SERVER.db.characters.update({ _id: char.id }, update, function (err2, res2) {
-            if (res) {
-              resolve({ status: 1 });
-            } else resolve({ status: 0, msg: "Error. Cannot deactivate this " + (res.type > 4 ? "spell." : "skill.") });
-          });
-        } else resolve({ status: 0, msg: "You cannot deactivate what's inactive." });
-      } else resolve({ status: 0, msg: "The " + (res.type > 4 ? "spell" : "skill") + " you are trying to deactivate does not exist." });
-    });
-  });
+
+SERVER.deactivateSkill = async function (obj) {
+  const char = obj._user.character;
+  obj.id = parseInt(obj.id);
+
+  try {
+    const skill = await SERVER.db.skills.findOne({ id: obj.id });
+    if (!skill) {
+      return { status: 0, msg: `A ${skill.type > 4 ? 'magia' : 'habilidade'} que você está tentando desativar não existe.` };
+    }
+
+    const types = ['none', 'melee', 'range', 'movement', 'defense', 'magic', 'magic2', 'magic', 'magic2'];
+    const index = char[types[skill.type]].indexOf(obj.id);
+    if (index < 0) {
+      return { status: 0, msg: 'Você não pode desativar o que está inativo.' };
+    }
+
+    char[types[skill.type]].splice(index, 1);
+    const update = { $set: { [types[skill.type]]: char[types[skill.type]] } };
+    const res = await SERVER.db.characters.update({ _id: char.id }, update);
+
+    if (res.modifiedCount > 0) {
+      return { status: 1 };
+    } else {
+      return { status: 0, msg: `Erro. Não é possível desativar esta ${skill.type > 4 ? 'magia' : 'habilidade'}.` };
+    }
+  } catch (err) {
+    return { status: 0, msg: 'Erro ao acessar o banco de dados.', error: err };
+  }
 };
+
 
 SERVER.meetRequirements = function (char, req) {
   var meet = true;
@@ -560,7 +655,7 @@ SERVER.Player = function (user) {
   }
 };
 
-SERVER.Player.prototype.moveToPosition = async function (newPos, dontTriggerTraps) {
+SERVER.Player.prototype.moveToPosition = function (newPos, dontTriggerTraps) {
   var current = this.gameState.tile;
   var newTile = this.game.arena.getTileByPos(newPos);
 
@@ -575,32 +670,39 @@ SERVER.Player.prototype.moveToPosition = async function (newPos, dontTriggerTrap
 
 
 SERVER.Player.prototype.getActiveActions = async function () {
-  var scope = this;
-  return new Promise((resolve, reject) => {
-    var types = ['', 'MELEE', 'RANGE', 'MOVE', 'DEFEND', 'MAGIC', 'MAGIC2', 'MAGIC', 'MAGIC2'];
-    var skills_id = [];
-    var skills = {};
-    skills_id = scope.user.character.movement.concat(scope.user.character.melee, scope.user.character.range, scope.user.character.defense, scope.user.character.magic, scope.user.character.magic2);
-    SERVER.db.skills.find({ id: { $in: skills_id } }, function (err, res) {
-      if (res) {
-        for (var i = 0; i < res.length; ++i) {
-          var key = types[res[i].type] + "-" + res[i].name.replace(/\s/g, '_').toUpperCase();
-          skills[key] = {
-            id: res[i].id,
-            cost: res[i].energy,
-          }
-        }
-        skills['END-END_TURN'] = { id: -1, cost: 0 };
-        skills['END-FORFEIT_GAME'] = { id: -2, cost: 0 };
-        resolve(skills);
-      } else {
-        console.log("Error: getActiveActionArray() - cannot get skills from db");
-      }
-    });
-  });
+  const types = ['', 'MELEE', 'RANGE', 'MOVE', 'DEFEND', 'MAGIC', 'MAGIC2', 'MAGIC', 'MAGIC2'];
+  const skills_id = [
+    ...this.user.character.movement,
+    ...this.user.character.melee,
+    ...this.user.character.range,
+    ...this.user.character.defense,
+    ...this.user.character.magic,
+    ...this.user.character.magic2
+  ];
+  try {
+    const res = await SERVER.db.skills.find({ id: { $in: skills_id } });
+    if (Array.isArray(res)) {
+      const skills = res.reduce((acc, skill) => {
+        const key = `${types[skill.type]}-${skill.name.replace(/\s/g, '_').toUpperCase()}`;
+        acc[key] = { id: skill.id, cost: skill.energy };
+        return acc;
+      }, {});
+      skills['END-END_TURN'] = { id: -1, cost: 0 };
+      skills['END-FORFEIT_GAME'] = { id: -2, cost: 0 };
+      return skills;
+    } else {
+      console.error('Erro: A resposta da consulta ao banco de dados não é um array.');
+      return {};
+    }
+  } catch (err) {
+    console.error('Erro: getActiveActionArray() - não foi possível obter as habilidades do banco de dados', err);
+    throw err;
+  }
 };
 
-SERVER.updateUserChallenges =  function (user_id) {
+
+
+SERVER.updateUserChallenges = function (user_id) {
   var received_challenges = [];
   var sent_challenges = [];
   for (var i in SERVER.Challenges) {
@@ -627,7 +729,7 @@ SERVER.updateUserChallenges =  function (user_id) {
 };
 
 SERVER.Challenge = function (sender_id, receiver_id) {
-   this.id = SERVER.counter++;
+  this.id = SERVER.counter++;
   this.sender = SERVER.getPlayerById(sender_id);
   this.receiver = SERVER.getPlayerById(receiver_id);
   this.game = null;
@@ -637,7 +739,7 @@ SERVER.Challenge = function (sender_id, receiver_id) {
   console.log("Player '" + this.sender.user.name + "' challenged player '" + this.receiver.user.name + "'");
 
   SERVER.updateUserChallenges(this.receiver.user.id);
-   SERVER.updateUserChallenges(this.sender.user.id);
+  SERVER.updateUserChallenges(this.sender.user.id);
 };
 
 SERVER.Challenge.prototype.accept = function () {
@@ -653,8 +755,8 @@ SERVER.Challenge.prototype.accept = function () {
     this.receiver.game = game;
     this.sender.game = game;
 
-     SERVER.getPlayerById(this.receiver.user.id).user.socket.emit('alert', { content: "Game will be starting soon...", no_ok: true });
-     SERVER.getPlayerById(this.sender.user.id).user.socket.emit('alert', { content: this.receiver.user.name + " agreed to duel you. Game will be starting soon...", no_ok: true });
+    SERVER.getPlayerById(this.receiver.user.id).user.socket.emit('alert', { content: "Game will be starting soon...", no_ok: true });
+    SERVER.getPlayerById(this.sender.user.id).user.socket.emit('alert', { content: this.receiver.user.name + " agreed to duel you. Game will be starting soon...", no_ok: true });
 
     setTimeout(function () {
       game.begin();
@@ -676,8 +778,8 @@ SERVER.Challenge.prototype.reject = function () {
   var rid = this.receiver.user.id;
   var sid = this.sender.user.id;
   delete SERVER.Challenges[this.id];
-   SERVER.updateUserChallenges(rid);
-   SERVER.updateUserChallenges(sid);
+  SERVER.updateUserChallenges(rid);
+  SERVER.updateUserChallenges(sid);
   console.log("Player '" + this.receiver.user.name + "' rejected to duel '" + this.sender.user.name+ "'");
 };
 
@@ -708,7 +810,7 @@ SERVER.Tile = function (arena, x, y) {
   this.pos = {x: x, y: y};
 };
 
-SERVER.Arena =  function (game) {
+SERVER.Arena = function (game) {
   this.game = game;
   this.tiles = [];
 
@@ -828,7 +930,7 @@ SERVER.Game.prototype.begin = function (challenge) {
   var bows = ['bow', 'fire-bow'];
   var bombs = ['bomb', 'fire-bomb'];
 
-  var d1 = this.getDataForClient(this.player1);
+	  var d1 = this.getDataForClient(this.player1);
   d1.p.weapon = weps.indexOf(SHARED.getWeaponType(c1.weapon));
   d1.p.bow = bows.indexOf(SHARED.getWeaponType(c1.bow));
   d1.p.bomb = bombs.indexOf(SHARED.getWeaponType(c1.bomb));
@@ -946,8 +1048,9 @@ SERVER.getSkillInfo = function (id) {
   for (var i = 0; i < SERVER.SKILL_INFO.length; ++i) {
     if (SERVER.SKILL_INFO[i].id == id)
       return SERVER.SKILL_INFO[i];
+	  
   }
-  return null;
+	 return null;
 };
 
 SERVER.getItemInfo = function (id) {
@@ -955,6 +1058,7 @@ SERVER.getItemInfo = function (id) {
     if (SERVER.ITEM_INFO[i].id == id)
       return SERVER.ITEM_INFO[i];
   }
+	  	
   return null;
 };
 
@@ -1371,9 +1475,10 @@ SERVER.getGameByPlayer = function (player) {
   }
   return null;
 };
-SERVER.io.sockets.on('connection', SERVER.onSocketConnection);
-	
+
 SERVER.init();
+SERVER.io.sockets.on('connection', SERVER.onSocketConnection);
+
 
 SERVER.getOnlineUsers = function () {
   var users = [];
@@ -1578,38 +1683,36 @@ SERVER.GameAction.prototype.process = function () {
 }
 
 SERVER.GameAction.prototype.MAGIC = function (action, data) {
-  if (SPELLS.close_range.indexOf(action) != -1) {
-    this.clientData.data.type = 'close_range';
-    this.time = 1250;
-  } else if (SPELLS.long_range.indexOf(action) != -1) {
-    this.clientData.data.type = 'long_range';
-    this.time = 2000;
-  } else if (SPELLS.debuff.indexOf(action) != -1) {
-    this.clientData.data.type = 'debuff';
-    this.time = 1250;
-  } else {
-    this.clientData.data.type = 'other';
-    this.time = 1250;
-  }
+    console.log(`Ação mágica recebida: ${action}`); // Verificar qual ação está sendo enviada
 
-  if (!SHARED.arePositionsTouching(this.playerTile.pos, this.enemyTile.pos) && this.clientData.data.type == 'close_range') {
-    // too far
-    this.clientData.data.status = 'far';
-  } else if (SHARED.arePositionsTouching(this.playerTile.pos, this.enemyTile.pos) && this.clientData.data.type == 'long_range') {
-    // too close
-    this.clientData.data.status = 'close';
-  } else if (this.doesPlayerFizzle(this.skill_info.precision / 100)) {
-    // player fizzled the spell
-    this.clientData.data.status = 'fizzle';
-  } else if (this.doesEnemyResist(1) && this.clientData.data.type != 'other') {
-    // enemy resisted the spell
-    this.clientData.data.status = 'resist';
-  } else {
-    // spell didn't fizzle and was not resisted, range is ok
-    SPELLS[this.action](this);
-  }
+    if (SPELLS.close_range.includes(action)) {
+        this.clientData.data.type = 'close_range';
+        this.time = 1250;
+    } else if (SPELLS.long_range.includes(action)) {
+        this.clientData.data.type = 'long_range';
+        this.time = 2000;
+    } else if (SPELLS.debuff.includes(action)) {
+        this.clientData.data.type = 'debuff';
+        this.time = 1250;
+    } else {
+        this.clientData.data.type = 'other';
+        this.time = 1250;
+    }
 
+    if (!SHARED.arePositionsTouching(this.playerTile.pos, this.enemyTile.pos) && this.clientData.data.type == 'close_range') {
+        this.clientData.data.status = 'far';
+    } else if (SHARED.arePositionsTouching(this.playerTile.pos, this.enemyTile.pos) && this.clientData.data.type == 'long_range') {
+        this.clientData.data.status = 'close';
+    } else if (this.doesPlayerFizzle(this.skill_info.precision / 100)) {
+        this.clientData.data.status = 'fizzle';
+    } else if (this.doesEnemyResist(1) && this.clientData.data.type != 'other') {
+        this.clientData.data.status = 'resist';
+    } else {
+        console.log(`Chamando SPELLS.${action}`); // Log antes de executar a skill
+        SPELLS[action](this);
+    }
 };
+
 
 SERVER.GameAction.prototype.SKILL = function (type, action) {
   if (type == 'move') {

@@ -210,8 +210,7 @@ const client = new MongoClient(uri, { serverApi: ServerApiVersion.v1 });
   });
 
 };
-SERVER.io.sockets.on('connection', SERVER.onSocketConnection);
-	
+
 
 SERVER.onSocketConnection = async function (socket) {
   SERVER.Sockets[socket.id] = socket;
@@ -1379,8 +1378,9 @@ SERVER.getGameByPlayer = function (player) {
   }
   return null;
 };
-
-SERVER.init();
+SERVER.io.sockets.on('connection', SERVER.onSocketConnection);
+	
+await SERVER.init();
 
 SERVER.getOnlineUsers = function () {
   var users = [];

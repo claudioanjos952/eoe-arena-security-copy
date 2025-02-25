@@ -1,6 +1,6 @@
-const http = require('http');
-	const md5 = require('md5');
-	const crypto = require('crypto'); // No topo do arquivo
+var http = require('http');
+	var md5 = require('md5');
+	var crypto = require('crypto'); // No topo do arquivo
   var express = require('express');
   var app = express();
   var serv = require('http').Server(app);
@@ -156,7 +156,7 @@ SERVER.init = async function () {
     }
   });
 
-  const { MongoClient, ServerApiVersion } = require('mongodb');
+  var { MongoClient, ServerApiVersion } = require('mongodb');
 	  
   app.use('/client', express.static(__dirname + '/client'));
   var PORT = (process.env.PORT);
@@ -173,13 +173,13 @@ console.log("conectado na porta " + PORT);
   var uri = mongo_ini + mongo_user + ":" + mongo_pass + "@" + mongo_url + mongo_end;
    // Configura as coleções no SERVER.db
 
-const client = new MongoClient(uri, { serverApi: ServerApiVersion.v1 });
+var client = new MongoClient(uri, { serverApi: ServerApiVersion.v1 });
     await client.connect();
 
     console.log('Conectado ao MongoDB');
 
     // Acessa o banco de dados
-    const db = client.db("sample_mflix");
+    var db = client.db("sample_mflix");
 	SERVER.db = db;
 	
 	this.db.users = db.collection("users");

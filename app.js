@@ -193,14 +193,6 @@ const client = new MongoClient(uri, { serverApi: ServerApiVersion.v1 });
 	consele.log(">>>> this.io tem valor de : ", this.io, " : fim dos dados <<<<");
 
   // encrytpion
-  md5 = require('md5');
-  crypto = require('crypto');
-
-  // load shared utilities
-  SHARED = require('./shared/utils.js');
-
-  SPELLS = require('./server/spells.js');
-  SKILLS = require('./server/skills.js');
 
   SERVER.db.skills.find({}, function (err, res) {
     SERVER.SKILL_INFO = res;

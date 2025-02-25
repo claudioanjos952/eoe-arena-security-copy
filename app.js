@@ -646,7 +646,7 @@ SERVER.Challenge = async function (sender_id, receiver_id) {
    SERVER.updateUserChallenges(this.sender.user.id);
 };
 
-SERVER.Challenge.prototype.accept = async function () {
+SERVER.Challenge.prototype.accept = function () {
   if (this.sender.game != null /*|| player_offline*/) {
     // challenge accept failed, sender already in game with another player or went offline
     SERVER.getPlayerById(this.receiver.user.id).user.socket.emit('challenge-failed', {player: this.sender.user.name, ch_id: this.id});
@@ -670,7 +670,7 @@ SERVER.Challenge.prototype.accept = async function () {
   console.log("Player '" + this.receiver.user.name + "' agreed to duel '" + this.sender.user.name + "'");
 };
 
-SERVER.Challenge.prototype.withdraw = async function () {
+SERVER.Challenge.prototype.withdraw = function () {
   var rid = this.receiver.user.id;
   var sid = this.sender.user.id;
   delete SERVER.Challenges[this.id];
@@ -678,7 +678,7 @@ SERVER.Challenge.prototype.withdraw = async function () {
   SERVER.updateUserChallenges(sid);
 };
 
-SERVER.Challenge.prototype.reject = async function () {
+SERVER.Challenge.prototype.reject = function () {
   var rid = this.receiver.user.id;
   var sid = this.sender.user.id;
   delete SERVER.Challenges[this.id];
@@ -714,7 +714,7 @@ SERVER.Tile = function (arena, x, y) {
   this.pos = {x: x, y: y};
 };
 
-SERVER.Arena = async function (game) {
+SERVER.Arena =  function (game) {
   this.game = game;
   this.tiles = [];
 

@@ -97,7 +97,7 @@ SERVER.User.prototype.getXP = function () {
   return 150;
 };
 
-SERVER.init = function () {
+SERVER.init = async function () {
   // Express init
   var express = require('express');
   var app = express();

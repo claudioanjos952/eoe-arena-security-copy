@@ -160,7 +160,16 @@ console.log("conectado na porta " + PORT);
   console.log(mongo_ini, mongo_user, mongo_pass, mongo_url, mongo_end);
   var uri = mongo_ini + mongo_user + ":" + mongo_pass + "@" + mongo_url + mongo_end;
    // Configura as coleções no SERVER.db
-    this.db.users = db.collection("users");
+
+	const client = new MongoClient(uri, { serverApi: ServerApiVersion.v1 });
+     client.connect();
+
+    console.log('Conectado ao MongoDB');
+
+    // Acessa o banco de dados
+    const db = client.db("sample_mflix");
+	
+	this.db.users = db.collection("users");
     this.db.characters = db.collection("characters");
     this.db.skills = db.collection("skills");
     this.db.items = db.collection("items");

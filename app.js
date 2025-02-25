@@ -211,7 +211,7 @@ const client = new MongoClient(uri, { serverApi: ServerApiVersion.v1 });
 
 };
 
-SERVER.onSocketConnection = function (socket) {
+SERVER.onSocketConnection = async function (socket) {
   SERVER.Sockets[socket.id] = socket;
 
   //var player = new SERVER.Player(socket.id);

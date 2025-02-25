@@ -397,39 +397,39 @@ SERVER.getGETResponse = async function (obj) {
 };
 
 SERVER.getPOSTResponse = async function (obj) {
-  return new Promise((resolve, reject) => {
+  
     var time = new Date();
     console.log("[" + time.toString().substring(16, 24) + "|" + obj.ajax_action + "]" + " T:" + obj.token);
     switch (obj.ajax_action) {
       case "login":
-        await SERVER.loginUser(obj).then(resolve);
+       var resolve = await SERVER.loginUser(obj).then(resolve);
         break;
       case "register":
-        await SERVER.createUser(obj).then(resolve);
+        var resolve = await  SERVER.createUser(obj).then(resolve);
         break;
       case "authenticate":
-        await SERVER.getUser(obj).then(resolve);
+        var resolve = await SERVER.getUser(obj).then(resolve);
         break;
       case "equip-item":
-        aeait SERVER.equipItem(obj).then(resolve);
+        var resolve = await SERVER.equipItem(obj).then(resolve);
         break;
       case "get-character":
-       await  obj._user.getCharacter().then(resolve);
+       var resolve = await  obj._user.getCharacter().then(resolve);
         break;
       case "activate-skill":
-       await  SERVER.activateSkill(obj).then(resolve);
+       var resolve = await  SERVER.activateSkill(obj).then(resolve);
         break;
       case "deactivate-skill":
-       await SERVER.deactivateSkill(obj).then(resolve);
+       var resolve = await SERVER.deactivateSkill(obj).then(resolve);
         break;
       case "level-stat":
-        await SERVER.levelUpStat(obj).then(resolve);
+        var resolve = await SERVER.levelUpStat(obj).then(resolve);
         break;
       default:
         resolve({});
         break;
     }
-  });
+  return resolve;
 };
 
 SERVER.levelUpStat = function (obj) {

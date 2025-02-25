@@ -243,7 +243,7 @@ SERVER.onSocketConnection = async function (socket) {
 
 };
 
-SERVER.handleSocketMessage = async function (socket, evt, data) {
+SERVER.handleSocketMessage =  function (socket, evt, data) {
   var player = SERVER.getPlayerBySocket(socket);
   if (!player) return;
 
@@ -291,7 +291,7 @@ SERVER.handleSocketMessage = async function (socket, evt, data) {
 };
 
 // Authentication
-SERVER.getUser = async function (data) {
+SERVER.getUser = function (data) {
   return new Promise((resolve, reject) => {
     if (!SERVER.Sessions.hasOwnProperty(data.token)) {
       // user with this token is not authenticated
@@ -310,7 +310,7 @@ SERVER.getUser = async function (data) {
   });
 };
 
-SERVER.createUser = async function (data) {
+SERVER.createUser = function (data) {
   // do checks if user name exists etc
   return new Promise((resolve, reject) => {
     if (data.username.length > 16) {
@@ -339,7 +339,7 @@ SERVER.createUser = async function (data) {
   });
 };
 
-SERVER.loginUser = async function (data) {
+SERVER.loginUser = function (data) {
   return new Promise((resolve, reject) => {
     SERVER.db.users.findOne({ name: data.username, pass: data.password }, function (err, res) {
       if (res) { // found something
@@ -365,7 +365,7 @@ SERVER.loginUser = async function (data) {
   });
 };
 
-SERVER.getItems = async function (type, order) {
+SERVER.getItems = function (type, order) {
   return new Promise((resolve, reject) => {
     SERVER.db.items.find({ type: type }, { _id: 0, desc: 0 }, function (err, res) {
       if (res[0]) {
@@ -375,7 +375,7 @@ SERVER.getItems = async function (type, order) {
   });
 };
 
-SERVER.getSkills = async function (type, order) {
+SERVER.getSkills = function (type, order) {
   return new Promise((resolve, reject) => {
     SERVER.db.skills.find({ type: type }, { _id: 0 }, function (err, res) {
       if (res[0]) {
@@ -385,7 +385,7 @@ SERVER.getSkills = async function (type, order) {
   });
 };
 
-SERVER.getGETResponse = async function (obj) {
+SERVER.getGETResponse = function (obj) {
   return new Promise((resolve, reject) => {
     // TODO: get cookie token and check if exists
     switch (obj.ajax_action) {
@@ -402,7 +402,7 @@ SERVER.getGETResponse = async function (obj) {
   });
 };
 
-SERVER.getPOSTResponse = async function (obj) {
+SERVER.getPOSTResponse = function (obj) {
   return new Promise((resolve, reject) => {
     var time = new Date();
     console.log("[" + time.toString().substring(16, 24) + "|" + obj.ajax_action + "]" + " T:" + obj.token);
@@ -438,7 +438,7 @@ SERVER.getPOSTResponse = async function (obj) {
   });
 };
 
-SERVER.levelUpStat = async function (obj) {
+SERVER.levelUpStat = function (obj) {
   return new Promise ((resolve, reject) => {
     if (obj._user.character.points > 0) {
       var plus = SHARED.getStatPlusAmount(obj._user.character.stats[obj.stat]);
@@ -457,7 +457,7 @@ SERVER.levelUpStat = async function (obj) {
   });
 };
 
-SERVER.equipItem = async function (obj) {
+SERVER.equipItem = function (obj) {
   return new Promise ((resolve, reject) => {
     // check if user has requirements
     var char = obj._user.character;
@@ -494,7 +494,7 @@ SERVER.equipItem = async function (obj) {
   });
 };
 
-SERVER.activateSkill = async function (obj) {
+SERVER.activateSkill = function (obj) {
   return new Promise ((resolve, reject) => {
     // check if user has requirements
     var char = obj._user.character;
@@ -521,7 +521,7 @@ SERVER.activateSkill = async function (obj) {
   });
 };
 
-SERVER.deactivateSkill = async function (obj) {
+SERVER.deactivateSkill = function (obj) {
   return new Promise ((resolve, reject) => {
     // check if user has requirements
     var char = obj._user.character;
@@ -545,7 +545,7 @@ SERVER.deactivateSkill = async function (obj) {
   });
 };
 
-SERVER.meetRequirements = async function (char, req) {
+SERVER.meetRequirements = function (char, req) {
   var meet = true;
   var s = ['to', 'st', 'dx', 'in', 'wi', 'sp'];
   for (var i = 0; i < req.length; ++i) {
@@ -606,7 +606,7 @@ SERVER.Player.prototype.getActiveActions = async function () {
   });
 };
 
-SERVER.updateUserChallenges =async  function (user_id) {
+SERVER.updateUserChallenges =  function (user_id) {
   var received_challenges = [];
   var sent_challenges = [];
   for (var i in SERVER.Challenges) {
@@ -632,7 +632,7 @@ SERVER.updateUserChallenges =async  function (user_id) {
 
 };
 
-SERVER.Challenge = async function (sender_id, receiver_id) {
+SERVER.Challenge = function (sender_id, receiver_id) {
    this.id = SERVER.counter++;
   this.sender = SERVER.getPlayerById(sender_id);
   this.receiver = SERVER.getPlayerById(receiver_id);

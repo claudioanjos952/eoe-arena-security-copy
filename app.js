@@ -177,6 +177,7 @@ const client = new MongoClient(uri, { serverApi: ServerApiVersion.v1 });
 	return this.db;
   // Socket.io init
   this.io = require('socket.io')(serv, {});
+	consele.log(">>>> this.io tem valor de : ", this.io, " : fim dos dados <<<<");
 
   // encrytpion
   md5 = require('md5');

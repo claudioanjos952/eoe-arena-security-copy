@@ -572,7 +572,7 @@ SERVER.Player.prototype.moveToPosition = async function (newPos, dontTriggerTrap
 
   current.player = null;
   newTile.player = this;
- await this.gameState.tile = newTile;
+  this.gameState.tile = newTile;
 
   if (!dontTriggerTraps && newTile.trap) {
     console.log("TODO: Traps");
@@ -633,23 +633,23 @@ SERVER.updateUserChallenges =async  function (user_id) {
 };
 
 SERVER.Challenge = async function (sender_id, receiver_id) {
-  await this.id = SERVER.counter++;
- await this.sender = SERVER.getPlayerById(sender_id);
- await this.receiver = SERVER.getPlayerById(receiver_id);
+   this.id = SERVER.counter++;
+  this.sender = SERVER.getPlayerById(sender_id);
+  this.receiver = SERVER.getPlayerById(receiver_id);
   this.game = null;
 
-await  SERVER.Challenges[this.id] = this;
+  SERVER.Challenges[this.id] = this;
 
   console.log("Player '" + this.sender.user.name + "' challenged player '" + this.receiver.user.name + "'");
 
-await  SERVER.updateUserChallenges(this.receiver.user.id);
-  await SERVER.updateUserChallenges(this.sender.user.id);
+  SERVER.updateUserChallenges(this.receiver.user.id);
+   SERVER.updateUserChallenges(this.sender.user.id);
 };
 
 SERVER.Challenge.prototype.accept = async function () {
   if (this.sender.game != null /*|| player_offline*/) {
     // challenge accept failed, sender already in game with another player or went offline
-   await SERVER.getPlayerById(this.receiver.user.id).user.socket.emit('challenge-failed', {player: this.sender.user.name, ch_id: this.id});
+    SERVER.getPlayerById(this.receiver.user.id).user.socket.emit('challenge-failed', {player: this.sender.user.name, ch_id: this.id});
   } else {
     // reject + withdraw all challenges of both players except this one
     this.removeOtherParticipantChallenges();
@@ -659,8 +659,8 @@ SERVER.Challenge.prototype.accept = async function () {
     this.receiver.game = game;
     this.sender.game = game;
 
-    await SERVER.getPlayerById(this.receiver.user.id).user.socket.emit('alert', { content: "Game will be starting soon...", no_ok: true });
-   await  SERVER.getPlayerById(this.sender.user.id).user.socket.emit('alert', { content: this.receiver.user.name + " agreed to duel you. Game will be starting soon...", no_ok: true });
+     SERVER.getPlayerById(this.receiver.user.id).user.socket.emit('alert', { content: "Game will be starting soon...", no_ok: true });
+     SERVER.getPlayerById(this.sender.user.id).user.socket.emit('alert', { content: this.receiver.user.name + " agreed to duel you. Game will be starting soon...", no_ok: true });
 
     setTimeout(function () {
       game.begin();
@@ -674,16 +674,16 @@ SERVER.Challenge.prototype.withdraw = async function () {
   var rid = this.receiver.user.id;
   var sid = this.sender.user.id;
   delete SERVER.Challenges[this.id];
- await SERVER.updateUserChallenges(rid);
- await SERVER.updateUserChallenges(sid);
+  SERVER.updateUserChallenges(rid);
+  SERVER.updateUserChallenges(sid);
 };
 
 SERVER.Challenge.prototype.reject = async function () {
   var rid = this.receiver.user.id;
   var sid = this.sender.user.id;
   delete SERVER.Challenges[this.id];
-  await SERVER.updateUserChallenges(rid);
-  await SERVER.updateUserChallenges(sid);
+   SERVER.updateUserChallenges(rid);
+   SERVER.updateUserChallenges(sid);
   console.log("Player '" + this.receiver.user.name + "' rejected to duel '" + this.sender.user.name+ "'");
 };
 
@@ -719,9 +719,9 @@ SERVER.Arena = async function (game) {
   this.tiles = [];
 
   for (var i = 0; i < 4; ++i) {
-  await  this.tiles.push([]);
+    this.tiles.push([]);
     for (var j = 0; j < 6; ++j) {
-    await  this.tiles[i].push(new SERVER.Tile(this, j, i));
+      this.tiles[i].push(new SERVER.Tile(this, j, i));
     }
   }
 };

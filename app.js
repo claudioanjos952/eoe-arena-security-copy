@@ -212,38 +212,38 @@ const client = new MongoClient(uri, { serverApi: ServerApiVersion.v1 });
 };
 
 SERVER.onSocketConnection = async function (socket) {
-  SERVER.Sockets[socket.id] = socket;
+ await SERVER.Sockets[socket.id] = socket;
 
   //var player = new SERVER.Player(socket.id);
   //SERVER.Players[socket.id] = player;
 
   var onevent = socket.onevent;
-  socket.onevent = function (packet) {
+await  socket.onevent = function (packet) {
     var args = packet.data || [];
-    onevent.call (this, packet);    // original call
-    packet.data = ["*"].concat(args);
-    onevent.call(this, packet);      // additional call to catch-all
+  await  onevent.call (this, packet);    // original call
+   await packet.data = ["*"].concat(args);
+   await onevent.call(this, packet);      // additional call to catch-all
   };
 
   // check socket authentity
-  socket.on("*", function (evt, data) {
+await  socket.on("*", function (evt, data) {
     if (data.session_token && SERVER.Sessions.hasOwnProperty(data.session_token)) {
-      SERVER.handleSocketMessage(socket, evt, data);
+     await SERVER.handleSocketMessage(socket, evt, data);
     } else {
       // user authentication failure, please re-auth
-      socket.emit('auth-failure', {});
+     await socket.emit('auth-failure', {});
     }
   });
 
-  socket.on('disconnect', function () {
+ await socket.on('disconnect', function () {
     var token = SERVER.getTokenBySocket(socket);
-    delete SERVER.Sockets[socket.id];
+  await  delete SERVER.Sockets[socket.id];
     if (token) SERVER.Sessions[token].dc_timestamp = + new Date();
   })
 
 };
 
-SERVER.handleSocketMessage = function (socket, evt, data) {
+SERVER.handleSocketMessage = async function (socket, evt, data) {
   var player = SERVER.getPlayerBySocket(socket);
   if (!player) return;
 
@@ -291,7 +291,7 @@ SERVER.handleSocketMessage = function (socket, evt, data) {
 };
 
 // Authentication
-SERVER.getUser = function (data) {
+SERVER.getUser = async function (data) {
   return new Promise((resolve, reject) => {
     if (!SERVER.Sessions.hasOwnProperty(data.token)) {
       // user with this token is not authenticated
@@ -299,9 +299,9 @@ SERVER.getUser = function (data) {
     } else {
       // user is authenticated, return user info
       var user = SERVER.Sessions[data.token];
-      user.getObject().then((obj) => {
+     user.getObject().then((obj) => {
         var prevSocket = user.socket?.id;
-        user.socket = SERVER.Sockets[data.socket_id];
+      user.socket = SERVER.Sockets[data.socket_id];
         delete SERVER.Sockets[prevSocket];
         delete user.dc_timestamp;
         resolve({ status: 1, user: obj });
@@ -310,7 +310,7 @@ SERVER.getUser = function (data) {
   });
 };
 
-SERVER.createUser = function (data) {
+SERVER.createUser = async function (data) {
   // do checks if user name exists etc
   return new Promise((resolve, reject) => {
     if (data.username.length > 16) {
@@ -339,7 +339,7 @@ SERVER.createUser = function (data) {
   });
 };
 
-SERVER.loginUser = function (data) {
+SERVER.loginUser = async function (data) {
   return new Promise((resolve, reject) => {
     SERVER.db.users.findOne({ name: data.username, pass: data.password }, function (err, res) {
       if (res) { // found something
@@ -365,7 +365,7 @@ SERVER.loginUser = function (data) {
   });
 };
 
-SERVER.getItems = function (type, order) {
+SERVER.getItems = async function (type, order) {
   return new Promise((resolve, reject) => {
     SERVER.db.items.find({ type: type }, { _id: 0, desc: 0 }, function (err, res) {
       if (res[0]) {
@@ -375,7 +375,7 @@ SERVER.getItems = function (type, order) {
   });
 };
 
-SERVER.getSkills = function (type, order) {
+SERVER.getSkills = async function (type, order) {
   return new Promise((resolve, reject) => {
     SERVER.db.skills.find({ type: type }, { _id: 0 }, function (err, res) {
       if (res[0]) {
@@ -385,7 +385,7 @@ SERVER.getSkills = function (type, order) {
   });
 };
 
-SERVER.getGETResponse = function (obj) {
+SERVER.getGETResponse = async function (obj) {
   return new Promise((resolve, reject) => {
     // TODO: get cookie token and check if exists
     switch (obj.ajax_action) {
@@ -402,7 +402,7 @@ SERVER.getGETResponse = function (obj) {
   });
 };
 
-SERVER.getPOSTResponse = function (obj) {
+SERVER.getPOSTResponse = async function (obj) {
   return new Promise((resolve, reject) => {
     var time = new Date();
     console.log("[" + time.toString().substring(16, 24) + "|" + obj.ajax_action + "]" + " T:" + obj.token);
@@ -438,7 +438,7 @@ SERVER.getPOSTResponse = function (obj) {
   });
 };
 
-SERVER.levelUpStat = function (obj) {
+SERVER.levelUpStat = async function (obj) {
   return new Promise ((resolve, reject) => {
     if (obj._user.character.points > 0) {
       var plus = SHARED.getStatPlusAmount(obj._user.character.stats[obj.stat]);
@@ -457,7 +457,7 @@ SERVER.levelUpStat = function (obj) {
   });
 };
 
-SERVER.equipItem = function (obj) {
+SERVER.equipItem = async function (obj) {
   return new Promise ((resolve, reject) => {
     // check if user has requirements
     var char = obj._user.character;
@@ -494,7 +494,7 @@ SERVER.equipItem = function (obj) {
   });
 };
 
-SERVER.activateSkill = function (obj) {
+SERVER.activateSkill = async function (obj) {
   return new Promise ((resolve, reject) => {
     // check if user has requirements
     var char = obj._user.character;
@@ -521,7 +521,7 @@ SERVER.activateSkill = function (obj) {
   });
 };
 
-SERVER.deactivateSkill = function (obj) {
+SERVER.deactivateSkill = async function (obj) {
   return new Promise ((resolve, reject) => {
     // check if user has requirements
     var char = obj._user.character;
@@ -545,7 +545,7 @@ SERVER.deactivateSkill = function (obj) {
   });
 };
 
-SERVER.meetRequirements = function (char, req) {
+SERVER.meetRequirements = async function (char, req) {
   var meet = true;
   var s = ['to', 'st', 'dx', 'in', 'wi', 'sp'];
   for (var i = 0; i < req.length; ++i) {
@@ -566,13 +566,13 @@ SERVER.Player = function (user) {
   }
 };
 
-SERVER.Player.prototype.moveToPosition = function (newPos, dontTriggerTraps) {
+SERVER.Player.prototype.moveToPosition = async function (newPos, dontTriggerTraps) {
   var current = this.gameState.tile;
   var newTile = this.game.arena.getTileByPos(newPos);
 
   current.player = null;
   newTile.player = this;
-  this.gameState.tile = newTile;
+ await this.gameState.tile = newTile;
 
   if (!dontTriggerTraps && newTile.trap) {
     console.log("TODO: Traps");
@@ -580,7 +580,7 @@ SERVER.Player.prototype.moveToPosition = function (newPos, dontTriggerTraps) {
 };
 
 
-SERVER.Player.prototype.getActiveActions = function () {
+SERVER.Player.prototype.getActiveActions = async function () {
   var scope = this;
   return new Promise((resolve, reject) => {
     var types = ['', 'MELEE', 'RANGE', 'MOVE', 'DEFEND', 'MAGIC', 'MAGIC2', 'MAGIC', 'MAGIC2'];
@@ -606,7 +606,7 @@ SERVER.Player.prototype.getActiveActions = function () {
   });
 };
 
-SERVER.updateUserChallenges = function (user_id) {
+SERVER.updateUserChallenges =async  function (user_id) {
   var received_challenges = [];
   var sent_challenges = [];
   for (var i in SERVER.Challenges) {
@@ -632,24 +632,24 @@ SERVER.updateUserChallenges = function (user_id) {
 
 };
 
-SERVER.Challenge = function (sender_id, receiver_id) {
-  this.id = SERVER.counter++;
-  this.sender = SERVER.getPlayerById(sender_id);
-  this.receiver = SERVER.getPlayerById(receiver_id);
+SERVER.Challenge = async function (sender_id, receiver_id) {
+  await this.id = SERVER.counter++;
+ await this.sender = SERVER.getPlayerById(sender_id);
+ await this.receiver = SERVER.getPlayerById(receiver_id);
   this.game = null;
 
-  SERVER.Challenges[this.id] = this;
+await  SERVER.Challenges[this.id] = this;
 
   console.log("Player '" + this.sender.user.name + "' challenged player '" + this.receiver.user.name + "'");
 
-  SERVER.updateUserChallenges(this.receiver.user.id);
-  SERVER.updateUserChallenges(this.sender.user.id);
+await  SERVER.updateUserChallenges(this.receiver.user.id);
+  await SERVER.updateUserChallenges(this.sender.user.id);
 };
 
-SERVER.Challenge.prototype.accept = function () {
+SERVER.Challenge.prototype.accept = async function () {
   if (this.sender.game != null /*|| player_offline*/) {
     // challenge accept failed, sender already in game with another player or went offline
-    SERVER.getPlayerById(this.receiver.user.id).user.socket.emit('challenge-failed', {player: this.sender.user.name, ch_id: this.id});
+   await SERVER.getPlayerById(this.receiver.user.id).user.socket.emit('challenge-failed', {player: this.sender.user.name, ch_id: this.id});
   } else {
     // reject + withdraw all challenges of both players except this one
     this.removeOtherParticipantChallenges();
@@ -659,8 +659,8 @@ SERVER.Challenge.prototype.accept = function () {
     this.receiver.game = game;
     this.sender.game = game;
 
-    SERVER.getPlayerById(this.receiver.user.id).user.socket.emit('alert', { content: "Game will be starting soon...", no_ok: true });
-    SERVER.getPlayerById(this.sender.user.id).user.socket.emit('alert', { content: this.receiver.user.name + " agreed to duel you. Game will be starting soon...", no_ok: true });
+    await SERVER.getPlayerById(this.receiver.user.id).user.socket.emit('alert', { content: "Game will be starting soon...", no_ok: true });
+   await  SERVER.getPlayerById(this.sender.user.id).user.socket.emit('alert', { content: this.receiver.user.name + " agreed to duel you. Game will be starting soon...", no_ok: true });
 
     setTimeout(function () {
       game.begin();
@@ -670,20 +670,20 @@ SERVER.Challenge.prototype.accept = function () {
   console.log("Player '" + this.receiver.user.name + "' agreed to duel '" + this.sender.user.name + "'");
 };
 
-SERVER.Challenge.prototype.withdraw = function () {
+SERVER.Challenge.prototype.withdraw = async function () {
   var rid = this.receiver.user.id;
   var sid = this.sender.user.id;
   delete SERVER.Challenges[this.id];
-  SERVER.updateUserChallenges(rid);
-  SERVER.updateUserChallenges(sid);
+ await SERVER.updateUserChallenges(rid);
+ await SERVER.updateUserChallenges(sid);
 };
 
-SERVER.Challenge.prototype.reject = function () {
+SERVER.Challenge.prototype.reject = async function () {
   var rid = this.receiver.user.id;
   var sid = this.sender.user.id;
   delete SERVER.Challenges[this.id];
-  SERVER.updateUserChallenges(rid);
-  SERVER.updateUserChallenges(sid);
+  await SERVER.updateUserChallenges(rid);
+  await SERVER.updateUserChallenges(sid);
   console.log("Player '" + this.receiver.user.name + "' rejected to duel '" + this.sender.user.name+ "'");
 };
 
@@ -714,14 +714,14 @@ SERVER.Tile = function (arena, x, y) {
   this.pos = {x: x, y: y};
 };
 
-SERVER.Arena = function (game) {
+SERVER.Arena = async function (game) {
   this.game = game;
   this.tiles = [];
 
   for (var i = 0; i < 4; ++i) {
-    this.tiles.push([]);
+  await  this.tiles.push([]);
     for (var j = 0; j < 6; ++j) {
-      this.tiles[i].push(new SERVER.Tile(this, j, i));
+    await  this.tiles[i].push(new SERVER.Tile(this, j, i));
     }
   }
 };
@@ -1379,7 +1379,7 @@ SERVER.getGameByPlayer = function (player) {
 };
 
 SERVER.init();
-await SERVER.io.sockets.on('connection', SERVER.onSocketConnection);
+SERVER.io.sockets.on('connection', SERVER.onSocketConnection);
 
 
 SERVER.getOnlineUsers = function () {

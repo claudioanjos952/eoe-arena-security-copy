@@ -1,3 +1,15 @@
+const http = require('http');
+	const md5 = require('md5');
+	const crypto = require('crypto'); // No topo do arquivo
+  var express = require('express');
+  var app = express();
+  var serv = require('http').Server(app);
+	var socketIo = require("socket.io");
+	var io = socketIo(serv);
+	// Adiciona a instância do io ao objeto SERVER
+var SHARED = require("./shared/utils.js");
+var SPELLS = require("./server/spells.js");
+var SKILLS = require("./server/skills.js")
 var SHARED = {};
 
 var SERVER = {

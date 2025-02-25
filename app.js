@@ -335,7 +335,7 @@ SERVER.createUser = async function (data) {
 
   try {
     // Verifica se o nome já existe
-    const res = await SERVER.db.users.findOne({ name: data.username });
+    var res = await SERVER.db.users.findOne({ name: data.username });
     if (res) {
       return { status: 0, msg: "Username is taken by somebody else." };
     }
@@ -352,7 +352,7 @@ SERVER.createUser = async function (data) {
     delete newChar._id;  // Remover o _id para o MongoDB gerar um novo automaticamente
 
     // Insere o personagem no banco de dados
-    const res2 = await SERVER.db.characters.insertOne(newChar);
+    var res2 = await SERVER.db.characters.insertOne(newChar);
     if (!res2) {
       return { status: 0, msg: "Account creation failed." };
     }
@@ -364,7 +364,7 @@ SERVER.createUser = async function (data) {
       token: token,
     };
 
-    const res3 = await SERVER.db.users.insertOne(userData);
+    var res3 = await SERVER.db.users.insertOne(userData);
 
     if (!res3) {
       return { status: 0, msg: "Cannot create an account with this username." };
@@ -386,7 +386,7 @@ SERVER.loginUser = async function (data) {
 
   try {
     // Verificando se o usuário existe
-    let userRes = await SERVER.db.users.findOne({ name: data.username, pass: data.password });
+    var userRes = await SERVER.db.users.findOne({ name: data.username, pass: data.password });
 
     if (!userRes) {
       return { status: 0, msg: "Invalid username or password." };
@@ -426,7 +426,7 @@ console.log(">>>loginuser obj recebeu: ", obj);
 
 SERVER.getItems = async function (type, order) {
   try {
-    const items = await SERVER.db.items.find({ type: type }, { _id: 0, desc: 0 }).toArray();
+    var items = await SERVER.db.items.find({ type: type }, { _id: 0, desc: 0 }).toArray();
     if (items.length > 0) {
       return items.sort((a, b) => a.req[order] - b.req[order]);
     } else {
@@ -439,7 +439,7 @@ SERVER.getItems = async function (type, order) {
 
 SERVER.getSkills = async function (type, order) {
   try {
-    const skills = await SERVER.db.skills.find({ type: type }, { _id: 0 }).toArray();
+    var skills = await SERVER.db.skills.find({ type: type }, { _id: 0 }).toArray();
     if (skills.length > 0) {
       return skills.sort((a, b) => a.req[order] - b.req[order]);
     } else {
@@ -502,8 +502,8 @@ SERVER.levelUpStat = async function (obj) {
     return { status: 0, msg: "Você não tem mais pontos de habilidade." };
   }
 
-  const plus = SHARED.getStatPlusAmount(obj._user.character.stats[obj.stat]);
-  const update = { 
+  var plus = SHARED.getStatPlusAmount(obj._user.character.stats[obj.stat]);
+  var update = { 
     $inc: {
       pts: -1,
       [obj.stat]: plus
@@ -511,7 +511,7 @@ SERVER.levelUpStat = async function (obj) {
   };
 
   try {
-    const res = await SERVER.db.characters.updateOne({ _id: obj._user.char_id }, update);
+    var res = await SERVER.db.characters.updateOne({ _id: obj._user.char_id }, update);
     if (res.modifiedCount > 0) {
       obj._user.character.stats[obj.stat] += plus;
       obj._user.character.points--;
@@ -526,11 +526,11 @@ SERVER.levelUpStat = async function (obj) {
 
 
 SERVER.equipItem = async function (obj) {
-  const char = obj._user.character;
+  var char = obj._user.character;
   obj.id = parseInt(obj.id);
 
   try {
-    const item = await SERVER.db.items.findOne({ id: obj.id });
+    var item = await SERVER.db.items.findOne({ id: obj.id });
     if (!item) {
       return { status: 0, msg: "O item que você está tentando equipar não existe." };
     }
@@ -539,18 +539,18 @@ SERVER.equipItem = async function (obj) {
       return { status: 0, msg: "Você não atende aos requisitos para equipar este item." };
     }
 
-    const types = ['none', 'weapon', 'bow', 'armor', 'charm', 'bomb', 'trap'];
-    const update = { $set: {} };
+    var types = ['none', 'weapon', 'bow', 'armor', 'charm', 'bomb', 'trap'];
+    var update = { $set: {} };
     update.$set[types[item.type]] = obj.id;
     char[types[item.type]] = obj.id;
 
     const res = await SERVER.db.characters.update({ _id: char.id }, update);
     if (res.modifiedCount > 0) {
-      const items = await SERVER.db.items.find({ id: { $in: [char.weapon, char.bow, char.armor, char.bomb, char.trap] } });
-      const totalWeight = items.reduce((sum, item) => sum + item.weight, 0);
+      var items = await SERVER.db.items.find({ id: { $in: [char.weapon, char.bow, char.armor, char.bomb, char.trap] } });
+      var totalWeight = items.reduce((sum, item) => sum + item.weight, 0);
       char.kg = totalWeight;
 
-      const weightUpdate = await SERVER.db.characters.update({ _id: char.id }, { $set: { kg: totalWeight } });
+      var weightUpdate = await SERVER.db.characters.update({ _id: char.id }, { $set: { kg: totalWeight } });
       if (weightUpdate.modifiedCount > 0) {
         return { status: 1 };
       } else {
@@ -570,7 +570,7 @@ SERVER.activateSkill = async function (obj) {
   obj.id = parseInt(obj.id);
 
   try {
-    const skill = await SERVER.db.skills.findOne({ id: obj.id });
+    var skill = await SERVER.db.skills.findOne({ id: obj.id });
     if (!skill) {
       return { status: 0, msg: `A ${skill.type > 4 ? 'magia' : 'habilidade'} que você está tentando ativar não existe.` };
     }
@@ -583,14 +583,14 @@ SERVER.activateSkill = async function (obj) {
       return { status: 0, msg: `Você não atende aos requisitos para usar esta ${skill.type > 4 ? 'magia' : 'habilidade'}.` };
     }
 
-    const types = ['none', 'melee', 'range', 'movement', 'defense', 'magic', 'magic2', 'magic', 'magic2'];
+    var types = ['none', 'melee', 'range', 'movement', 'defense', 'magic', 'magic2', 'magic', 'magic2'];
     if (char[types[skill.type]].length + 1 > SHARED.skillLimit[types[skill.type]]) {
       return { status: 0, msg: `Você atingiu o limite de ${skill.type > 4 ? 'magias' : 'habilidades'} ativas deste tipo.` };
     }
 
     char[types[skill.type]].push(obj.id);
-    const update = { $set: { [types[skill.type]]: char[types[skill.type]] } };
-    const res = await SERVER.db.characters.update({ _id: char.id }, update);
+    var update = { $set: { [types[skill.type]]: char[types[skill.type]] } };
+    var res = await SERVER.db.characters.update({ _id: char.id }, update);
 
     if (res.modifiedCount > 0) {
       return { status: 1 };

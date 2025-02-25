@@ -161,8 +161,8 @@ console.log("conectado na porta " + PORT);
   var uri = mongo_ini + mongo_user + ":" + mongo_pass + "@" + mongo_url + mongo_end;
    // Configura as coleções no SERVER.db
 
-	await const client = new MongoClient(uri, { serverApi: ServerApiVersion.v1 });
-     client.connect();
+const client = new MongoClient(uri, { serverApi: ServerApiVersion.v1 });
+    await client.connect();
 
     console.log('Conectado ao MongoDB');
 

@@ -180,6 +180,7 @@ const client = new MongoClient(uri, { serverApi: ServerApiVersion.v1 });
 
     // Acessa o banco de dados
     const db = client.db("sample_mflix");
+	SERVER.db = db;
 	
 	this.db.users = db.collection("users");
     this.db.characters = db.collection("characters");

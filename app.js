@@ -174,6 +174,7 @@ const client = new MongoClient(uri, { serverApi: ServerApiVersion.v1 });
     this.db.skills = db.collection("skills");
     this.db.items = db.collection("items");
     this.db.finished_battles = db.collection("finished_battles");	
+	return this.db;
   // Socket.io init
   this.io = require('socket.io')(serv, {});
 

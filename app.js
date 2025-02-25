@@ -220,24 +220,24 @@ SERVER.onSocketConnection = async function (socket) {
   var onevent = socket.onevent;
   socket.onevent = function (packet) {
     var args = packet.data || [];
-  await  onevent.call (this, packet);    // original call
+    onevent.call (this, packet);    // original call
     packet.data = ["*"].concat(args);
-   await onevent.call(this, packet);      // additional call to catch-all
+    onevent.call(this, packet);      // additional call to catch-all
   };
 
   // check socket authentity
-await  socket.on("*", function (evt, data) {
+  socket.on("*", function (evt, data) {
     if (data.session_token && SERVER.Sessions.hasOwnProperty(data.session_token)) {
-     await SERVER.handleSocketMessage(socket, evt, data);
+      SERVER.handleSocketMessage(socket, evt, data);
     } else {
       // user authentication failure, please re-auth
      await socket.emit('auth-failure', {});
     }
   });
 
- await socket.on('disconnect', function () {
+  socket.on('disconnect', function () {
     var token = SERVER.getTokenBySocket(socket);
-  await  delete SERVER.Sockets[socket.id];
+    delete SERVER.Sockets[socket.id];
     if (token) SERVER.Sessions[token].dc_timestamp = + new Date();
   })
 

@@ -85,7 +85,7 @@ SERVER.User.prototype.getXP = function () {
   return 150;
 };
 
-SERVER.init = function () {
+SERVER.init = async function () {
   // Express init
   var express = require('express');
   var app = express();
@@ -161,7 +161,7 @@ console.log("conectado na porta " + PORT);
   var uri = mongo_ini + mongo_user + ":" + mongo_pass + "@" + mongo_url + mongo_end;
    // Configura as coleções no SERVER.db
 
-	const client = new MongoClient(uri, { serverApi: ServerApiVersion.v1 });
+	await const client = new MongoClient(uri, { serverApi: ServerApiVersion.v1 });
      client.connect();
 
     console.log('Conectado ao MongoDB');

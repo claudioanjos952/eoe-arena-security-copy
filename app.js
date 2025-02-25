@@ -170,6 +170,8 @@ console.log("conectado na porta " + PORT);
   console.log(mongo_ini, mongo_user, mongo_pass, mongo_url, mongo_end);
   var uri = mongo_ini + mongo_user + ":" + mongo_pass + "@" + mongo_url + mongo_end;
  
+	this.io = require('socket.io')(serv, {});
+
 	//cuidado aqui
 async function connectToDatabase() {
   try {

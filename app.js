@@ -231,7 +231,7 @@ SERVER.onSocketConnection = async function (socket) {
       SERVER.handleSocketMessage(socket, evt, data);
     } else {
       // user authentication failure, please re-auth
-     await socket.emit('auth-failure', {});
+      socket.emit('auth-failure', {});
     }
   });
 

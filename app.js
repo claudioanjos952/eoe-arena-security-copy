@@ -79,20 +79,18 @@ SERVER.User.prototype.getCharacter = function () {
   });
 };
 
-
-SERVER.User.prototype.getObject = async function () {
-  const obj = {
+SERVER.User.prototype.getObject = function () {
+  var scope = this;
+  var obj = {
     id: this.id,
   };
-  try {
-    const char = await this.getCharacter();
-    obj.character = char;
-    return obj;
-  } catch (err) {
-    throw err;
-  }
+  return new Promise((resolve, reject) => {
+    scope.getCharacter().then((char) => {
+      obj.character = char;
+      resolve(obj);
+    });
+  });
 };
-
 
 SERVER.User.prototype.getXP = function () {
   return 150;
@@ -100,8 +98,11 @@ SERVER.User.prototype.getXP = function () {
 
 SERVER.init = function () {
   // Express init
-	SERVER.io = io;
- app.get('/', function (req, res) {
+  var express = require('express');
+  var app = express();
+  var serv = require('http').Server(app);
+
+  app.get('/', function (req, res) {
     res.sendFile(__dirname + '/client/index.html');
   });
   app.get('/shared/utils.js', function (req, res) {
@@ -110,12 +111,12 @@ SERVER.init = function () {
   app.get('/ajax', function (req, res) {
     if (req.headers['x-requested-with'] === 'XMLHttpRequest') {
       if (Object.keys(req.query).length > 0) {
-     //   console.log("GET request with params: " + JSON.stringify(req.query));
+        console.log("GET request with params: " + JSON.stringify(req.query));
         res.writeHead(200, {'Content-Type': 'application/json'});
         var token = req.headers['cookie'].split('token=').pop().split(';').shift();
         if (SERVER.Sessions.hasOwnProperty(token)) {
           var user = SERVER.Sessions[token];
-		   req.query._user = user;
+          req.query._user = user;
         } else {
           res.end(JSON.stringify({ status: -1 }));
           return;

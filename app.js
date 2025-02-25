@@ -161,7 +161,6 @@ SERVER.init = async function () {
   app.use('/client', express.static(__dirname + '/client'));
   var PORT = (process.env.PORT);
 	serv.listen(process.env.PORT);
-	SERVER.io.sockets.on('connection', SERVER.onSocketConnection);
 	
 console.log("conectado na porta " + PORT);
   // MongoDB init
@@ -211,6 +210,8 @@ const client = new MongoClient(uri, { serverApi: ServerApiVersion.v1 });
   });
 
 };
+SERVER.io.sockets.on('connection', SERVER.onSocketConnection);
+	
 
 SERVER.onSocketConnection = async function (socket) {
   SERVER.Sockets[socket.id] = socket;

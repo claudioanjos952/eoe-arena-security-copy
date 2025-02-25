@@ -1379,7 +1379,7 @@ SERVER.getGameByPlayer = function (player) {
 };
 
 SERVER.init();
-SERVER.io.sockets.on('connection', SERVER.onSocketConnection);
+await SERVER.io.sockets.on('connection', SERVER.onSocketConnection);
 
 
 SERVER.getOnlineUsers = function () {

@@ -309,7 +309,8 @@ SERVER.createUser = function (data) {
               });
             } else {
               resolve({ status: 0, msg: "Account creation failed." });
-		    
+		console.log(">>> erro apresentado ao tentar registrar personagem: >>>", err2, "<<< fim do log <<<");
+    
             }
           });
         }

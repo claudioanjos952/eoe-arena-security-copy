@@ -165,7 +165,18 @@ md5 = require('md5');
   crypto = require('crypto');
   
   // load shared utilities
-	const SERVER.db = ('sample_mflix');
+	const SERVER = {
+    db: {
+        sample_mflix: {
+            users: [],
+            characters: [],
+            skills: [],
+            items: [],
+            finished_battles: []
+        }
+    }
+};
+	
 	SHARED = require('./shared/utils.js');
  SPELLS = require('./server/spells.js');
   SKILLS = require('./server/skills.js');

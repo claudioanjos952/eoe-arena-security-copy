@@ -148,14 +148,11 @@ SERVER.init = function () {
   serv.listen(process.env.PORT || 27017);
 
   // MongoDB init
-  var mongo_user = process.env.MONGO_USER;
-  var mongo_pass = process.env.MONGO_PASS;
-  var mongo_url =  process.env.MONGO_URL;
-var mongo_end =  process.env.MONGO_END;
- var mongo_inii =  process.env.MONGO_INII;
+  var mongo_uri = process.env.MONGO_URI;
+  
  
-  console.log(mongo_pass, mongo_user)
-  var uri = mongo_inii + mongo_user + ":" + mongo_pass + "@" + mongo_url + mongo_end;
+  console.log(mongo_uri)
+  var uri = mongo_uri;
   this.db = require("mongojs")(uri, ['users', 'characters', 'skills', 'items', 'finished_battles']);
 	
 	
@@ -179,8 +176,12 @@ md5 = require('md5');
       console.log("Server started.");
     });
   });
-
+console.log(">>> this.db recebeu isso: ", this.db, " <<<");
+	console.log(">>> SERVER.db recebeu isso: ", SERVER.db, " <<<");
+	
 };
+console.log(">>> this.db esta com esse valor depois do server ini: ", this.db, " <<<");
+console.log(">>> SERVER.db esta com esse valor depois do server ini: ", SERVER.db, " <<<");
 
 SERVER.onSocketConnection = function (socket) {
   SERVER.Sockets[socket.id] = socket;
@@ -259,12 +260,8 @@ SERVER.handleSocketMessage = function (socket, evt, data) {
       console.log("DEBUG: ", data);
       break;
   };
-	console.log(">>> this.db recebeu isso: ", this.db, " <<<");
-	console.log(">>> SERVER.db recebeu isso: ", SERVER.db, " <<<");
 	
 };
-console.log(">>> this.db esta com esse valor depois do server ini: ", this.db, " <<<");
-console.log(">>> SERVER.db esta com esse valor depois do server ini: ", SERVER.db, " <<<");
 	
 // Authentication
 SERVER.getUser = function (data) {
@@ -292,6 +289,9 @@ SERVER.createUser = function (data) {
     if (data.username.length > 16) {
       resolve({ status: 0, msg: "Username is too long. Max 16 characters." });
     } else {
+	    console.log(">>> this.db esta com esse valor depois tentar registrar: ", this.db, " <<<");
+console.log(">>> SERVER.db esta com esse valor depois de tentar registrar: ", SERVER.db, " <<<");
+
       SERVER.db.users.findOne({ name: data.username }, function (err, res) {
         if (res) { // found something
           resolve({ status: 0, msg: "Username is taken by somebody else." });
@@ -307,6 +307,7 @@ SERVER.createUser = function (data) {
               });
             } else {
               resolve({ status: 0, msg: "Account creation failed." });
+		    
             }
           });
         }

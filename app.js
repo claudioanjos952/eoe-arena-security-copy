@@ -1,9 +1,3 @@
-var express = require('express');
-  var app = express();
-  var serv = require('http').Server(app);
-md5 = require('md5');
-  crypto = require('crypto');
-  
 SHARED = require('./shared/utils.js');
  SPELLS = require('./server/spells.js');
   SKILLS = require('./server/skills.js');
@@ -98,6 +92,9 @@ SERVER.User.prototype.getXP = function () {
 
 SERVER.init = function () {
   // Express init
+	var express = require('express');
+  var app = express();
+  var serv = require('http').Server(app);
   
   app.get('/', function (req, res) {
     res.sendFile(__dirname + '/client/index.html');
@@ -170,6 +167,9 @@ var mongo_end =  process.env.MONGO_END;
   this.io = require('socket.io')(serv, {});
 
   // encrytpion
+  
+md5 = require('md5');
+  crypto = require('crypto');
   
   // load shared utilities
   

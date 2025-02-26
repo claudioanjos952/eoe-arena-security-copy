@@ -165,6 +165,7 @@ md5 = require('md5');
   crypto = require('crypto');
   
   // load shared utilities
+	const SERVER.db = ('sample_mflix');
 	SHARED = require('./shared/utils.js');
  SPELLS = require('./server/spells.js');
   SKILLS = require('./server/skills.js');
@@ -175,13 +176,14 @@ md5 = require('md5');
       SERVER.ITEM_INFO = res2;
       console.log("Server started.");
     });
+	  
   });
 	
 console.log(">>> this.db recebeu isso: ", this.db, " <<<");
 	console.log(">>> SERVER.db recebeu isso: ", SERVER.db, " <<<");
 	console.log(">>> thi.io recebeu isso: ", this.io, " <<<");
 	console.log(">>> serv recebeu isso: ", serv, " <<<");
-	const SERVER.db = ('sample_mflix');
+	
 	
 };
 console.log(">>> this.db esta com esse valor depois do server ini: ", this.db, " <<<");

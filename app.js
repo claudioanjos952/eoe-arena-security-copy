@@ -153,7 +153,7 @@ SERVER.init = function () {
  
   console.log(mongo_uri)
   var uri = mongo_uri;
-  this.db = require("mongojs")(uri, ['users', 'characters', 'skills', 'items', 'finished_battles']);
+  this.db = new MongoClient("mongojs")(uri, ['users', 'characters', 'skills', 'items', 'finished_battles']);
 	
 	
   // Socket.io init
@@ -176,6 +176,7 @@ md5 = require('md5');
       console.log("Server started.");
     });
   });
+	
 console.log(">>> this.db recebeu isso: ", this.db, " <<<");
 	console.log(">>> SERVER.db recebeu isso: ", SERVER.db, " <<<");
 	

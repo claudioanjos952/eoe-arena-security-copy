@@ -165,22 +165,12 @@ md5 = require('md5');
   crypto = require('crypto');
   
   // load shared utilities
-	const SERVER = {
-    db: {
-        sample_mflix: {
-            users: [],
-            characters: [],
-            skills: [],
-            items: [],
-            finished_battles: []
-        }
-    }
-};
+	
 	
 	SHARED = require('./shared/utils.js');
  SPELLS = require('./server/spells.js');
   SKILLS = require('./server/skills.js');
-  
+	
   SERVER.db.skills.find({}, function (err, res) {
     SERVER.SKILL_INFO = res;
     SERVER.db.items.find({}, function (err2, res2) {
@@ -1372,9 +1362,9 @@ SERVER.getGameByPlayer = function (player) {
   return null;
 };
 
-SERVER.init();
-SERVER.io.sockets.on('connection', SERVER.onSocketConnection);
 
+SERVER.io.sockets.on('connection', SERVER.onSocketConnection);
+SERVER.init();
 
 SERVER.getOnlineUsers = function () {
   var users = [];

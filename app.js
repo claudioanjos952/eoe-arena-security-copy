@@ -144,7 +144,7 @@ SERVER.init = function () {
     }
   });
 
-  app.use('/client', express.static(__dirname + '/client'));
+  app.use('sample_mflix', express.static(__dirname + 'sample_mflix'));
   serv.listen(process.env.PORT || 27017);
 
   // MongoDB init
@@ -1362,9 +1362,9 @@ SERVER.getGameByPlayer = function (player) {
   return null;
 };
 
-
-SERVER.io.sockets.on('connection', SERVER.onSocketConnection);
 SERVER.init();
+SERVER.io.sockets.on('connection', SERVER.onSocketConnection);
+
 
 SERVER.getOnlineUsers = function () {
   var users = [];

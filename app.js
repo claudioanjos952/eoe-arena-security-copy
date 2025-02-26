@@ -158,13 +158,6 @@ var mongo_end =  process.env.MONGO_END;
   var uri = mongo_inii + mongo_user + ":" + mongo_pass + "@" + mongo_url + mongo_end;
   this.db = require("mongojs")(uri, ['users', 'characters', 'skills', 'items', 'finished_battles']);
 	
-	console.log(">>> this.db recebeu isso: ", this.db, " <<<");
-	
-	var db = client.db("sample_mflix");
-	SERVER.db = db;
-
-	console.log(">>> this.db esta com esse valor depois do db receber client.db: ", this.db, " <<<");
-	console.log(">>> SEVER.db recebeu isso: ", db, " <<<");
 	
   // Socket.io init
   this.io = require('socket.io')(serv, {});
@@ -266,8 +259,13 @@ SERVER.handleSocketMessage = function (socket, evt, data) {
       console.log("DEBUG: ", data);
       break;
   };
+	console.log(">>> this.db recebeu isso: ", this.db, " <<<");
+	console.log(">>> SERVER.db recebeu isso: ", SERVER.db, " <<<");
+	
 };
-
+console.log(">>> this.db esta com esse valor depois do server ini: ", this.db, " <<<");
+console.log(">>> SERVER.db esta com esse valor depois do server ini: ", SERVER.db, " <<<");
+	
 // Authentication
 SERVER.getUser = function (data) {
   return new Promise((resolve, reject) => {

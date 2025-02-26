@@ -179,6 +179,8 @@ md5 = require('md5');
 	
 console.log(">>> this.db recebeu isso: ", this.db, " <<<");
 	console.log(">>> SERVER.db recebeu isso: ", SERVER.db, " <<<");
+	console.log(">>> thi.io recebeu isso: ", this.io, " <<<");
+	console.log(">>> serv recebeu isso: ", serv, " <<<");
 	
 };
 console.log(">>> this.db esta com esse valor depois do server ini: ", this.db, " <<<");
@@ -290,9 +292,7 @@ SERVER.createUser = function (data) {
     if (data.username.length > 16) {
       resolve({ status: 0, msg: "Username is too long. Max 16 characters." });
     } else {
-	    console.log(">>> this.db esta com esse valor depois tentar registrar: ", this.db, " <<<");
-console.log(">>> SERVER.db esta com esse valor depois de tentar registrar: ", SERVER.db, " <<<");
-console.log(">>> SERVER puro esta com esse valor depois de tentar registrar: ", SERVER, " <<<");
+	    console.log(">>> data em criacao esta com esse valor depois tentar registrar: ", data, " <<<");
 
       SERVER.db.users.findOne({ name: data.username }, function (err, res) {
         if (res) { // found something

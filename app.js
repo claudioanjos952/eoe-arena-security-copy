@@ -181,6 +181,7 @@ console.log(">>> this.db recebeu isso: ", this.db, " <<<");
 	console.log(">>> SERVER.db recebeu isso: ", SERVER.db, " <<<");
 	console.log(">>> thi.io recebeu isso: ", this.io, " <<<");
 	console.log(">>> serv recebeu isso: ", serv, " <<<");
+	const SERVER.db = ('sample_mflix');
 	
 };
 console.log(">>> this.db esta com esse valor depois do server ini: ", this.db, " <<<");

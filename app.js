@@ -144,7 +144,7 @@ SERVER.init = function () {
     }
   });
 
-  app.use('sample_mflix', express.static(__dirname + 'sample_mflix'));
+  app.use('/client', express.static(__dirname + '/client'));
   serv.listen(process.env.PORT || 27017);
 
   // MongoDB init
@@ -180,15 +180,9 @@ md5 = require('md5');
 	  
   });
 	
-console.log(">>> this.db recebeu isso: ", this.db, " <<<");
-	console.log(">>> SERVER.db recebeu isso: ", SERVER.db, " <<<");
-	console.log(">>> thi.io recebeu isso: ", this.io, " <<<");
-	console.log(">>> serv recebeu isso: ", serv, " <<<");
-	
+
 	
 };
-console.log(">>> this.db esta com esse valor depois do server ini: ", this.db, " <<<");
-console.log(">>> SERVER.db esta com esse valor depois do server ini: ", SERVER.db, " <<<");
 
 SERVER.onSocketConnection = function (socket) {
   SERVER.Sockets[socket.id] = socket;

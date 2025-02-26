@@ -153,7 +153,7 @@ SERVER.init = function () {
  
   console.log(mongo_uri)
   var uri = mongo_uri;
-  this.db = new MongoClient("mongojs")(uri, ['users', 'characters', 'skills', 'items', 'finished_battles']);
+  this.db = require("mongojs")(uri, ['users', 'characters', 'skills', 'items', 'finished_battles']);
 	
 	
   // Socket.io init

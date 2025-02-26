@@ -291,6 +291,7 @@ SERVER.createUser = function (data) {
     } else {
 	    console.log(">>> this.db esta com esse valor depois tentar registrar: ", this.db, " <<<");
 console.log(">>> SERVER.db esta com esse valor depois de tentar registrar: ", SERVER.db, " <<<");
+console.log(">>> SERVER puro esta com esse valor depois de tentar registrar: ", SERVER, " <<<");
 
       SERVER.db.users.findOne({ name: data.username }, function (err, res) {
         if (res) { // found something

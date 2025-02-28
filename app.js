@@ -11,6 +11,8 @@ const http = require('http');
 var SHARED = require("./shared/utils.js");
 var SPELLS = require("./server/spells.js");
 var SKILLS = require("./server/skills.js");
+const { ObjectId } = require('mongodb'); // Certifique-se de importar isso no topo do arquivo
+
 
 var SERVER = {
   io: null,
@@ -674,34 +676,50 @@ SERVER.deactivateSkill = async function (obj) {
   obj.id = parseInt(obj.id);
 
   try {
-	  console.log("Tentando desativar skill com ID:", obj.id);
+    console.log("Tentando desativar skill com ID:", obj.id);
     
-    var skill = await SERVER.db.skills.findOne({ id: parseInt(obj.id) });
-    console.log(">>> skills encontrados para desativar:", skills); // Log para verificar se há itens
- 
-	  if (!skill) {
-      return { status: 0, msg: `A ${skill.type > 4 ? 'magia' : 'habilidade'} que você está tentando desativar não existe.` };
+    // Verifica se o banco de dados está inicializado corretamente
+    if (!SERVER.db || !SERVER.db.skills) {
+      console.error("Erro: Banco de dados não inicializado corretamente.");
+      return { status: 0, msg: "Erro interno do servidor." };
+    }
+
+    var skill = await SERVER.db.skills.findOne({ id: obj.id });
+    console.log(">>> Skill encontrada para desativar:", skill);
+
+    if (!skill) {
+      return { status: 0, msg: `A ${obj.id > 4 ? 'magia' : 'habilidade'} que você está tentando desativar não existe.` };
     }
 
     var types = ['none', 'melee', 'range', 'movement', 'defense', 'magic', 'magic2', 'magic', 'magic2'];
     var index = char[types[skill.type]].indexOf(obj.id);
+    
     if (index < 0) {
-      return { status: 0, msg: 'Você não pode desativar o que está inativo.' };
+      return { status: 0, msg: 'Você não pode desativar o que já está inativo.' };
     }
 
     char[types[skill.type]].splice(index, 1);
     var update = { $set: { [types[skill.type]]: char[types[skill.type]] } };
-    var res = await SERVER.db.characters.updateOne({ _id: char.id }, update);
+
+    // Corrige _id caso seja do tipo ObjectId
+    var res = await SERVER.db.characters.updateOne(
+      { _id: new ObjectId(char.id) }, 
+      update
+    );
+
+    console.log("Resultado da atualização:", res);
 
     if (res.modifiedCount > 0) {
       return { status: 1 };
     } else {
-      return { status: 0, msg: `Erro. Não é possível desativar esta ${skill.type > 4 ? 'magia' : 'habilidade'}.` };
+      return { status: 0, msg: `Erro. Não foi possível desativar esta ${skill.type > 4 ? 'magia' : 'habilidade'}.` };
     }
   } catch (err) {
+    console.error("Erro ao acessar o banco de dados:", err);
     return { status: 0, msg: 'Erro ao acessar o banco de dados.', error: err };
   }
 };
+
 
 
 SERVER.meetRequirements = function (char, req) {

@@ -153,13 +153,7 @@ const { MongoClient, ServerApiVersion } = require('mongodb');
  
   console.log(mongo_uri)
   var uri = mongo_uri;
-  this.db = new MongoClient(uri, {
-		  users: [],
-		  characters: [],
-		  skills: [],
-		  items: [],
-		  finished_battles: []
-  });
+  this.db = new MongoClient(uri);
 	
 	async function run() {
   try {

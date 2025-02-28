@@ -739,7 +739,7 @@
       }
 
       if (action && CLIENT.game.energyLeft >= cost) {
-        CLIENT.game.currentActions.push({id: parseInt(obj.id), action: action, data: data});
+        CLIENT.game.currentActions.push({id: parseInt(id), action: action, data: data});
 
         if (action.split('-')[0] == "move" && action.split('-')[1] != 'wait' && action.split('-')[1] != 'panic' && action.split('-')[1] != 'back_away') {
           CLIENT.mode = 'move';

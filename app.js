@@ -433,7 +433,8 @@ console.log(">>>loginuser obj recebeu: ", obj);
 SERVER.getItems = async function (type, order) {
   try {
     var items = await SERVER.db.items.find({ type: type }, { _id: 0, desc: 0 }).toArray();
-    if (items.length > 0) {
+   console.log(">>> Itens encontrados:", items); // Log para verificar se há itens
+	  if (items.length > 0) {
       return items.sort((a, b) => a.req[order] - b.req[order]);
     } else {
       throw new Error("No items found.");
@@ -446,7 +447,8 @@ SERVER.getItems = async function (type, order) {
 SERVER.getSkills = async function (type, order) {
   try {
     var skills = await SERVER.db.skills.find({ type: type }, { _id: 0 }).toArray();
-    if (skills.length > 0) {
+    console.log(">>> skills encontrados:", skills); // Log para verificar se há itens
+ if (skills.length > 0) {
       return skills.sort((a, b) => a.req[order] - b.req[order]);
     } else {
       throw new Error("No skills found.");
@@ -537,7 +539,9 @@ SERVER.equipItem = async function (obj) {
 
   try {
     var item = await SERVER.db.items.findOne({ id: obj.id });
-    if (!item) {
+    console.log("Itens encontrados para equipar:", items); // Log para verificar se há itens
+ 
+	  if (!item) {
       return { status: 0, msg: "O item que você está tentando equipar não existe." };
     }
 
@@ -553,7 +557,8 @@ SERVER.equipItem = async function (obj) {
     var res = await SERVER.db.characters.update({ _id: char.id }, update);
     if (res.modifiedCount > 0) {
       var items = await SERVER.db.items.find({ id: { $in: [char.weapon, char.bow, char.armor, char.bomb, char.trap] } });
-      var totalWeight = items.reduce((sum, item) => sum + item.weight, 0);
+    console.log(">>> Itens encontrados para atualizar:", items); // Log para verificar se há itens
+   var totalWeight = items.reduce((sum, item) => sum + item.weight, 0);
       char.kg = totalWeight;
 
       var weightUpdate = await SERVER.db.characters.update({ _id: char.id }, { $set: { kg: totalWeight } });
@@ -577,7 +582,9 @@ SERVER.activateSkill = async function (obj) {
 
   try {
     var skill = await SERVER.db.skills.findOne({ id: obj.id });
-    if (!skill) {
+   console.log(">>> skills encontrados para ativar:", skills); // Log para verificar se há itens
+ 
+	  if (!skill) {
       return { status: 0, msg: `A ${skill.type > 4 ? 'magia' : 'habilidade'} que você está tentando ativar não existe.` };
     }
 
@@ -615,7 +622,9 @@ SERVER.deactivateSkill = async function (obj) {
 
   try {
     var skill = await SERVER.db.skills.findOne({ id: obj.id });
-    if (!skill) {
+    console.log(">>> skills encontrados para desativar:", skills); // Log para verificar se há itens
+ 
+	  if (!skill) {
       return { status: 0, msg: `A ${skill.type > 4 ? 'magia' : 'habilidade'} que você está tentando desativar não existe.` };
     }
 

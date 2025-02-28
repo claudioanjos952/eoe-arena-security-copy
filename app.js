@@ -193,6 +193,11 @@ const { MongoClient, ServerApiVersion } = require('mongodb');
 	  
   app.use(cookieParser()); // Middleware para parsing de cookies
 app.use('/client', express.static(__dirname + '/client')); // Middlewar
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+
+	
 var PORT = (process.env.PORT);
 	serv.listen(process.env.PORT);
 	
@@ -598,7 +603,7 @@ SERVER.equipItem = async function (obj) {
     update.$set[types[item.type]] = obj.id;
     char[types[item.type]] = obj.id;
 
-    var res = await SERVER.db.characters.update({ _id: char.id }, update);
+    var res = await SERVER.db.characters.updateOne({ _id: char.id }, update);
     if (res.modifiedCount > 0) {
      console.log("Tentando atualizar item com char.id:", char.id);
     
@@ -607,7 +612,7 @@ SERVER.equipItem = async function (obj) {
    var totalWeight = items.reduce((sum, item) => sum + item.weight, 0);
       char.kg = totalWeight;
 
-      var weightUpdate = await SERVER.db.characters.update({ _id: char.id }, { $set: { kg: totalWeight } });
+      var weightUpdate = await SERVER.db.characters.updateOne({ _id: char.id }, { $set: { kg: totalWeight } });
       if (weightUpdate.modifiedCount > 0) {
         return { status: 1 };
       } else {
@@ -651,7 +656,7 @@ SERVER.activateSkill = async function (obj) {
 
     char[types[skill.type]].push(obj.id);
     var update = { $set: { [types[skill.type]]: char[types[skill.type]] } };
-    var res = await SERVER.db.characters.update({ _id: char.id }, update);
+    var res = await SERVER.db.characters.updateOne({ _id: char.id }, update);
 
     if (res.modifiedCount > 0) {
       return { status: 1 };
@@ -686,7 +691,7 @@ SERVER.deactivateSkill = async function (obj) {
 
     char[types[skill.type]].splice(index, 1);
     var update = { $set: { [types[skill.type]]: char[types[skill.type]] } };
-    var res = await SERVER.db.characters.update({ _id: char.id }, update);
+    var res = await SERVER.db.characters.updateOne({ _id: char.id }, update);
 
     if (res.modifiedCount > 0) {
       return { status: 1 };
@@ -1348,12 +1353,12 @@ SERVER.Game.prototype.getBattleReport = function (winner, loser) {
     loser.user.character.points += 2;
   }
 
-  SERVER.db.characters.update({ _id: winner.user.char_id }, { $inc: {
+  SERVER.db.characters.updateOne({ _id: winner.user.char_id }, { $inc: {
     xp: xp_per_win,
     respect: respect_gain.w,
     pts: w_lvlup ? 2 : 0,
   }}, function (err, res) {
-    SERVER.db.characters.update({ _id: loser.user.char_id }, { $inc: {
+    SERVER.db.characters.updateOne({ _id: loser.user.char_id }, { $inc: {
       xp: xp_per_win / 2,
       respect: respect_gain.l,
       pts: l_lvlup ? 2 : 0,

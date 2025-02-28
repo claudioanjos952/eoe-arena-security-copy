@@ -468,29 +468,61 @@ console.log(">>>loginuser obj recebeu: ", obj);
 
 SERVER.getItems = async function (type, order) {
   try {
-    var items = await SERVER.db.items.find({ type: type }, { _id: 0, desc: 0 }).toArray();
-   if (items.length > 0) {
+    console.log(`>>> Buscando itens do tipo "${type}"`);
+
+    // Verifica se o banco de dados está inicializado
+    if (!SERVER.db || !SERVER.db.items) {
+      console.error("Erro: Banco de dados não inicializado corretamente.");
+      throw new Error("Banco de dados não disponível.");
+    }
+
+    var items = await SERVER.db.items.find(
+      { type: type }, 
+      { projection: { _id: 0, desc: 0 } }
+    ).toArray();
+
+    console.log(">>> Itens encontrados:", items);
+
+    if (items.length > 0) {
       return items.sort((a, b) => a.req[order] - b.req[order]);
     } else {
-      throw new Error("No items found.");
+      throw new Error("Nenhum item encontrado.");
     }
   } catch (err) {
+    console.error("Erro ao buscar itens:", err);
     throw err;
   }
 };
 
+
 SERVER.getSkills = async function (type, order) {
   try {
-    var skills = await SERVER.db.skills.find({ type: type }, { _id: 0 }).toArray();
-     if (skills.length > 0) {
+    console.log(`>>> Buscando habilidades do tipo "${type}"`);
+
+    // Verifica se o banco de dados está inicializado
+    if (!SERVER.db || !SERVER.db.skills) {
+      console.error("Erro: Banco de dados não inicializado corretamente.");
+      throw new Error("Banco de dados não disponível.");
+    }
+
+    var skills = await SERVER.db.skills.find(
+      { type: type }, 
+      { projection: { _id: 0, desc: 0 } }
+    ).toArray();
+
+    console.log(">>> Habilidades encontradas:", skills);
+
+    if (skills.length > 0) {
       return skills.sort((a, b) => a.req[order] - b.req[order]);
     } else {
-      throw new Error("No skills found.");
+      throw new Error("Nenhuma habilidade encontrada.");
     }
   } catch (err) {
+    console.error("Erro ao buscar habilidades:", err);
     throw err;
   }
 };
+
 
 
 SERVER.getGETResponse = async function (obj) {
@@ -583,16 +615,24 @@ SERVER.levelUpStat = async function (obj) {
 };
 
 
+
 SERVER.equipItem = async function (obj) {
   var char = obj._user.character;
   obj.id = parseInt(obj.id);
 
-  try {console.log(">>>Tentando equipar item com ID:", obj.id);
-    
-    var item = await SERVER.db.items.findOne({ id: parseInt(obj.id) });
-    console.log("Itens encontrados para equipar:", items); // Log para verificar se há itens
- 
-	  if (!item) {
+  try {
+    console.log(">>> Tentando equipar item com ID:", obj.id);
+
+    // Verifica se o banco de dados está inicializado corretamente
+    if (!SERVER.db || !SERVER.db.items) {
+      console.error("Erro: Banco de dados não inicializado corretamente.");
+      return { status: 0, msg: "Erro interno do servidor." };
+    }
+
+    var item = await SERVER.db.items.findOne({ id: obj.id });
+    console.log(">>> Item encontrado para equipar:", item);
+
+    if (!item) {
       return { status: 0, msg: "O item que você está tentando equipar não existe." };
     }
 
@@ -605,16 +645,33 @@ SERVER.equipItem = async function (obj) {
     update.$set[types[item.type]] = obj.id;
     char[types[item.type]] = obj.id;
 
-    var res = await SERVER.db.characters.updateOne({ _id: char.id }, update);
+    // Corrige _id caso seja do tipo ObjectId
+    var res = await SERVER.db.characters.updateOne(
+      { _id: new ObjectId(char.id) },
+      update
+    );
+
+    console.log(">>> Tentando atualizar item com char.id:", char.id);
+    console.log(">>> Resultado da atualização:", res);
+
     if (res.modifiedCount > 0) {
-     console.log("Tentando atualizar item com char.id:", char.id);
-    
-	    var items = await SERVER.db.items.find({ id: { $in: [char.weapon, char.bow, char.armor, char.bomb, char.trap] } });
-    console.log(">>> Itens encontrados para atualizar:", items); // Log para verificar se há itens
-   var totalWeight = items.reduce((sum, item) => sum + item.weight, 0);
+      // Busca os itens equipados corretamente
+      var equippedItems = await SERVER.db.items.find({
+        id: { $in: [char.weapon, char.bow, char.armor, char.bomb, char.trap] }
+      }).toArray();
+
+      console.log(">>> Itens equipados encontrados:", equippedItems);
+
+      var totalWeight = equippedItems.reduce((sum, item) => sum + item.weight, 0);
       char.kg = totalWeight;
 
-      var weightUpdate = await SERVER.db.characters.updateOne({ _id: char.id }, { $set: { kg: totalWeight } });
+      var weightUpdate = await SERVER.db.characters.updateOne(
+        { _id: new ObjectId(char.id) },
+        { $set: { kg: totalWeight } }
+      );
+
+      console.log(">>> Atualização do peso do personagem:", weightUpdate);
+
       if (weightUpdate.modifiedCount > 0) {
         return { status: 1 };
       } else {
@@ -624,9 +681,11 @@ SERVER.equipItem = async function (obj) {
       return { status: 0, msg: "Falha ao equipar o item." };
     }
   } catch (err) {
+    console.error("Erro ao acessar o banco de dados:", err);
     return { status: 0, msg: "Erro ao acessar o banco de dados.", error: err };
   }
 };
+
 
 
 SERVER.activateSkill = async function (obj) {
@@ -634,13 +693,19 @@ SERVER.activateSkill = async function (obj) {
   obj.id = parseInt(obj.id);
 
   try {
-	  console.log("Tentando equipar skill com ID:", obj.id);
-    
-    var skill = await SERVER.db.skills.findOne({ id: parseInt(obj.id) });
-   console.log(">>> skills encontrados para ativar:", skills); // Log para verificar se há itens
- 
-	  if (!skill) {
-      return { status: 0, msg: `A ${skill.type > 4 ? 'magia' : 'habilidade'} que você está tentando ativar não existe.` };
+    console.log("Tentando ativar skill com ID:", obj.id);
+
+    // Verifica se o banco de dados está inicializado corretamente
+    if (!SERVER.db || !SERVER.db.skills) {
+      console.error("Erro: Banco de dados não inicializado corretamente.");
+      return { status: 0, msg: "Erro interno do servidor." };
+    }
+
+    var skill = await SERVER.db.skills.findOne({ id: obj.id });
+    console.log(">>> Skill encontrada para ativar:", skill);
+
+    if (!skill) {
+      return { status: 0, msg: `A ${obj.id > 4 ? 'magia' : 'habilidade'} que você está tentando ativar não existe.` };
     }
 
     if (!skill.enabled) {
@@ -658,17 +723,26 @@ SERVER.activateSkill = async function (obj) {
 
     char[types[skill.type]].push(obj.id);
     var update = { $set: { [types[skill.type]]: char[types[skill.type]] } };
-    var res = await SERVER.db.characters.updateOne({ _id: char.id }, update);
+
+    // Corrige _id caso seja do tipo ObjectId
+    var res = await SERVER.db.characters.updateOne(
+      { _id: new ObjectId(char.id) }, 
+      update
+    );
+
+    console.log("Resultado da atualização:", res);
 
     if (res.modifiedCount > 0) {
       return { status: 1 };
     } else {
-      return { status: 0, msg: `Erro. Não é possível ativar esta ${skill.type > 4 ? 'magia' : 'habilidade'}.` };
+      return { status: 0, msg: `Erro. Não foi possível ativar esta ${skill.type > 4 ? 'magia' : 'habilidade'}.` };
     }
   } catch (err) {
+    console.error("Erro ao acessar o banco de dados:", err);
     return { status: 0, msg: 'Erro ao acessar o banco de dados.', error: err };
   }
 };
+
 
 
 SERVER.deactivateSkill = async function (obj) {

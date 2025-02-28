@@ -433,8 +433,7 @@ console.log(">>>loginuser obj recebeu: ", obj);
 SERVER.getItems = async function (type, order) {
   try {
     var items = await SERVER.db.items.find({ type: type }, { _id: 0, desc: 0 }).toArray();
-   console.log(">>> Itens encontrados:", items); // Log para verificar se há itens
-	  if (items.length > 0) {
+   if (items.length > 0) {
       return items.sort((a, b) => a.req[order] - b.req[order]);
     } else {
       throw new Error("No items found.");
@@ -447,8 +446,7 @@ SERVER.getItems = async function (type, order) {
 SERVER.getSkills = async function (type, order) {
   try {
     var skills = await SERVER.db.skills.find({ type: type }, { _id: 0 }).toArray();
-    console.log(">>> skills encontrados:", skills); // Log para verificar se há itens
- if (skills.length > 0) {
+     if (skills.length > 0) {
       return skills.sort((a, b) => a.req[order] - b.req[order]);
     } else {
       throw new Error("No skills found.");
@@ -482,20 +480,36 @@ SERVER.getPOSTResponse = async function (obj) {
   try {
     switch (obj.ajax_action) {
       case "login":
+		    console.log("Requisição para login  recebida:", obj);
+      
         return await SERVER.loginUser(obj);
       case "register":
+		    console.log("Requisição para registrar  recebida:", obj);
+      
         return await SERVER.createUser(obj);
       case "authenticate":
+		    console.log("Requisição para autenticar  recebida:", obj);
+      
         return await SERVER.getUser(obj);
       case "equip-item":
+		    console.log("Requisição para equipar item recebida:", obj);
+      
         return await SERVER.equipItem(obj);
       case "get-character":
+		    console.log("Requisição para get character recebida:", obj);
+      
         return await obj._user.getCharacter();
       case "activate-skill":
+		    console.log("Requisição para activate skill recebida:", obj);
+      
         return await SERVER.activateSkill(obj);
       case "deactivate-skill":
+		    console.log("Requisição para desactivate skill recebida:", obj);
+      
         return await SERVER.deactivateSkill(obj);
       case "level-stat":
+		    console.log("Requisição para level stat recebida:", obj);
+      
         return await SERVER.levelUpStat(obj);
       default:
         return {};
@@ -537,7 +551,8 @@ SERVER.equipItem = async function (obj) {
   var char = obj._user.character;
   obj.id = parseInt(obj.id);
 
-  try {
+  try {console.log(">>>Tentando equipar item com ID:", obj.id);
+    
     var item = await SERVER.db.items.findOne({ id: obj.id });
     console.log("Itens encontrados para equipar:", items); // Log para verificar se há itens
  
@@ -556,7 +571,9 @@ SERVER.equipItem = async function (obj) {
 
     var res = await SERVER.db.characters.update({ _id: char.id }, update);
     if (res.modifiedCount > 0) {
-      var items = await SERVER.db.items.find({ id: { $in: [char.weapon, char.bow, char.armor, char.bomb, char.trap] } });
+     console.log("Tentando atualizar item com char.id:", char.id);
+    
+	    var items = await SERVER.db.items.find({ id: { $in: [char.weapon, char.bow, char.armor, char.bomb, char.trap] } });
     console.log(">>> Itens encontrados para atualizar:", items); // Log para verificar se há itens
    var totalWeight = items.reduce((sum, item) => sum + item.weight, 0);
       char.kg = totalWeight;
@@ -581,6 +598,8 @@ SERVER.activateSkill = async function (obj) {
   obj.id = parseInt(obj.id);
 
   try {
+	  console.log("Tentando equipar skill com ID:", obj.id);
+    
     var skill = await SERVER.db.skills.findOne({ id: obj.id });
    console.log(">>> skills encontrados para ativar:", skills); // Log para verificar se há itens
  
@@ -621,6 +640,8 @@ SERVER.deactivateSkill = async function (obj) {
   obj.id = parseInt(obj.id);
 
   try {
+	  console.log("Tentando desativar skill com ID:", obj.id);
+    
     var skill = await SERVER.db.skills.findOne({ id: obj.id });
     console.log(">>> skills encontrados para desativar:", skills); // Log para verificar se há itens
  

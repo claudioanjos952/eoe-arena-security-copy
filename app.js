@@ -128,35 +128,64 @@ SERVER.init = function () {
       }
     }
   });
-  app.post('/ajax', function (req, res) {
+  app.post('/ajax', async function (req, res) {  // Agora a função é async
     if (req.headers['x-requested-with'] === 'XMLHttpRequest') {
-      var body = '';
-      req.on('data', function (data) {
-        body += data;
-      });
-      req.on('end', function () {
-        if (body.length > 0) {
-          var parsed = JSON.parse(body);
-          res.writeHead(200, {'Content-Type': 'application/json'});
-          if (parsed.ajax_action != "login" && parsed.ajax_action != "register" && parsed.ajax_action != "authenticate") {
-            var token = req.headers.cookie?.match(/(?:^|;\s*)token=([^;]*)/)?.[1];
- if (SERVER.Sessions.hasOwnProperty(token)) {
-              var user = SERVER.Sessions[token];
-              parsed._user = user;
-              console.log(">>>!= login && register && autenticste Sessões ativas:", Object.keys(SERVER.Sessions), "fim sessoes ativas != L R A <<<");
+        var body = '';
 
-            } else {
-              res.end(JSON.stringify({ status: -1 }));
-              return;
+        req.on('data', function (data) {
+            body += data;
+        });
+
+        req.on('end', async function () {  // Tornando este bloco assíncrono também
+            if (body.length > 0) {
+                try {
+                    var parsed = JSON.parse(body);
+                    res.writeHead(200, { 'Content-Type': 'application/json' });
+
+                    console.log("Requisição AJAX recebida:", parsed);
+
+                    // Verifica se a ação não é login, registro ou autenticação
+                    if (parsed.ajax_action != "login" && parsed.ajax_action != "register" && parsed.ajax_action != "authenticate") {
+                        var token = req.headers.cookie?.match(/(?:^|;\s*)token=([^;]*)/)?.[1];
+
+                        if (SERVER.Sessions.hasOwnProperty(token)) {
+                            var user = SERVER.Sessions[token];
+                            parsed._user = user;
+
+                            console.log("Sessão encontrada para o token:", token);
+                        } else {
+                            console.error("Erro: Sessão não encontrada para o token.");
+                            return res.end(JSON.stringify({ status: -1, msg: "Sessão inválida ou expirada." }));
+                        }
+                    }
+
+                    // Verifica se há um ID válido antes de processar
+                    if (["equip-item", "activate-skill", "deactivate-skill"].includes(parsed.ajax_action)) {
+                        if (!parsed.id) {
+                            console.error("Erro: ID ausente na requisição.");
+                            return res.end(JSON.stringify({ status: 0, msg: "ID inválido na requisição." }));
+                        }
+                    }
+
+                    // Processa a requisição de forma assíncrona
+                    try {
+                        let response = await SERVER.getPOSTResponse(parsed);
+                        console.log("Resposta enviada pelo servidor:", response);
+                        return res.end(JSON.stringify(response));
+                    } catch (err) {
+                        console.error("Erro no processamento de `getPOSTResponse`:", err);
+                        return res.end(JSON.stringify({ status: 0, msg: "Erro interno do servidor." }));
+                    }
+
+                } catch (err) {
+                    console.error("Erro ao processar JSON da requisição:", err);
+                    return res.end(JSON.stringify({ status: 0, msg: "Formato inválido de JSON." }));
+                }
             }
-          }
-          SERVER.getPOSTResponse(parsed).then((obj) => {
-            res.end(JSON.stringify(obj));
-          });
-        }
-      });
+        });
     }
-  });
+});
+
 
 //quase perco o juizo nisso
 

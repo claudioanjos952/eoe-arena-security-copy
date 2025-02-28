@@ -553,7 +553,7 @@ SERVER.equipItem = async function (obj) {
 
   try {console.log(">>>Tentando equipar item com ID:", obj.id);
     
-    var item = await SERVER.db.items.findOne({ id: obj.id });
+    var item = await SERVER.db.items.findOne({ id: parseInt(obj.id) });
     console.log("Itens encontrados para equipar:", items); // Log para verificar se há itens
  
 	  if (!item) {
@@ -600,7 +600,7 @@ SERVER.activateSkill = async function (obj) {
   try {
 	  console.log("Tentando equipar skill com ID:", obj.id);
     
-    var skill = await SERVER.db.skills.findOne({ id: obj.id });
+    var skill = await SERVER.db.skills.findOne({ id: parseInt(obj.id) });
    console.log(">>> skills encontrados para ativar:", skills); // Log para verificar se há itens
  
 	  if (!skill) {
@@ -642,7 +642,7 @@ SERVER.deactivateSkill = async function (obj) {
   try {
 	  console.log("Tentando desativar skill com ID:", obj.id);
     
-    var skill = await SERVER.db.skills.findOne({ id: obj.id });
+    var skill = await SERVER.db.skills.findOne({ id: parseInt(obj.id) });
     console.log(">>> skills encontrados para desativar:", skills); // Log para verificar se há itens
  
 	  if (!skill) {

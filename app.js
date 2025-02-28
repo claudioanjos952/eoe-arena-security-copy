@@ -110,7 +110,7 @@ SERVER.init = function () {
       if (Object.keys(req.query).length > 0) {
         console.log("GET request with params: " + JSON.stringify(req.query));
         res.writeHead(200, {'Content-Type': 'application/json'});
-        var token = req.headers['cookie'].split('token=').pop().split(';').shift();
+       // var token = req.headers['cookie'].split('token=').pop().split(';').shift();
         if (SERVER.Sessions.hasOwnProperty(token)) {
           var user = SERVER.Sessions[token];
           req.query._user = user;
@@ -135,7 +135,7 @@ SERVER.init = function () {
           var parsed = JSON.parse(body);
           res.writeHead(200, {'Content-Type': 'application/json'});
           if (parsed.ajax_action != "login" && parsed.ajax_action != "register" && parsed.ajax_action != "authenticate") {
-            var token = req.headers['cookie'].split('token=').pop().split(';').shift();
+          //  var token = req.headers['cookie'].split('token=').pop().split(';').shift();
             if (SERVER.Sessions.hasOwnProperty(token)) {
               var user = SERVER.Sessions[token];
               parsed._user = user;

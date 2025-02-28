@@ -153,8 +153,13 @@ const { MongoClient, ServerApiVersion } = require('mongodb');
  
   console.log(mongo_uri)
   var uri = mongo_uri;
-  this.db = new MongoClient(uri);
-	
+  this.db = new MongoClient(uri, {
+  serverApi: {
+    version: ServerApiVersion.v1,
+    strict: true,
+    deprecationErrors: true,
+  }
+});
 	async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)

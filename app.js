@@ -190,7 +190,7 @@ md5 = require('md5');
   SKILLS = require('./server/skills.js');
 	
 const db = client.db("sample_mflix");
-const SERVER.db = db;
+ SERVER.db = db;
 	this.db = db;
   SERVER.db.skills.find({}, function (err, res) {
     SERVER.SKILL_INFO = res;

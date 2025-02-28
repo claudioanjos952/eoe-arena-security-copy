@@ -160,8 +160,9 @@ SERVER.init = function () {
   
   var uri = process.env.MONGO_URI;
 	console.log(">>> evoriment detectado: ",uri);
-	  this.db = require("mongojs")(uri, ['users', 'characters', 'skills', 'items', 'finished_battles']);
-	
+	  var client = require("mongojs")(uri, ['users', 'characters', 'skills', 'items', 'finished_battles']);
+	db = client.db('sample_mflix');
+	this.db = db;
   // Socket.io init
   this.io = require('socket.io')(serv, {});
 

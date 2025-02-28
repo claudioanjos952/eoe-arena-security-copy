@@ -192,6 +192,16 @@ md5 = require('md5');
 const db = client.db("sample_mflix");
  SERVER.db = db;
 	this.db = db;
+
+    // Configura as coleções no SERVER.db
+    SERVER.db.users = db.collection("users");
+    SERVER.db.characters = db.collection("characters");
+    SERVER.db.skills = db.collection("skills");
+    SERVER.db.items = db.collection("items");
+    SERVER.db.finished_battles = db.collection("finished_battles");
+
+    return SERVER.db;  // Apenas retorna o objeto de banco de dados
+	
   SERVER.db.skills.find({}, function (err, res) {
     SERVER.SKILL_INFO = res;
     SERVER.db.items.find({}, function (err2, res2) {

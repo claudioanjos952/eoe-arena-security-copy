@@ -153,7 +153,7 @@ const { MongoClient, ServerApiVersion } = require('mongodb');
  
   console.log(mongo_uri)
   var uri = mongo_uri;
-  this.db = new MongoClient(uri, {
+  client = new MongoClient(uri, {
   serverApi: {
     version: ServerApiVersion.v1,
     strict: true,
@@ -166,8 +166,7 @@ const { MongoClient, ServerApiVersion } = require('mongodb');
     await client.connect();
     // Send a ping to confirm a successful connection
     await client.db("sample_mflix").command({ ping: 1 });
-	 return SERVER.db = client.db("sample_mflix");
-    console.log(">>> Pinged your deployment. You successfully connected to MongoDB! >>> ", SERVER.db, " <<<");
+	     console.log(">>> Pinged your deployment. You successfully connected to MongoDB! >>> ", SERVER.db, " <<<");
   } finally {
     // Ensures that the client will close when you finish/error
     await client.close();
@@ -190,6 +189,9 @@ md5 = require('md5');
  SPELLS = require('./server/spells.js');
   SKILLS = require('./server/skills.js');
 	
+const db = client.db("sample_mflix");
+const SERVER.db = db;
+	this.db = db;
   SERVER.db.skills.find({}, function (err, res) {
     SERVER.SKILL_INFO = res;
     SERVER.db.items.find({}, function (err2, res2) {

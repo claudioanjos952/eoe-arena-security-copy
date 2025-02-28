@@ -166,8 +166,11 @@ const { MongoClient, ServerApiVersion } = require('mongodb');
     await client.connect();
     // Send a ping to confirm a successful connection
     await client.db("sample_mflix").command({ ping: 1 });
-	     console.log(">>> Pinged your deployment. You successfully connected to MongoDB! >>> ", SERVER.db, " <<<");
-  } 
+	     console.log(">>> Pinged your deployment. You successfully connected to MongoDB! >>> ");
+  } catch (error) {
+    console.error('Erro ao conectar ao MongoDB:', error);
+    throw error;  // Propaga o erro
+  }
 }
 run();
   // Socket.io init

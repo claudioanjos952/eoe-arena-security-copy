@@ -156,14 +156,11 @@ SERVER.init = function () {
   serv.listen(process.env.PORT || 2000);
 
   // MongoDB init
-  var mongo_user = process.env.MONGO_USER;
-  var mongo_pass = process.env.MONGO_PASS;
-  var mongo_url =  process.env.MONGO_URL;
-var mongo_end =  process.env.MONGO_END;
  
-  console.log(mongo_pass, mongo_user)
-  var uri = "mongodb+srv://" + mongo_user + ":" + mongo_pass + "@" + mongo_url + mongo_end;
-  this.db = require("mongojs")(uri, ['users', 'characters', 'skills', 'items', 'finished_battles']);
+  
+  var uri = process.env.MONGO_URI;
+	console.log(">>> evoriment detectado: ",uri);
+	  this.db = require("mongojs")(uri, ['users', 'characters', 'skills', 'items', 'finished_battles']);
 	
   // Socket.io init
   this.io = require('socket.io')(serv, {});

@@ -143,7 +143,7 @@ SERVER.init = function () {
       });
     }
   });
-
+const { MongoClient, ServerApiVersion } = require('mongodb');
   app.use('/client', express.static(__dirname + '/client'));
   serv.listen(process.env.PORT || 27017);
 
@@ -153,9 +153,29 @@ SERVER.init = function () {
  
   console.log(mongo_uri)
   var uri = mongo_uri;
-  this.db = require("mongojs")(uri, ['users', 'characters', 'skills', 'items', 'finished_battles']);
+  this.db = new MongoClient(uri, {
+	  sample_mflix: {
+		  users: [],
+		  characters: [],
+		  skills: [],
+		  items: [],
+		  finished_battles: []
+	  }
+  });
 	
-	
+	async function run() {
+  try {
+    // Connect the client to the server	(optional starting in v4.7)
+    await client.connect();
+    // Send a ping to confirm a successful connection
+    await client.db("sample_mflix").command({ ping: 1 });
+    console.log("Pinged your deployment. You successfully connected to MongoDB!");
+  } finally {
+    // Ensures that the client will close when you finish/error
+    await client.close();
+  }
+}
+run().catch(console.dir);
   // Socket.io init
   this.io = require('socket.io')(serv, {});
 

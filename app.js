@@ -162,8 +162,8 @@ SERVER.init = function () {
 	console.log(">>> evoriment detectado: ",uri);
 	db = 'doctor',
 collections = ['oditek'],
-var mongojs = require('mongojs');
-var db = mongojs(uri, collections);
+ mongojs = require('mongojs');
+db = mongojs(uri, collections);
 	var client = require("mongojs")(uri, ['users', 'characters', 'skills', 'items', 'finished_battles']);
 
   // Socket.io init

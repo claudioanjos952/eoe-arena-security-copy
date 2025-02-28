@@ -431,7 +431,9 @@ CLIENT.UI.prototype.handleClick = function (e) {
 };
 
 CLIENT.UI.prototype.equipItem = function (id) {
-  ajax.post("equip-item", { id: parseInt(id) }, function (res) {
+  console.log("ui Enviando requisição para equipar item:", id);
+ ajax.post("equip-item", { id: id }, function (res) {
+   console.log("ui Resposta do servidor para equipar item:", res);
     if (res.status) {
       // item successfully equiped
       CLIENT.user.updateCharacter(function () {
@@ -447,7 +449,9 @@ CLIENT.UI.prototype.equipItem = function (id) {
 };
 
 CLIENT.UI.prototype.activateSkill = function (id) {
-  ajax.post("activate-skill", { id: parseInt(id) }, function (res) {
+  console.log("ui Enviando requisição para ativae skill:", id);
+  ajax.post("activate-skill", { id: id }, function (res) {
+   console.log("uiResposta do servidor para ativar skill:", res);
     if (res.status) {
       CLIENT.user.updateCharacter(function () {
         document.querySelector(".item-block[data-id='" + id + "']").classList.add("active");
@@ -460,8 +464,10 @@ CLIENT.UI.prototype.activateSkill = function (id) {
 };
 
 CLIENT.UI.prototype.deactivateSkill = function (id) {
-  ajax.post("deactivate-skill", { id: parseInt(id) }, function (res) {
-    if (res.status) {
+ console.log("ui Enviando requisição para desativar skill:", id);
+ ajax.post("deactivate-skill", { id: id }, function (res) {
+    console.log("uiResposta do servidor para desativar skill:", res);
+  if (res.status) {
       CLIENT.user.updateCharacter(function () {
         document.querySelector(".item-block[data-id='" + id + "']").classList.remove("active");
       });

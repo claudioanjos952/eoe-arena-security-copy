@@ -241,7 +241,7 @@ console.log("Solicitando item do tipo:", type, "t:", t, "r:", r);
         obj: item,
         onclick: function () {
           console.log("item clicado:", item);
-        },
+        
         },
       });
     }
@@ -312,7 +312,7 @@ console.log("Solicitando habilidades do tipo:", type, "t:", t, "r:", r);
         obj: item,
         onclick: function () {
           console.log("Habilidade clicada:", item);
-        },
+        
         },
       });
     }

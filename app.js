@@ -510,7 +510,7 @@ SERVER.getSkills = async function (type, order) {
       { projection: { _id: 0, desc: 0 } }
     ).toArray();
 
-    console.log(">>> Habilidades encontradas:", skills);
+    console.log(">>> Habilidades encontradas:", skills.lenght);
 
     if (skills.length > 0) {
       return skills.sort((a, b) => a.req[order] - b.req[order]);
@@ -548,35 +548,35 @@ SERVER.getPOSTResponse = async function (obj) {
   try {
     switch (obj.ajax_action) {
       case "login":
-		    console.log("Requisição para login  recebida:", obj);
+		    console.log("Requisição para login  recebida:", );
       
         return await SERVER.loginUser(obj);
       case "register":
-		    console.log("Requisição para registrar  recebida:", obj);
+		    console.log("Requisição para registrar  recebida:", );
       
         return await SERVER.createUser(obj);
       case "authenticate":
-		    console.log("Requisição para autenticar  recebida:", obj);
+		    console.log("Requisição para autenticar  recebida:", );
       
         return await SERVER.getUser(obj);
       case "equip-item":
-		    console.log("Requisição para equipar item recebida:", obj);
+		    console.log("Requisição para equipar item recebida:", );
       
         return await SERVER.equipItem(obj);
       case "get-character":
-		    console.log("Requisição para get character recebida:", obj);
+		    console.log("Requisição para get character recebida:", );
       
         return await obj._user.getCharacter();
       case "activate-skill":
-		    console.log("Requisição para activate skill recebida:", obj);
+		    console.log("Requisição para activate skill recebida:", );
       
         return await SERVER.activateSkill(obj);
       case "deactivate-skill":
-		    console.log("Requisição para desactivate skill recebida:", obj);
+		    console.log("Requisição para desactivate skill recebida:", );
       
         return await SERVER.deactivateSkill(obj);
       case "level-stat":
-		    console.log("Requisição para level stat recebida:", obj);
+		    console.log("Requisição para level stat recebida:", );
       
         return await SERVER.levelUpStat(obj);
       default:
@@ -660,7 +660,7 @@ SERVER.equipItem = async function (obj) {
         id: { $in: [char.weapon, char.bow, char.armor, char.bomb, char.trap] }
       }).toArray();
 
-      console.log(">>> Itens equipados encontrados:", equippedItems);
+      console.log(">>> Itens equipados encontrados:", equippedItems.lenght);
 
       var totalWeight = equippedItems.reduce((sum, item) => sum + item.weight, 0);
       char.kg = totalWeight;
@@ -702,7 +702,7 @@ SERVER.activateSkill = async function (obj) {
     }
 
     var skill = await SERVER.db.skills.findOne({ id: obj.id });
-    console.log(">>> Skill encontrada para ativar:", skill);
+    console.log(">>> Skill encontrada para ativar:", );
 
     if (!skill) {
       return { status: 0, msg: `A ${obj.id > 4 ? 'magia' : 'habilidade'} que você está tentando ativar não existe.` };
@@ -759,7 +759,7 @@ SERVER.deactivateSkill = async function (obj) {
     }
 
     var skill = await SERVER.db.skills.findOne({ id: obj.id });
-    console.log(">>> Skill encontrada para desativar:", skill);
+    console.log(">>> Skill encontrada para desativar:", );
 
     if (!skill) {
       return { status: 0, msg: `A ${obj.id > 4 ? 'magia' : 'habilidade'} que você está tentando desativar não existe.` };

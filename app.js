@@ -340,7 +340,10 @@ SERVER.handleSocketMessage = function (socket, evt, data) {
       break;
     case 'turn-actions':
       var game = SERVER.getGameByPlayer(player);
-      if (game) {
+   
+		  console.log("Recebendo ações do jogador:", player ? player.id : "Jogador não identificado");
+
+		  if (game) {
         game.comitActions(player, data.actions);
       }
       break;
@@ -1875,9 +1878,16 @@ SERVER.GameAction.prototype.MAGIC = function (action, data) {
     } else if (this.doesEnemyResist(1) && this.clientData.data.type != 'other') {
         this.clientData.data.status = 'resist';
     } else {
-        console.log(`Chamando SPELLS.${action}`); // Log antes de executar a skill
-        SPELLS[action](this);
-    }
+	    
+console.log(`Chamando SPELLS.${action}`); // Log antes de executar a skill
+	 
+	    if (typeof SPELLS[action] === "function") {
+  SPELLS[action](this);
+		    console.log("verificando oque é this: ",this);
+} else {
+  console.error("Erro: Ação desconhecida ou não definida em SPELLS:", action);
+}
+
 };
 
 

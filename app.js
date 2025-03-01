@@ -841,27 +841,32 @@ SERVER.Player.prototype.getActiveActions = async function () {
     ...this.user.character.magic,
     ...this.user.character.magic2
   ];
+
+  console.log("IDs de habilidades buscados:", skills_id); // ✅ Testar se está vazio
+
   try {
-    var res = await SERVER.db.skills.find({ id: { $in: skills_id } });
-    if (Array.isArray(res)) {
+    var res = await SERVER.db.skills.find({ id: { $in: skills_id } }).toArray(); // ✅ Garante que seja um array
+    console.log("Habilidades retornadas pelo banco de dados:", res); // ✅ Verificar se retorna algo
+
+    if (Array.isArray(res) && res.length > 0) {
       var skills = res.reduce((acc, skill) => {
         var key = `${types[skill.type]}-${skill.name.replace(/\s/g, '_').toUpperCase()}`;
         acc[key] = { id: skill.id, cost: skill.energy };
         return acc;
       }, {});
+
       skills['END-END_TURN'] = { id: -1, cost: 0 };
       skills['END-FORFEIT_GAME'] = { id: -2, cost: 0 };
       return skills;
     } else {
-      console.error('Erro: A resposta da consulta ao banco de dados não é um array.');
+      console.error('Erro: Nenhuma habilidade foi encontrada no banco de dados.');
       return {};
     }
   } catch (err) {
-    console.error('Erro: getActiveActionArray() - não foi possível obter as habilidades do banco de dados', err);
+    console.error('Erro: getActiveActions() - não foi possível obter as habilidades do banco de dados', err);
     throw err;
   }
 };
-
 
 
 SERVER.updateUserChallenges = function (user_id) {

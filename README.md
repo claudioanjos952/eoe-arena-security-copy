@@ -1,6 +1,13 @@
+FINALLY ITS ONLINE!!!!!!! 😁😁😁😁😁😁😁👏👏👏
+here the link, click, the server is free, so, if you are the first after a long time of innactivity on server, wait the api render run the server code to active the server:
+https://eoe-arena-security-copy.onrender.com/
+
+
 This is a copy of original eae arena project that im trying to make ir run onlone again.
 the question is, i have zero knoledge about programing, but now we have chat gpt!! 😊👍
 
+
+report 1:
 for now, after many days of code modding, its running buuuut, not completely. 🤦‍♂️
 we are able to create user and password, login, request for fight, acept fights, but in fight turn, no one skills, magics, utils and moves works. 😫
 
@@ -20,6 +27,22 @@ well this is it. 🤷‍♂️
 maybe some day i can finish the adjust on the code to make it run completely, but im impressed that i would be able to start the server without any knowled about , javascript, node.js and mongodb.
 
 have a nice day 😉👍
+
+
+report 2:
+now ist online after more than 225 commits and somethin like 1 month of daily code modifications and milhona of chatgpt questiona and chats, is online!! 😁👏👏
+   what was the changes?
+   the original project one use mongojs database, but it doens't works (or i just dont know a database site that is abble to connect with mongojs), the i was need to covert all the code to a updated mongodb database metode. all functions was converted to async/await metode removing all the promises, many _id verifications was converted manually to ObjectId, find and uptate search metode was need to convert do findOne abd updateOne, and arrays finds was coverted to find().toArray. And many othes modifications that i dont record any more.
+   im pretty happy for this but we still have some problem, the node.js version used is a updated one, so old phones have some problems in battle actions, eo make sure that you phone are a modern one. sorry for this. but its is the best that i was abble to do withou any programing skill. 🤷😂
+
+   if you want to copy the game and make it online bay your own,
+   just connect in some database site, create a sample_mflix database and creates the collections: (uses, characters, skills, items, battle_finisheds)
+   copy the skills and items json code and add them on the skills and items collectons on the mongo db database.
+   go to api server site, connect your github oink with this game copy and add the evoiriment variable named MONGO_URI And add the mongodb uri link on the MONGO_URI value. make sure that the uri link have the user and password correctly. than just deply it. 😉👍
+
+   maybe ill add more informations here on the future.
+
+   habe a nice live 🥳🥳🥳
 
 # eoe-arena
 

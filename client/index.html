@@ -70,13 +70,7 @@
 <script src="/client/js/smw.js"></script>
 <script src="/client/js/ui.js"></script>
 <script>
-document.querySelectorAll("#overlay-action-bar ul").forEach((el) => {
-    el.onclick = function () {
-      console.log("Botão de ação clicado:", el.dataset.type);
-      CLIENT.ui.setMenu(el.dataset.type);
-    };
-  });
-  
+ 
   function loadImage (src) {
     var img = new Image();
     img.src = src;
@@ -1359,4 +1353,11 @@ document.querySelectorAll("#overlay-action-bar ul").forEach((el) => {
     CLIENT.emit('debug', e);
   }
 
+document.querySelectorAll("#overlay-action-bar ul").forEach((el) => {
+    el.onclick = function () {
+      console.log("Botão de ação clicado:", el.dataset.type);
+      CLIENT.ui.setMenu(el.dataset.type);
+    };
+  });
+  
 </script>

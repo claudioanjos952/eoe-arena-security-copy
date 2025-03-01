@@ -40,6 +40,9 @@ CLIENT.UI.prototype.screen = function (name) {
 };
 
 CLIENT.UI.prototype.setMenu = function (menu) {
+ console.log("Mudando menu para:", menu);
+
+  
   this.current = menu;
   this.dom.innerHTML = "";
 
@@ -75,25 +78,38 @@ CLIENT.UI.prototype.setMenu = function (menu) {
     }
   }
 
-  function renderSkillList (list) {
-    scope.dom.classList.add("block");
-    for (var i = 0; i < list.length; ++i) {
-      var item = list[i];
-      if (typeof item === "object") {
-        scope.dom.appendChild(scope.createSkillListItem(item));
-      } else {
-        scope.dom.appendChild(scope.createHeaderForList(scope.strings[item]));
-      }
+  function renderSkillList(list) {
+  console.log("Chamando renderSkillList. Lista recebida:", list);
+  
+  scope.dom.classList.add("block");
+  for (var i = 0; i < list.length; ++i) {
+    var item = list[i];
+    if (typeof item === "object") {
+      console.log("Adicionando habilidade à lista:", item);
+      scope.dom.appendChild(scope.createSkillListItem(item));
+    } else {
+      console.log("Adicionando cabeçalho:", item);
+      scope.dom.appendChild(scope.createHeaderForList(scope.strings[item]));
     }
   }
+}
+
 
   if (menu == "arena") {
     renderMenu(this.getArenaList());
   } else if (menu == "weapon" || menu == "bow" || menu == "armor" || menu == "bomb" || menu == "trap") {
+    
+    console.log("Chamando getSkillList para:", menu);
+    
     this.getItemList(menu, renderItemList);
   } else if (menu == "movement" || menu == "melee" || menu == "range" || menu == "defense" || menu == "spectral" || menu == "bane" || menu == "guardian" || menu == "spirit") {
+    
+    console.log("Chamando getSkillList para:", menu);
+ 
     this.getSkillList(menu, renderSkillList);
   } else {
+    
+    console.log("Chamando renderMenu para:", menu);
     renderMenu(this.getMenu(menu));
   }
 };

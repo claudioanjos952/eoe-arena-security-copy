@@ -1886,8 +1886,8 @@ console.log(`Chamando SPELLS.${action}`); // Log antes de executar a skill
 		    console.log("verificando oque é this: ",this);
 } else {
   console.error("Erro: Ação desconhecida ou não definida em SPELLS:", action);
-}
-
+	    }
+    }
 };
 
 

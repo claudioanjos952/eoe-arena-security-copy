@@ -229,12 +229,20 @@ CLIENT.UI.prototype.getItemList = function (type, callback) {
       break;
   }
 
+console.log("Solicitando item do tipo:", type, "t:", t, "r:", r);
+  
   ajax.get("/ajax?ajax_action=get-items&type=" + t + "&order=" + r, function (res) {
+
+    console.log("Resposta do servidor para get-item:", res);
+    
     for (var i in res) {
       var item = res[i];
       menu.push({
         obj: item,
-        onclick: function () {},
+        onclick: function () {
+          console.log("item clicado:", item);
+        },
+        },
       });
     }
 
@@ -291,12 +299,21 @@ CLIENT.UI.prototype.getSkillList = function (type, callback) {
       break;
   }
 
+console.log("Solicitando habilidades do tipo:", type, "t:", t, "r:", r);
+  
   ajax.get("/ajax?ajax_action=get-skills&type=" + t + "&order=" + r, function (res) {
+  
+    console.log("Resposta do servidor para get-skills:", res);
+
+    
     for (var i in res) {
       var item = res[i];
       menu.push({
         obj: item,
-        onclick: function () {},
+        onclick: function () {
+          console.log("Habilidade clicada:", item);
+        },
+        },
       });
     }
 
@@ -417,11 +434,15 @@ CLIENT.UI.prototype.createItemListItem = function (item) {
 };
 
 CLIENT.UI.prototype.handleClick = function (e) {
+  console.log("Botão handle clicado!", e.currentTarget.dataset);
+
   switch (e.currentTarget.dataset.type) {
     case "item":
+      console.log("Equipando handle item:", e.currentTarget.dataset.id);
       this.equipItem(e.currentTarget.dataset.id);
       break;
     case "skill":
+      console.log("Ativando/desativando handle skill:", e.currentTarget.dataset.id);
       if (e.currentTarget.classList.contains("active"))
         this.deactivateSkill(e.currentTarget.dataset.id);
       else
@@ -429,6 +450,7 @@ CLIENT.UI.prototype.handleClick = function (e) {
       break;
   }
 };
+
 
 CLIENT.UI.prototype.equipItem = function (id) {
   console.log("ui Enviando requisição para equipar item:", id);

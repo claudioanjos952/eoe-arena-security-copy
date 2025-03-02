@@ -70,7 +70,9 @@
 <script src="/client/js/smw.js"></script>
 <script src="/client/js/ui.js"></script>
 <script>
- 
+ if (!window.fetch) {
+    document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/fetch/3.6.2/fetch.min.js"><\/script>');
+ }
   function loadImage (src) {
     var img = new Image();
     img.src = src;

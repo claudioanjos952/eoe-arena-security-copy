@@ -13,8 +13,10 @@ This is a copy of the original **EOE Arena** project that I'm trying to bring ba
 
 ---
 ## Server used
-API: https://dashboard.render.com/
-DATABASE: https://account.mongodb.com
+- API: https://dashboard.render.com/
+- DATABASE: https://account.mongodb.com
+
+---
 
 ## 🔥 Challenges Faced  
 

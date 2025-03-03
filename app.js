@@ -118,7 +118,7 @@ SERVER.init = function () {
  if (SERVER.Sessions.hasOwnProperty(token)) {
           var user = SERVER.Sessions[token];
 		   req.query._user = user;
-		   console.log(">>> Sessões ativas:", Object.keys(SERVER.Sessions), "fim sessoes ativas <<<");
+		   console.log(">>> Sessões ativas:");
 
         } else {
           res.end(JSON.stringify({ status: -1 }));
@@ -144,7 +144,7 @@ SERVER.init = function () {
                     var parsed = JSON.parse(body);
                     res.writeHead(200, { 'Content-Type': 'application/json' });
 
-                    console.log("Requisição AJAX recebida:", parsed);
+                    console.log("Requisição AJAX recebida:");
 
                     // Verifica se a ação não é login, registro ou autenticação
                     if (parsed.ajax_action != "login" && parsed.ajax_action != "register" && parsed.ajax_action != "authenticate") {
@@ -154,7 +154,7 @@ SERVER.init = function () {
                             var user = SERVER.Sessions[token];
                             parsed._user = user;
 
-                            console.log("Sessão encontrada para o token:", token);
+                            console.log("Sessão encontrada para o token:);
                         } else {
                             console.error("Erro: Sessão não encontrada para o token.");
                             return res.end(JSON.stringify({ status: -1, msg: "Sessão inválida ou expirada." }));
@@ -172,7 +172,7 @@ SERVER.init = function () {
                     // Processa a requisição de forma assíncrona
                     try {
                         let response = await SERVER.getPOSTResponse(parsed);
-                        console.log("Resposta enviada pelo servidor:", response);
+                        console.log("Resposta enviada pelo servidor:");
                         return res.end(JSON.stringify(response));
                     } catch (err) {
                         console.error("Erro no processamento de `getPOSTResponse`:", err);
@@ -205,13 +205,10 @@ var PORT = (process.env.PORT);
 	
 console.log("conectado na porta " + PORT);
   // MongoDB init
-	var mongo_ini =  process.env.MONGO_INI;
-  var mongo_user = process.env.MONGO_USER;
-  var mongo_pass = process.env.MONGO_PASS;
-  var mongo_url =  process.env.MONGO_URL;
-	var mongo_end =  process.env.MONGO_END;
-  console.log(mongo_ini, mongo_user, mongo_pass, mongo_url, mongo_end);
-  var uri = mongo_ini + mongo_user + ":" + mongo_pass + "@" + mongo_url + mongo_end;
+	
+var uri = process.env.MONGO_URI;	
+  console.log(">>> uri encontrada: ",uri);
+  
  
 	//cuidado aqui
 async function connectToDatabase() {
@@ -254,14 +251,12 @@ connectToDatabase().then(() => {
     if (!db) return console.error("Erro ao carregar banco de dados!");
 
     SERVER.db = db; // Agora o banco de dados fica acessível no servidor
-    console.log(">>>> SERVER.db recebeu 213: server.db");
-  
+    
     // Aguardar as promessas de toArray()
     SERVER.SKILL_INFO = await db.collection('skills').find({}).toArray();
     SERVER.ITEM_INFO = await db.collection('items').find({}).toArray();
     
     console.log("Server started.");
-	  console.log(">>>testando se encontra item na lista de spells.zap >>>",SPELLS.zap);
 	  
 }
 
@@ -456,7 +451,7 @@ console.log("name login recebeu 394: ", data.username);
 
     let obj = await user.getObject();
    obj.token = token; // Adiciona o token ao objeto
-console.log(">>>loginuser obj recebeu: ", obj);
+console.log(">>>loginuser obj recebeu user.getObject()");
     return {
       status: 1,
       token: token,
@@ -471,8 +466,7 @@ console.log(">>>loginuser obj recebeu: ", obj);
 
 SERVER.getItems = async function (type, order) {
   try {
-    console.log(`>>> Buscando itens do tipo "${type}"`);
-
+    
     // Verifica se o banco de dados está inicializado
     if (!SERVER.db || !SERVER.db.items) {
       console.error("Erro: Banco de dados não inicializado corretamente.");
@@ -484,8 +478,7 @@ SERVER.getItems = async function (type, order) {
       { projection: { _id: 0, desc: 0 } }
     ).toArray();
 
-    console.log(">>> Itens encontrados:", items);
-
+    
     if (items.length > 0) {
       return items.sort((a, b) => a.req[order] - b.req[order]);
     } else {
@@ -500,8 +493,7 @@ SERVER.getItems = async function (type, order) {
 
 SERVER.getSkills = async function (type, order) {
   try {
-    console.log(`>>> Buscando habilidades do tipo "${type}"`);
-
+    
     // Verifica se o banco de dados está inicializado
     if (!SERVER.db || !SERVER.db.skills) {
       console.error("Erro: Banco de dados não inicializado corretamente.");
@@ -513,8 +505,7 @@ SERVER.getSkills = async function (type, order) {
       { projection: { _id: 0, desc: 0 } }
     ).toArray();
 
-    console.log(">>> Habilidades encontradas:", skills.lenght);
-
+    
     if (skills.length > 0) {
       return skills.sort((a, b) => a.req[order] - b.req[order]);
     } else {
@@ -624,8 +615,7 @@ SERVER.equipItem = async function (obj) {
   obj.id = parseInt(obj.id);
 
   try {
-    console.log(">>> Tentando equipar item com ID:", obj.id);
-
+    
     // Verifica se o banco de dados está inicializado corretamente
     if (!SERVER.db || !SERVER.db.items) {
       console.error("Erro: Banco de dados não inicializado corretamente.");
@@ -633,8 +623,7 @@ SERVER.equipItem = async function (obj) {
     }
 
     var item = await SERVER.db.items.findOne({ id: obj.id });
-    console.log(">>> Item encontrado para equipar:", item);
-
+    
     if (!item) {
       return { status: 0, msg: "O item que você está tentando equipar não existe." };
     }
@@ -654,17 +643,14 @@ SERVER.equipItem = async function (obj) {
       update
     );
 
-    console.log(">>> Tentando atualizar item com char.id:", char.id);
-    console.log(">>> Resultado da atualização:", res);
-
+    
     if (res.modifiedCount > 0) {
       // Busca os itens equipados corretamente
       var equippedItems = await SERVER.db.items.find({
         id: { $in: [char.weapon, char.bow, char.armor, char.bomb, char.trap] }
       }).toArray();
 
-      console.log(">>> Itens equipados encontrados:", equippedItems.lenght);
-
+      
       var totalWeight = equippedItems.reduce((sum, item) => sum + item.weight, 0);
       char.kg = totalWeight;
 
@@ -673,8 +659,7 @@ SERVER.equipItem = async function (obj) {
         { $set: { kg: totalWeight } }
       );
 
-      console.log(">>> Atualização do peso do personagem:", weightUpdate);
-
+      
       if (weightUpdate.modifiedCount > 0) {
         return { status: 1 };
       } else {
@@ -696,8 +681,7 @@ SERVER.activateSkill = async function (obj) {
   obj.id = parseInt(obj.id);
 
   try {
-    console.log("Tentando ativar skill com ID:", obj.id);
-
+    
     // Verifica se o banco de dados está inicializado corretamente
     if (!SERVER.db || !SERVER.db.skills) {
       console.error("Erro: Banco de dados não inicializado corretamente.");
@@ -705,8 +689,7 @@ SERVER.activateSkill = async function (obj) {
     }
 
     var skill = await SERVER.db.skills.findOne({ id: obj.id });
-    console.log(">>> Skill encontrada para ativar:", );
-
+    
     if (!skill) {
       return { status: 0, msg: `A ${obj.id > 4 ? 'magia' : 'habilidade'} que você está tentando ativar não existe.` };
     }
@@ -733,8 +716,7 @@ SERVER.activateSkill = async function (obj) {
       update
     );
 
-    console.log("Resultado da atualização:", res);
-
+    
     if (res.modifiedCount > 0) {
       return { status: 1 };
     } else {
@@ -753,7 +735,6 @@ SERVER.deactivateSkill = async function (obj) {
   obj.id = parseInt(obj.id);
 
   try {
-    console.log("Tentando desativar skill com ID:", obj.id);
     
     // Verifica se o banco de dados está inicializado corretamente
     if (!SERVER.db || !SERVER.db.skills) {
@@ -762,8 +743,7 @@ SERVER.deactivateSkill = async function (obj) {
     }
 
     var skill = await SERVER.db.skills.findOne({ id: obj.id });
-    console.log(">>> Skill encontrada para desativar:", );
-
+    
     if (!skill) {
       return { status: 0, msg: `A ${obj.id > 4 ? 'magia' : 'habilidade'} que você está tentando desativar não existe.` };
     }
@@ -784,7 +764,7 @@ SERVER.deactivateSkill = async function (obj) {
       update
     );
 
-    console.log("Resultado da atualização:", res);
+     da atualização:", res);
 
     if (res.modifiedCount > 0) {
       return { status: 1 };
@@ -845,12 +825,10 @@ SERVER.Player.prototype.getActiveActions = async function () {
     ...this.user.character.magic2
   ];
 
-  console.log("IDs de habilidades buscados:", skills_id); // ✅ Testar se está vazio
-
+  
   try {
     var res = await SERVER.db.skills.find({ id: { $in: skills_id } }).toArray(); // ✅ Garante que seja um array
-    console.log("Habilidades retornadas pelo banco de dados:", res); // ✅ Verificar se retorna algo
-
+    
     if (Array.isArray(res) && res.length > 0) {
       var skills = res.reduce((acc, skill) => {
         var key = `${types[skill.type]}-${skill.name.replace(/\s/g, '_').toUpperCase()}`;
@@ -1879,11 +1857,10 @@ SERVER.GameAction.prototype.MAGIC = function (action, data) {
         this.clientData.data.status = 'resist';
     } else {
 	    
-console.log(`Chamando SPELLS.${action}`); // Log antes de executar a skill
-	 
+
 	    if (typeof SPELLS[action] === "function") {
   SPELLS[action](this);
-		    console.log("verificando oque é this: ",this);
+		    
 } else {
   console.error("Erro: Ação desconhecida ou não definida em SPELLS:", action);
 	    }

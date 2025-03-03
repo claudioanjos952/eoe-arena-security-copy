@@ -1,48 +1,75 @@
-FINALLY ITS ONLINE!!!!!!! 😁😁😁😁😁😁😁👏👏👏
-here the link, click, the server is free, so, if you are the first after a long time of innactivity on server, wait the api render run the server code to active the server:
-https://eoe-arena-security-copy.onrender.com/
+---
+
+# EOE Arena - Online Again! 🎉  
+
+## 🎉 Finally, it's online!  
+
+Here’s the link to play:  
+[EOE Arena (Security Copy) "https://eoe-arena-security-copy.onrender.com" ](https://eoe-arena-security-copy.onrender.com/)  
+
+⚠ **Important:** This is a free server, so it goes into sleep mode after 15 minutes of inactivity. If the link doesn't work immediately, just wait a bit for the server to wake up and refresh the page.  
+
+---
+
+## 📌 About This Project  
+
+This is a copy of the original **EOE Arena** project that I'm trying to bring back online. The challenge? I have **zero** programming knowledge! But thanks to **ChatGPT**, here we are! 😁  
+
+---
+
+## 🔥 Challenges Faced  
+
+The original project used `mongojs` for the database, but I couldn't find a free hosting service compatible with it. So, I had to modify the code to work with **MongoDB Atlas** instead.  
+
+Additionally:  
+- The original code used **Promises**, but they didn’t work properly in this setup.  
+- I had to manually rewrite parts of the code using **async/await**.  
+- Many `_id` verifications needed to be converted to **ObjectId**.  
+- Queries using `find` and `update` had to be adjusted (`findOne`, `updateOne`, `find().toArray()`, etc.).  
+
+After **225+ commits**, **a month of daily coding**, and **countless ChatGPT conversations**, the server is finally running! 🎉  
+
+---
+
+## 🚀 Hosting Your Own Server  
+
+If you want to host this game yourself:  
+1. Connect to a **MongoDB** database service.  
+2. Create a database named **sample_mflix**.  
+3. Create the following collections:  
+   - `users`  
+   - `characters`  
+   - `skills`  
+   - `items`  
+   - `finished_battles`  
+4. Add the **items_exported.json** and **skills_exported.json** JSON data from `_MongoDB SETUP` directory to the corresponding collections on mongodb database site.  
+5. On the API server hosting service:  
+   - Connect your GitHub repository.  
+   - Add an environment variable: `MONGO_URI`.  
+   - Set its value to your MongoDB connection string (including user/password).  
+6. Deploy and enjoy! 🎮  
+
+---
+
+## 🚨 Known Issues  
+
+- The server uses a newer **Node.js** version, which might cause issues on older phones during battles. If you face problems, try using a modern device.  
+
+---
+
+## 🔮 Future Plans  
+
+I'll keep trying to fix the battle actions. For now, I’m just amazed that I even got the server running without knowing **JavaScript, Node.js, or MongoDB**.  
+
+Thanks for checking this out! 🎉  
+
+Have a great day! 😃👍
 
 
-This is a copy of original eae arena project that im trying to make ir run onlone again.
-the question is, i have zero knoledge about programing, but now we have chat gpt!! 😊👍
 
+------------
 
-report 1:
-for now, after many days of code modding, its running buuuut, not completely. 🤦‍♂️
-we are able to create user and password, login, request for fight, acept fights, but in fight turn, no one skills, magics, utils and moves works. 😫
-
-the big problem was the fact that the oroginal uses mongojs database metode, but the free tool that i found was the mongodb, so the original code doens't works. so many modifications was necessary just to connect the server.
-for some reason the promise metode used on code doens't works too. so many part of the code was need to me adapted to works with async function and await.
-
-to be honest, my mind are exploding after redo the code more than 96 times and keep without understand it for sure.
-im impressed that some guy did it by wis own. 🤯
-
-here are the link of the game hospeded on the render site.
-
-https://eoe-arena-security-copy.onrender.com/
-
-(ps: it is a free server, then they turn off the link after 15 minuts of inactivity, so, when you click on the link, it will not work on the first look, but the render will start to run the archives and code to turn the link on. ao, just wait some time to give time to the deploy and server start after your first try. then just be patient and wait a little bit and reflesh the page.
-
-well this is it. 🤷‍♂️
-maybe some day i can finish the adjust on the code to make it run completely, but im impressed that i would be able to start the server without any knowled about , javascript, node.js and mongodb.
-
-have a nice day 😉👍
-
-
-report 2:
-now ist online after more than 225 commits and somethin like 1 month of daily code modifications and milhona of chatgpt questiona and chats, is online!! 😁👏👏
-   what was the changes?
-   the original project one use mongojs database, but it doens't works (or i just dont know a database site that is abble to connect with mongojs), the i was need to covert all the code to a updated mongodb database metode. all functions was converted to async/await metode removing all the promises, many _id verifications was converted manually to ObjectId, find and uptate search metode was need to convert do findOne abd updateOne, and arrays finds was coverted to find().toArray. And many othes modifications that i dont record any more.
-   im pretty happy for this but we still have some problem, the node.js version used is a updated one, so old phones have some problems in battle actions, eo make sure that you phone are a modern one. sorry for this. but its is the best that i was abble to do withou any programing skill. 🤷😂
-
-   if you want to copy the game and make it online bay your own,
-   just connect in some database site, create a sample_mflix database and creates the collections: (uses, characters, skills, items, battle_finisheds)
-   copy the skills and items json code and add them on the skills and items collectons on the mongo db database.
-   go to api server site, connect your github oink with this game copy and add the evoiriment variable named MONGO_URI And add the mongodb uri link on the MONGO_URI value. make sure that the uri link have the user and password correctly. than just deply it. 😉👍
-
-   maybe ill add more informations here on the future.
-
-   habe a nice live 🥳🥳🥳
+## ORIGINAL README
 
 # eoe-arena
 

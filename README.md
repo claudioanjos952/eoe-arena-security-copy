@@ -1,11 +1,7 @@
----
-
-# EOE Arena - Online Again! 🎉  
-
 ## 🎉 Finally, it's online!  
 
 Here’s the link to play:  
-[EOE Arena (Security Copy) "https://eoe-arena-security-copy.onrender.com" ](https://eoe-arena-security-copy.onrender.com/)  
+[EOE Arena (Security Copy) https://eoe-arena-security-copy.onrender.com](https://eoe-arena-security-copy.onrender.com/)  
 
 ⚠ **Important:** This is a free server, so it goes into sleep mode after 15 minutes of inactivity. If the link doesn't work immediately, just wait a bit for the server to wake up and refresh the page.  
 

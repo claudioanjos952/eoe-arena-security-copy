@@ -154,7 +154,7 @@ SERVER.init = function () {
                             var user = SERVER.Sessions[token];
                             parsed._user = user;
 
-                            console.log("Sessão encontrada para o token:);
+                            console.log("Sessão encontrada para o token");
                         } else {
                             console.error("Erro: Sessão não encontrada para o token.");
                             return res.end(JSON.stringify({ status: -1, msg: "Sessão inválida ou expirada." }));
@@ -763,8 +763,6 @@ SERVER.deactivateSkill = async function (obj) {
       { _id: new ObjectId(char.id) }, 
       update
     );
-
-     da atualização:", res);
 
     if (res.modifiedCount > 0) {
       return { status: 1 };

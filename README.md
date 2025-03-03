@@ -12,6 +12,9 @@ Here’s the link to play:
 This is a copy of the original **EOE Arena** project that I'm trying to bring back online. The challenge? I have **zero** programming knowledge! But thanks to **ChatGPT**, here we are! 😁  
 
 ---
+## Server used
+API: https://dashboard.render.com/
+DATABASE: https://account.mongodb.com
 
 ## 🔥 Challenges Faced  
 
@@ -59,10 +62,11 @@ I'll keep trying to fix the battle actions. For now, I’m just amazed that I ev
 
 Thanks for checking this out! 🎉  
 
-Have a great day! 😃👍
+Have a great live! 😃👍
 
 
-
+------------
+---
 ------------
 
 ## ORIGINAL README

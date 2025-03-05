@@ -92,7 +92,7 @@
       end: loadImage("/client/img/action-icons/end.png"),
     },
     SPRITES: {
-      battlefield: loadImage("/client/img/battlefield0.png"),
+      battlefield: loadImage("/client/img/battlefield1.png"),
       check: loadImage("/client/img/check.png"),
       torso: loadImage("/client/img/torso.png"),
       heads: loadImage("/client/img/heads.png"),
@@ -706,7 +706,7 @@
     CLIENT.game.status.msg = "";
     CLIENT.game.status.show = false;
     CLIENT.game.currentActions = [];
-    CLIENT.game.energyLeft = 100;
+    CLIENT.game.energyLeft = 60;
     CLIENT.animatedProperties.energy = 100;
     CLIENT.moveTiles = [];
 
@@ -1210,7 +1210,7 @@ var playerIndex = CLIENT.game.player.spriteIndex;
     
     // torso
     sheet1 = ASSETS.SPRITES.torso;
-    sheet1X = CANVAS.char_w * index;
+    sheet1X = CANVAS.char_w * (index-(isEnemy ? 1 : 0));
     sheet1Y = CANVAS.char_h * facing;
     tileLeft = tile.x * CANVAS.tile_w;
     tileTop = tile.y * CANVAS.tile_h + CANVAS.bfield_offset_y;

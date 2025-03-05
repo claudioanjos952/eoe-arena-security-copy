@@ -1234,10 +1234,13 @@
     }
 
 
-    // head
-    sheet2 = ASSETS.SPRITES.heads;
-    sheet2X = CANVAS.head_w * 0;
-    sheet2Y = CANVAS.head_h * facing;
+    var isEnemy = (index === 1); // Define se é o inimigo
+
+// head
+sheet2 = ASSETS.SPRITES.heads;
+sheet2X = CANVAS.head_w * (isEnemy ? 1 : 0); // Cabeça do inimigo recebe offset 1
+sheet2Y = CANVAS.head_h * facing;
+
 
     left2 = left1 + CANVAS.HEAD_OFFSETS[index][facing * 2] - Math.round(CANVAS.head_w / 2);
     top2 = top1 + CANVAS.HEAD_OFFSETS[index][facing * 2 + 1] - CANVAS.head_h - 1;

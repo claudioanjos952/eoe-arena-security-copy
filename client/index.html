@@ -555,7 +555,7 @@
       name: data.e.name,
       posx: data.e.posx,
       posy: data.e.posy,
-      spriteIndex: 1,
+      spriteIndex: 0,
       weapon: data.e.weapon,
       weaponIndex: 10,
       bow: data.e.bow,
@@ -566,7 +566,7 @@
 
     this.currentActions = [];
     this.turnLeft = 1;
-    this.energyLeft = 100;
+    this.energyLeft = 60;
     CLIENT.animatedProperties.hp = data.p.hp;
     this.ammuSprite = [5, 3]; // empty sprite
     this.ammuPos = null;
@@ -1020,7 +1020,7 @@
           setTimeout(function () {
             CLIENT.game.calculateFacings();
             CLIENT.game.player.spriteIndex = 0;
-            CLIENT.game.enemy.spriteIndex = 1;
+            CLIENT.game.enemy.spriteIndex = 0;
             CLIENT.game.ammuSprite = [5, 3];
             CLIENT.game.ammuPos = null;
           }, prevTime);
@@ -1203,10 +1203,10 @@
       sheet4, sheet4X, sheet4Y, left4, top4;
   CLIENT.drawCharSprite = function (index, tile, facing, weapon) { // facing - 0, 1, 2, 3 = N, E, S, W
    
-    var isEnemy = (CLIENT.game.enemy.spriteIndex === index);
+    var isEnemy = (CLIENT.game.enemy === char);
 
     // Se o personagem for o jogador, sempre usa offset 0
-    if (index === CLIENT.game.player.spriteIndex) {
+    if (char === CLIENT.game.player) {
         isEnemy = false;
     }
     
@@ -1315,7 +1315,7 @@ sheet2Y = CANVAS.head_h * facing;
       case 'enemysprite':
         f = function (val) {
           CLIENT.game.enemy.spriteIndex = Math.ceil(((val - from) * (to - from + 1)) / (to - from)) + from - 1;
-          if (val == to && val != 31) CLIENT.game.enemy.spriteIndex = 1;
+          if (val == to && val != 31) CLIENT.game.enemy.spriteIndex = 0;
         };
         break;
       case 'ammupos':

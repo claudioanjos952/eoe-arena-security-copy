@@ -555,7 +555,7 @@
       name: data.e.name,
       posx: data.e.posx,
       posy: data.e.posy,
-      spriteIndex: 0,
+      spriteIndex: 1,
       weapon: data.e.weapon,
       weaponIndex: 10,
       bow: data.e.bow,
@@ -1020,7 +1020,7 @@
           setTimeout(function () {
             CLIENT.game.calculateFacings();
             CLIENT.game.player.spriteIndex = 0;
-            CLIENT.game.enemy.spriteIndex = 0;
+            CLIENT.game.enemy.spriteIndex = 1;
             CLIENT.game.ammuSprite = [5, 3];
             CLIENT.game.ammuPos = null;
           }, prevTime);
@@ -1202,13 +1202,13 @@
       sheet3, sheet3X, sheet3Y, left3, top3, wepIndex,
       sheet4, sheet4X, sheet4Y, left4, top4;
   CLIENT.drawCharSprite = function (index, tile, facing, weapon) { // facing - 0, 1, 2, 3 = N, E, S, W
+   
+    var isEnemy = (CLIENT.game.enemy.spriteIndex === index);
 
-
-    var isLocalPlayer = (CLIENT.game.player.id === CLIENT.session.id);
-    
-    // Se for o próprio jogador, usa offset 0, senão usa offset 1
-    var headOffset = isLocalPlayer ? 0 : 1;
- 
+    // Se o personagem for o jogador, sempre usa offset 0
+    if (index === CLIENT.game.player.spriteIndex) {
+        isEnemy = false;
+    }
     
     // torso
     sheet1 = ASSETS.SPRITES.torso;
@@ -1244,7 +1244,7 @@
     
 // head
 sheet2 = ASSETS.SPRITES.heads;
-sheet2X = CANVAS.head_w * headOffset; // Cabeça do inimigo recebe offset 1
+sheet2X = CANVAS.head_w * (isEnemy ? 1 : 0); // Cabeça do inimigo recebe offset 1
 sheet2Y = CANVAS.head_h * facing;
 
 
@@ -1315,7 +1315,7 @@ sheet2Y = CANVAS.head_h * facing;
       case 'enemysprite':
         f = function (val) {
           CLIENT.game.enemy.spriteIndex = Math.ceil(((val - from) * (to - from + 1)) / (to - from)) + from - 1;
-          if (val == to && val != 31) CLIENT.game.enemy.spriteIndex = 0;
+          if (val == to && val != 31) CLIENT.game.enemy.spriteIndex = 1;
         };
         break;
       case 'ammupos':

@@ -1212,7 +1212,7 @@
     
     // torso
     sheet1 = ASSETS.SPRITES.torso;
-    sheet1X = CANVAS.char_w * index;
+    sheet1X = CANVAS.char_w * index - (isEnemy ? 1 : 0);
     sheet1Y = CANVAS.char_h * facing;
     tileLeft = tile.x * CANVAS.tile_w;
     tileTop = tile.y * CANVAS.tile_h + CANVAS.bfield_offset_y;
@@ -1244,7 +1244,7 @@
     
 // head
 sheet2 = ASSETS.SPRITES.heads;
-sheet2X = CANVAS.head_w * (isEnemy ? 1 : 0); // Cabeça do inimigo recebe offset 1
+sheet2X = CANVAS.head_w * index; // Cabeça do inimigo recebe offset 1
 sheet2Y = CANVAS.head_h * facing;
 
 

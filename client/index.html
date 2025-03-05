@@ -1229,7 +1229,7 @@ var playerIndex = CLIENT.game.player.spriteIndex;
     // ammunition
     if (CLIENT.game.ammuPos != null) {
       sheet4 = ASSETS.SPRITES.ammu;
-      sheet4X = CANVAS.ammu_w * CLIENT.game.ammuSprite[0];
+      sheet4X = CANVAS.ammu_w * (CLIENT.game.ammuSprite[0]-(isEnemy ? 1 : 0));
       sheet4Y = CANVAS.ammu_h * CLIENT.game.ammuSprite[1];
 
       left4 = CLIENT.game.ammuPos.x * CANVAS.tile_w + (CANVAS.tile_w - CANVAS.ammu_w) / 2;
@@ -1266,7 +1266,7 @@ sheet2Y = CANVAS.head_h * facing;
     if (CANVAS.WEAPON_INDEXES.hasOwnProperty(index)) {
       sheet3 = ASSETS.SPRITES.weapons;
       wepIndex = CANVAS.WEAPON_INDEXES[index][facing];
-      sheet3X = CANVAS.weapon_w * wepIndex;
+      sheet3X = CANVAS.weapon_w * (wepIndex(isEnemy ? 1: 0);
       sheet3Y = CANVAS.weapon_h * weapon; // CLIENT.game.player.weapon / enemy
 
       left3 = left1 + CANVAS.HAND_OFFSETS[index][facing * 2] - CANVAS.WEAPON_OFFSETS[weapon][wepIndex * 2];

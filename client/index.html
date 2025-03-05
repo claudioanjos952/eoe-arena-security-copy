@@ -1312,7 +1312,7 @@ sheet2Y = CANVAS.head_h * facing;
         break;
       case 'enemysprite':
         f = function (val) {
-          CLIENT.game.enemy.spriteIndex = Math.ceil(((val - from) * (to - from + 1)) / (to - from)) + from - 1;
+          CLIENT.game.enemy.spriteIndex = Math.ceil(((val - from) * (to - from + 1)) / (to - from)) + from ;
           if (val == to && val != 31) CLIENT.game.enemy.spriteIndex = 1;
         };
         break;

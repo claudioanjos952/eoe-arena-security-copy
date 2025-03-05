@@ -1203,6 +1203,9 @@
       sheet4, sheet4X, sheet4Y, left4, top4;
   CLIENT.drawCharSprite = function (index, tile, facing, weapon) { // facing - 0, 1, 2, 3 = N, E, S, W
  var isEnemy = (CLIENT.game.enemy && CLIENT.game.enemy.spriteIndex === index);
+if (index === CLIENT.game.player.spriteIndex) {
+        isEnemy = false;
+}
     
     // torso
     sheet1 = ASSETS.SPRITES.torso;

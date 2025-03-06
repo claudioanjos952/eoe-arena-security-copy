@@ -253,9 +253,9 @@ div.cell {
 
 .view div.button {
   cursor: pointer;
-  background-image: url(/client/img/logo.png);
-  width: 136px;
-  height: 60px;
+  background-image: url(/client/img/button.png);
+  width: 138px;
+  height: 33px;
   display: table-cell;
   vertical-align: middle;
 }

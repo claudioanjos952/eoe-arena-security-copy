@@ -1203,7 +1203,7 @@
       sheet4, sheet4X, sheet4Y, left4, top4;
   CLIENT.drawCharSprite = function (index, tile, facing, weapon) { // facing - 0, 1, 2, 3 = N, E, S, W
 
-        var isEnemy = (CLIENT.game.enemy.id === CLIENT.game.player.id) ? false : (index === CLIENT.game.enemy.spriteIndex);
+        var isEnemy = (act.playerId == CLIENT.game.player.id) ? false : true;
 
     // Cabeça
     var headOffset = isEnemy ? 1 : 0; // Jogador sempre 0, inimigo sempre 1

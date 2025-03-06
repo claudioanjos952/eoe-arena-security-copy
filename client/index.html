@@ -1117,6 +1117,7 @@
 
       // paint the battlefield
       ctx.drawImage(ASSETS.SPRITES.battlefield, 0, 0, CANVAS.bfieldfull_w, CANVAS.bfieldfull_h, 0, CANVAS.top_h, CANVAS.canvas.width, CANVAS.bfieldfull_h);
+ctx.imageSmoothingEnabled = false; // Desativa suavização para manter os pixels nítidos
 
       // Verifica se o jogo está rodando e se a arena existe
 if (CLIENT.game && CLIENT.game.arena && CLIENT.game.arena.tiles) {
@@ -1131,7 +1132,7 @@ if (CLIENT.game && CLIENT.game.arena && CLIENT.game.arena.tiles) {
                 ctx.drawImage(
                     ASSETS.SPRITES.obstacles, // Imagem dos obstáculos
                     spriteX, spriteY, CANVAS.obstacle_w, CANVAS.obstacle_h, 
-                    tile.x * CANVAS.tile_w, tile.y * CANVAS.tile_h + CANVAS.bfield_offset_y, 
+                    tile.x * CANVAS.tile_w, (tile.y * CANVAS.tile_h + CANVAS.bfield_offset_y)-26, 
                     CANVAS.obstacle_w, CANVAS.obstacle_h
                 );
             }

@@ -544,6 +544,7 @@
       maxHp: data.p.hp,
       actions: data.p.actions,
       spriteIndex: 0,
+      headIndex: 0,
       weapon: data.p.weapon,
       weaponIndex: 10,
       bow: data.p.bow,
@@ -556,6 +557,7 @@
       posx: data.e.posx,
       posy: data.e.posy,
       spriteIndex: 0,
+      headIndex: 1,
       weapon: data.e.weapon,
       weaponIndex: 10,
       bow: data.e.bow,
@@ -1149,11 +1151,11 @@
       var py = Math.round(CLIENT.game.player.posy);
       var ey = Math.round(CLIENT.game.enemy.posy);
       if (py < ey) {
-        CLIENT.drawCharSprite(CLIENT.game.player.spriteIndex, {x: CLIENT.game.player.posx, y: CLIENT.game.player.posy}, CLIENT.game.player.facing, CLIENT.game.player.weapon);
-        CLIENT.drawCharSprite(CLIENT.game.enemy.spriteIndex, {x: CLIENT.game.enemy.posx, y: CLIENT.game.enemy.posy}, CLIENT.game.enemy.facing, CLIENT.game.enemy.weapon);
+        CLIENT.drawCharSprite(CLIENT.game.player.spriteIndex, {x: CLIENT.game.player.posx, y: CLIENT.game.player.posy}, CLIENT.game.player.facing, CLIENT.game.player.weapon,CLIENT.game.player.headIndex);
+        CLIENT.drawCharSprite(CLIENT.game.enemy.spriteIndex, {x: CLIENT.game.enemy.posx, y: CLIENT.game.enemy.posy}, CLIENT.game.enemy.facing, CLIENT.game.enemy.weapon,CLIENT.game.enemy.headIndex);
       } else {
-        CLIENT.drawCharSprite(CLIENT.game.enemy.spriteIndex, {x: CLIENT.game.enemy.posx, y: CLIENT.game.enemy.posy}, CLIENT.game.enemy.facing, CLIENT.game.enemy.weapon);
-        CLIENT.drawCharSprite(CLIENT.game.player.spriteIndex, {x: CLIENT.game.player.posx, y: CLIENT.game.player.posy}, CLIENT.game.player.facing, CLIENT.game.player.weapon);
+        CLIENT.drawCharSprite(CLIENT.game.enemy.spriteIndex, {x: CLIENT.game.enemy.posx, y: CLIENT.game.enemy.posy}, CLIENT.game.enemy.facing, CLIENT.game.enemy.weapon,CLIENT.game.enemy.headIndex);
+        CLIENT.drawCharSprite(CLIENT.game.player.spriteIndex, {x: CLIENT.game.player.posx, y: CLIENT.game.player.posy}, CLIENT.game.player.facing, CLIENT.game.player.weapon,CLIENT.game.player.headIndex);
       }
 
       // 11 actions
@@ -1201,11 +1203,7 @@
       tileCenterY, left1, left2, top1, top2,
       sheet3, sheet3X, sheet3Y, left3, top3, wepIndex,
       sheet4, sheet4X, sheet4Y, left4, top4;
-  CLIENT.drawCharSprite = function (index, tile, facing, weapon) { // facing - 0, 1, 2, 3 = N, E, S, W
-
-        var isPlayer1 = (CLIENT.game.player.id == CLIENT.game.clientData.playerId);
-var headOffset = isPlayer1 ? 0 : 1; // player1 usa 0, player2 usa 1
-
+  CLIENT.drawCharSprite = function (index, tile, facing, weapon, head) { // facing - 0, 1, 2, 3 = N, E, S, W
     
     
     // torso
@@ -1242,7 +1240,7 @@ var headOffset = isPlayer1 ? 0 : 1; // player1 usa 0, player2 usa 1
     
 // head
 sheet2 = ASSETS.SPRITES.heads;
-sheet2X = CANVAS.head_w * headOffset; // Cabeça do inimigo recebe offset 1
+sheet2X = CANVAS.head_w * head; // Cabeça do inimigo recebe offset 1
 sheet2Y = CANVAS.head_h * facing;
 
 

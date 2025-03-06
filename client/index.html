@@ -1114,24 +1114,28 @@
 
       // paint the battlefield
       ctx.drawImage(ASSETS.SPRITES.battlefield, 0, 0, CANVAS.bfieldfull_w, CANVAS.bfieldfull_h, 0, CANVAS.top_h, CANVAS.canvas.width, CANVAS.bfieldfull_h);
-// Renderiza os obstáculos no campo de batalha
-for (var i = 0; i < CLIENT.game.arena.tiles.length; i++) {
-    for (var j = 0; j < CLIENT.game.arena.tiles[i].length; j++) {
-        var tile = CLIENT.game.arena.tiles[i][j];
 
-        if (tile.obstacle > 0) { // Se for um obstáculo
-            var spriteX = (tile.obstacle - 1) * CANVAS.obstacle_w; // Define qual sprite usar
-            var spriteY = 0; // Linha única na spritesheet
+      // Verifica se o jogo está rodando e se a arena existe
+if (CLIENT.game && CLIENT.game.arena && CLIENT.game.arena.tiles) {
+    for (var i = 0; i < CLIENT.game.arena.tiles.length; i++) {
+        for (var j = 0; j < CLIENT.game.arena.tiles[i].length; j++) {
+            var tile = CLIENT.game.arena.tiles[i][j];
 
-            ctx.drawImage(
-                ASSETS.SPRITES.obstacles, // Imagem dos obstáculos
-                spriteX, spriteY, CANVAS.obstacle_w, CANVAS.obstacle_h, 
-                tile.x * CANVAS.tile_w, tile.y * CANVAS.tile_h + CANVAS.bfield_offset_y, 
-                CANVAS.obstacle_w, CANVAS.obstacle_h
-            );
+            if (tile.obstacle > 0) { // Se for um obstáculo
+                var spriteX = (tile.obstacle - 1) * CANVAS.obstacle_w; // Define qual sprite usar
+                var spriteY = 0; // Linha única na spritesheet
+
+                ctx.drawImage(
+                    ASSETS.SPRITES.obstacles, // Imagem dos obstáculos
+                    spriteX, spriteY, CANVAS.obstacle_w, CANVAS.obstacle_h, 
+                    tile.x * CANVAS.tile_w, tile.y * CANVAS.tile_h + CANVAS.bfield_offset_y, 
+                    CANVAS.obstacle_w, CANVAS.obstacle_h
+                );
+            }
         }
     }
 }
+
 
       // paint tile under pointer
       if (CLIENT.pointerPos.x != null && CLIENT.pointerPos.y != null) {

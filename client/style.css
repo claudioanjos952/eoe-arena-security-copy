@@ -61,8 +61,10 @@ body {
   height: 220px;
   border: 1px solid black;
   position: absolute;
-  background-color: paleturquoise;
+  background: url("/client/img/dagonar.png") no-repeat center center;
+  background-size: cover; /* Ajusta a imagem para cobrir toda a área */
 }
+
 
 #login {
   display: table;

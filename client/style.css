@@ -253,9 +253,9 @@ div.cell {
 
 .view div.button {
   cursor: pointer;
-  background-image: url(/client/img/logo_dagonar.jpeg);
+  background-image: url(/client/img/logo.png);
   width: 176px;
-  height: 220px;
+  height: 60px;
   display: table-cell;
   vertical-align: middle;
 }

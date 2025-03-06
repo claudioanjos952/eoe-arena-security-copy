@@ -1203,7 +1203,7 @@
       sheet4, sheet4X, sheet4Y, left4, top4;
   CLIENT.drawCharSprite = function (index, tile, facing, weapon) { // facing - 0, 1, 2, 3 = N, E, S, W
 
-        var isPlayer1 = (CLIENT.game.player.id === CLIENT.gameData.player1.id);
+        var isPlayer1 = (CLIENT.game.player.id === SERVER.Game.player1.id);
 var headOffset = isPlayer1 ? 0 : 1; // player1 usa 0, player2 usa 1
 
     

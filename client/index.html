@@ -1203,11 +1203,10 @@
       sheet4, sheet4X, sheet4Y, left4, top4;
   CLIENT.drawCharSprite = function (index, tile, facing, weapon) { // facing - 0, 1, 2, 3 = N, E, S, W
 
-        var isEnemy = CLIENT.game.enemy.spriteIndex === index;
+        var isEnemy = (act.playerId != CLIENT.game.player.id || char.id != CLIENT.game.player.id) ? 1 : 0;
 
     // Cabeça
-    var headOffset = isEnemy ? 1 : 0; // Jogador sempre 0, inimigo sempre 1
-
+    
     
     // torso
     sheet1 = ASSETS.SPRITES.torso;
@@ -1243,7 +1242,7 @@
     
 // head
 sheet2 = ASSETS.SPRITES.heads;
-sheet2X = CANVAS.head_w * 0; // Cabeça do inimigo recebe offset 1
+sheet2X = CANVAS.head_w * isEnemy; // Cabeça do inimigo recebe offset 1
 sheet2Y = CANVAS.head_h * facing;
 
 

@@ -1164,6 +1164,13 @@ SERVER.Game.prototype.getDataForClient = function (player) {
       posx: e.gameState.tile.pos.x,
       posy: e.gameState.tile.pos.y,
     }
+  arena: {
+      tiles: this.arena.tiles.map(row => row.map(tile => ({
+        x: tile.pos.x,
+        y: tile.pos.y,
+        obstacle: tile.obstacle
+      })))
+    }
   };
 
   return data;

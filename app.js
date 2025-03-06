@@ -960,13 +960,41 @@ SERVER.Arena = function (game) {
   this.game = game;
   this.tiles = [];
 
+  // Lista de mapas predefinidos
+  var mapTemplates = [
+      [ // Template 1
+          [0, 0, 0, 0, 3, 0],
+          [0, 3, 0, 0, 2, 0],
+          [0, 2, 0, 0, 1, 0],
+          [0, 1, 0, 0, 0, 0]
+      ],
+      [ // Template 2
+          [0, 0, 0, 0, 3, 0],
+          [3, 2, 1, 0, 0, 0],
+          [0, 0, 0, 0, 2, 3],
+          [0, 1, 0, 0, 0, 0]
+      ],
+      [ // Template 3
+          [0, 0, 0, 0, 0, 0],
+          [3, 0, 2, 2, 0, 3],
+          [3, 0, 1, 1, 0, 3],
+          [0, 0, 0, 0, 0, 0]
+      ]
+  ];
+
+  // Escolher um template aleatório
+  var chosenMap = mapTemplates[Math.floor(Math.random() * mapTemplates.length)];
+
   for (var i = 0; i < 4; ++i) {
     this.tiles.push([]);
     for (var j = 0; j < 6; ++j) {
-      this.tiles[i].push(new SERVER.Tile(this, j, i));
+      var newTile = new SERVER.Tile(this, j, i);
+      newTile.obstacle = chosenMap[i][j]; // Define o obstáculo com base no mapa escolhido
+      this.tiles[i].push(newTile);
     }
   }
 };
+
 
 SERVER.Arena.prototype.getRandomEmptyTile = function () {
   var emptyTiles = [];

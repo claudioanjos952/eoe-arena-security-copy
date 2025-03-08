@@ -1119,13 +1119,7 @@
       ctx.drawImage(ASSETS.SPRITES.battlefield, 0, 0, CANVAS.bfieldfull_w, CANVAS.bfieldfull_h, 0, CANVAS.top_h, CANVAS.canvas.width, CANVAS.bfieldfull_h);
 ctx.imageSmoothingEnabled = false; // Desativa suavização para manter os pixels nítidos
 
-      CLIENT.render = function () {
-    // Limpa a tela antes de desenhar
-    ctx.clearRect(0, 0, CANVAS.canvas.width, CANVAS.canvas.height);
-
-    // Desenha o campo de batalha
-    ctx.drawImage(ASSETS.SPRITES.battlefield, 0, 0, CANVAS.bfieldfull_w, CANVAS.bfieldfull_h, 0, CANVAS.top_h, CANVAS.canvas.width, CANVAS.bfieldfull_h);
-
+      
     // Lista para armazenar personagens e obstáculos para ordenação por profundidade
     var elementos = [];
 

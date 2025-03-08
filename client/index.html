@@ -1120,32 +1120,32 @@
 ctx.imageSmoothingEnabled = false; // Desativa suavização para manter os pixels nítidos
 
       
-    // Lista para armazenar personagens e obstáculos para ordenação por profundidade
+    // Ordena os elementos por profundidade (do topo para baixo)
 var elementos = [];
 
 // Adiciona os personagens à lista
 elementos.push({
-    tipo: "player",
-    y: CLIENT.game.player.posy,
-    desenhar: () => CLIENT.drawCharSprite(
-        CLIENT.game.player.spriteIndex, 
-        { x: CLIENT.game.player.posx, y: CLIENT.game.player.posy }, 
-        CLIENT.game.player.facing, 
-        CLIENT.game.player.weapon,
-        CLIENT.game.player.headIndex
-    )
+  tipo: "player",
+  y: CLIENT.game.player.posy,
+  sprite: () => CLIENT.drawCharSprite(
+    CLIENT.game.player.spriteIndex, 
+    { x: CLIENT.game.player.posx, y: CLIENT.game.player.posy }, 
+    CLIENT.game.player.facing, 
+    CLIENT.game.player.weapon,
+    CLIENT.game.player.headIndex
+  )
 });
 
 elementos.push({
-    tipo: "enemy",
-    y: CLIENT.game.enemy.posy,
-    desenhar: () => CLIENT.drawCharSprite(
-        CLIENT.game.enemy.spriteIndex, 
-        { x: CLIENT.game.enemy.posx, y: CLIENT.game.enemy.posy }, 
-        CLIENT.game.enemy.facing, 
-        CLIENT.game.enemy.weapon,
-        CLIENT.game.enemy.headIndex
-    )
+  tipo: "enemy",
+  y: CLIENT.game.enemy.posy,
+  sprite: () => CLIENT.drawCharSprite(
+    CLIENT.game.enemy.spriteIndex, 
+    { x: CLIENT.game.enemy.posx, y: CLIENT.game.enemy.posy }, 
+    CLIENT.game.enemy.facing, 
+    CLIENT.game.enemy.weapon,
+    CLIENT.game.enemy.headIndex
+  )
 });
 
 // Adiciona os obstáculos à lista
@@ -1155,27 +1155,29 @@ for (var i = 0; i < CLIENT.game.arena.tiles.length; i++) {
 
         if (tile.obstacle > 0) { // Se for um obstáculo
             elementos.push({
-                tipo: "obstaculo",
-                y: tile.pos.y,
-                desenhar: () => {
-                    var spriteX = (tile.obstacle - 1) * CANVAS.obstacle_w;
-                    ctx.drawImage(
-                        ASSETS.SPRITES.obstacles,
-                        spriteX, 0, CANVAS.obstacle_w, CANVAS.obstacle_h,
-                        tile.pos.x * CANVAS.tile_w, (tile.pos.y * CANVAS.tile_h + CANVAS.bfield_offset_y) - 26,
-                        CANVAS.obstacle_w, CANVAS.obstacle_h
-                    );
-                }
+              tipo: "obstaculo",
+              y: tile.pos.y,
+              sprite: () => {
+                var spriteX = (tile.obstacle - 1) * CANVAS.obstacle_w;
+                ctx.drawImage(
+                  ASSETS.SPRITES.obstacles,
+                  spriteX, 0, CANVAS.obstacle_w, CANVAS.obstacle_h,
+                  tile.pos.x * CANVAS.tile_w, (tile.pos.y * CANVAS.tile_h + CANVAS.bfield_offset_y) - 26,
+                  CANVAS.obstacle_w, CANVAS.obstacle_h
+                );
+              }
             });
         }
     }
 }
 
-// Ordena os elementos por profundidade (do topo para baixo)
+// Ordena os elementos de acordo com a posição Y (do menor para o maior)
 elementos.sort((a, b) => a.y - b.y);
 
 // Desenha todos os elementos na ordem correta
-elementos.forEach(el => el.desenhar());
+elementos.forEach(el => el.sprite());
+
+
 
 
       

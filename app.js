@@ -1313,7 +1313,7 @@ SERVER.Game.prototype.turnEnd = function () { // called when a turn ends
     }
   }
 
-  var energyLeft = 100;
+  var energyLeft = 60;
   var tstamp = Math.random();
   for (var i = 0; i < this.player1_actions.length; ++i) {
     var act = this.player1_actions[i];
@@ -1334,7 +1334,7 @@ SERVER.Game.prototype.turnEnd = function () { // called when a turn ends
     }
   }
   // process all actions of p2 into {timestamp: action, timestamp: action}
-  energyLeft = 100;
+  energyLeft = 60;
   tstamp = Math.random();
   for (var i = 0; i < this.player2_actions.length; ++i) {
     var act = this.player2_actions[i];
@@ -1952,15 +1952,15 @@ SERVER.GameAction.prototype.isObstacleInLine = function (start, end) {
   var dy = -Math.abs(y1 - y0), sy = y0 < y1 ? 1 : -1;
   var err = dx + dy, e2;
 
-  var pathTiles = []; // Armazena os tiles percorridos
+  var pathTiles = []; // Lista de tiles percorridos
 
   while (x0 !== x1 || y0 !== y1) {
     var tile = this.game.arena.getTileByPos({ x: x0, y: y0 });
 
-    // Se for obstáculo do tipo "Pilar" (3), bloqueia sempre
-    if (tile.obstacle === 3) return true; 
+    // Se for um obstáculo tipo 3 (pilar), bloqueia sempre
+    if (tile.obstacle === 3) return true;
 
-    // Adiciona o tile ao caminho percorrido
+    // Adiciona à lista para verificação posterior
     pathTiles.push({ x: x0, y: y0, type: tile.obstacle });
 
     e2 = 2 * err;
@@ -1968,16 +1968,16 @@ SERVER.GameAction.prototype.isObstacleInLine = function (start, end) {
     if (e2 <= dx) { err += dx; y0 += sy; }
   }
 
-  // Verifica se há uma lança (2) no meio do trajeto reto
+  // Se o ataque for totalmente reto (horizontal, vertical ou diagonal)
   if (start.x === end.x || start.y === end.y || Math.abs(start.x - end.x) === Math.abs(start.y - end.y)) {
-    let middleIndex = Math.floor(pathTiles.length / 2);
-    if (pathTiles[middleIndex] && pathTiles[middleIndex].type === 2) {
-      return true; // Bloqueia se uma lança estiver no meio
+    for (let i = 0; i < pathTiles.length; i++) {
+      if (pathTiles[i].type === 2) return true; // Bloqueia se houver uma lança no caminho
     }
   }
 
   return false; // Se nenhum obstáculo relevante for encontrado, permite o ataque
 };
+
 
 
 SERVER.level0char = {

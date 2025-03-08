@@ -1119,6 +1119,13 @@
       ctx.drawImage(ASSETS.SPRITES.battlefield, 0, 0, CANVAS.bfieldfull_w, CANVAS.bfieldfull_h, 0, CANVAS.top_h, CANVAS.canvas.width, CANVAS.bfieldfull_h);
 ctx.imageSmoothingEnabled = false; // Desativa suavização para manter os pixels nítidos
 
+
+
+      // whoever is facing South should be drawn first
+      var py = Math.round(CLIENT.game.player.posy);
+      var ey = Math.round(CLIENT.game.enemy.posy);
+      
+      
       // Verifica se o jogo está rodando e se a arena existe
 if (CLIENT.game && CLIENT.game.arena && CLIENT.game.arena.tiles) {
     for (var i = 0; i < CLIENT.game.arena.tiles.length; i++) {
@@ -1136,6 +1143,12 @@ if (CLIENT.game && CLIENT.game.arena && CLIENT.game.arena.tiles) {
                     CANVAS.obstacle_w, CANVAS.obstacle_h
                 );
             }
+          if (py == j) {
+        CLIENT.drawCharSprite(CLIENT.game.player.spriteIndex, {x: CLIENT.game.player.posx, y: CLIENT.game.player.posy}, CLIENT.game.player.facing, CLIENT.game.player.weapon,CLIENT.game.player.headIndex);
+              } 
+          if (ey == j) {
+        CLIENT.drawCharSprite(CLIENT.game.enemy.spriteIndex, {x: CLIENT.game.enemy.posx, y: CLIENT.game.enemy.posy}, CLIENT.game.enemy.facing, CLIENT.game.enemy.weapon,CLIENT.game.enemy.headIndex);
+        }
         }
     }
 }
@@ -1169,22 +1182,11 @@ if (CLIENT.game && CLIENT.game.arena && CLIENT.game.arena.tiles) {
         ctx.fillStyle="#af8b7e";
         ctx.fillRect(CLIENT.pointerPos.x * CANVAS.tile_w + 4, CLIENT.pointerPos.y * CANVAS.tile_h + CANVAS.bfield_offset_y + 3, CANVAS.tile_w - 8, CANVAS.tile_h - 6);
       }
-
-      // if hovering last tile, show check mark icon
+// if hovering last tile, show check mark icon
       if (CLIENT.mode == "move" && CLIENT.pointerPos.x == CLIENT.lastTile.x && CLIENT.pointerPos.y == CLIENT.lastTile.y) {
         ctx.drawImage(ASSETS.SPRITES.check, 0, 0, 16, 16, CLIENT.pointerPos.x * CANVAS.tile_w + 8, CLIENT.pointerPos.y * CANVAS.tile_h + CANVAS.bfield_offset_y - 9, 16, 16);
       }
-
-      // whoever is facing South should be drawn first
-      var py = Math.round(CLIENT.game.player.posy);
-      var ey = Math.round(CLIENT.game.enemy.posy);
-      if (py < ey) {
-        CLIENT.drawCharSprite(CLIENT.game.player.spriteIndex, {x: CLIENT.game.player.posx, y: CLIENT.game.player.posy}, CLIENT.game.player.facing, CLIENT.game.player.weapon,CLIENT.game.player.headIndex);
-        CLIENT.drawCharSprite(CLIENT.game.enemy.spriteIndex, {x: CLIENT.game.enemy.posx, y: CLIENT.game.enemy.posy}, CLIENT.game.enemy.facing, CLIENT.game.enemy.weapon,CLIENT.game.enemy.headIndex);
-      } else {
-        CLIENT.drawCharSprite(CLIENT.game.enemy.spriteIndex, {x: CLIENT.game.enemy.posx, y: CLIENT.game.enemy.posy}, CLIENT.game.enemy.facing, CLIENT.game.enemy.weapon,CLIENT.game.enemy.headIndex);
-        CLIENT.drawCharSprite(CLIENT.game.player.spriteIndex, {x: CLIENT.game.player.posx, y: CLIENT.game.player.posy}, CLIENT.game.player.facing, CLIENT.game.player.weapon,CLIENT.game.player.headIndex);
-      }
+      
 
       // 11 actions
       ctx.fillStyle="#888888";

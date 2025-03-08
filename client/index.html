@@ -92,7 +92,7 @@
       end: loadImage("/client/img/action-icons/end.png"),
     },
     SPRITES: {
-      battlefield: loadImage("/client/img/battlefield2.png"),
+      battlefield: loadImage("/client/img/battlefield.png"),
       obstacles: loadImage("/client/img/obstacle.png"),
        check: loadImage("/client/img/check.png"),
       torso: loadImage("/client/img/torso.png"),
@@ -1119,52 +1119,29 @@
       ctx.drawImage(ASSETS.SPRITES.battlefield, 0, 0, CANVAS.bfieldfull_w, CANVAS.bfieldfull_h, 0, CANVAS.top_h, CANVAS.canvas.width, CANVAS.bfieldfull_h);
 ctx.imageSmoothingEnabled = false; // Desativa suavização para manter os pixels nítidos
 
-      
-// Obtém as posições arredondadas dos personagens
-var py = Math.round(CLIENT.game.player.posy);
-var ey = Math.round(CLIENT.game.enemy.posy);
+      // Verifica se o jogo está rodando e se a arena existe
+if (CLIENT.game && CLIENT.game.arena && CLIENT.game.arena.tiles) {
+    for (var i = 0; i < CLIENT.game.arena.tiles.length; i++) {
+        for (var j = 0; j < CLIENT.game.arena.tiles[i].length; j++) {
+            var tile = CLIENT.game.arena.tiles[i][j];
 
-// Percorre o mapa de cima para baixo
-for (var y = 0; y < CLIENT.game.arena.tiles.length; y++) {
-    for (var x = 0; x < CLIENT.game.arena.tiles[y].length; x++) {
-        var tile = CLIENT.game.arena.tiles[y][x];
+            if (tile.obstacle > 0) { // Se for um obstáculo
+                var spriteX = (tile.obstacle - 1) * CANVAS.obstacle_w; // Define qual sprite usar
+                var spriteY = 0; // Linha única na spritesheet
 
-        // Desenha o obstáculo se houver
-        if (tile.obstacle > 0) {
-            var spriteX = (tile.obstacle - 1) * CANVAS.obstacle_w;
-            CLIENT.ctx.drawImage(
-                ASSETS.SPRITES.obstacles,
-                spriteX, 0, CANVAS.obstacle_w, CANVAS.obstacle_h,
-                tile.pos.x * CANVAS.tile_w, (tile.pos.y * CANVAS.tile_h + CANVAS.bfield_offset_y) - 26,
-                CANVAS.obstacle_w, CANVAS.obstacle_h
-            );
+                ctx.drawImage(
+                    ASSETS.SPRITES.obstacles, // Imagem dos obstáculos
+                    spriteX, spriteY, CANVAS.obstacle_w, CANVAS.obstacle_h, 
+                    tile.x * CANVAS.tile_w, (tile.y * CANVAS.tile_h + CANVAS.bfield_offset_y)-26, 
+                    CANVAS.obstacle_w, CANVAS.obstacle_h
+                );
+            }
         }
-    }
-
-    // Após desenhar os obstáculos dessa linha, verifica se há um personagem nela
-    if (py === y) {
-        CLIENT.drawCharSprite(
-            CLIENT.game.player.spriteIndex, 
-            { x: CLIENT.game.player.posx, y: CLIENT.game.player.posy }, 
-            CLIENT.game.player.facing, 
-            CLIENT.game.player.weapon,
-            CLIENT.game.player.headIndex
-        );
-    }
-    
-    if (ey === y) {
-        CLIENT.drawCharSprite(
-            CLIENT.game.enemy.spriteIndex, 
-            { x: CLIENT.game.enemy.posx, y: CLIENT.game.enemy.posy }, 
-            CLIENT.game.enemy.facing, 
-            CLIENT.game.enemy.weapon,
-            CLIENT.game.enemy.headIndex
-        );
     }
 }
 
 
-// paint tile under pointer
+      // paint tile under pointer
       if (CLIENT.pointerPos.x != null && CLIENT.pointerPos.y != null) {
         ctx.fillStyle="#c9dff3";
         ctx.fillRect(CLIENT.pointerPos.x * CANVAS.tile_w + 2, CLIENT.pointerPos.y * CANVAS.tile_h + CANVAS.bfield_offset_y + 1, CANVAS.tile_w - 4, CANVAS.tile_h - 2);
@@ -1198,9 +1175,16 @@ for (var y = 0; y < CLIENT.game.arena.tiles.length; y++) {
         ctx.drawImage(ASSETS.SPRITES.check, 0, 0, 16, 16, CLIENT.pointerPos.x * CANVAS.tile_w + 8, CLIENT.pointerPos.y * CANVAS.tile_h + CANVAS.bfield_offset_y - 9, 16, 16);
       }
 
-
-
-      
+      // whoever is facing South should be drawn first
+      var py = Math.round(CLIENT.game.player.posy);
+      var ey = Math.round(CLIENT.game.enemy.posy);
+      if (py < ey) {
+        CLIENT.drawCharSprite(CLIENT.game.player.spriteIndex, {x: CLIENT.game.player.posx, y: CLIENT.game.player.posy}, CLIENT.game.player.facing, CLIENT.game.player.weapon,CLIENT.game.player.headIndex);
+        CLIENT.drawCharSprite(CLIENT.game.enemy.spriteIndex, {x: CLIENT.game.enemy.posx, y: CLIENT.game.enemy.posy}, CLIENT.game.enemy.facing, CLIENT.game.enemy.weapon,CLIENT.game.enemy.headIndex);
+      } else {
+        CLIENT.drawCharSprite(CLIENT.game.enemy.spriteIndex, {x: CLIENT.game.enemy.posx, y: CLIENT.game.enemy.posy}, CLIENT.game.enemy.facing, CLIENT.game.enemy.weapon,CLIENT.game.enemy.headIndex);
+        CLIENT.drawCharSprite(CLIENT.game.player.spriteIndex, {x: CLIENT.game.player.posx, y: CLIENT.game.player.posy}, CLIENT.game.player.facing, CLIENT.game.player.weapon,CLIENT.game.player.headIndex);
+      }
 
       // 11 actions
       ctx.fillStyle="#888888";

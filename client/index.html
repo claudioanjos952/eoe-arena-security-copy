@@ -1121,61 +1121,62 @@ ctx.imageSmoothingEnabled = false; // Desativa suavização para manter os pixel
 
       
     // Lista para armazenar personagens e obstáculos para ordenação por profundidade
-    var elementos = [];
+var elementos = [];
 
-    // Adiciona os personagens à lista
-    elementos.push({
-        tipo: "player",
-        y: CLIENT.game.player.posy,
-        desenhar: () => CLIENT.drawCharSprite(
-            CLIENT.game.player.spriteIndex, 
-            { x: CLIENT.game.player.posx, y: CLIENT.game.player.posy }, 
-            CLIENT.game.player.facing, 
-            CLIENT.game.player.weapon,
-            CLIENT.game.player.headIndex
-        )
-    });
+// Adiciona os personagens à lista
+elementos.push({
+    tipo: "player",
+    y: CLIENT.game.player.posy,
+    desenhar: () => CLIENT.drawCharSprite(
+        CLIENT.game.player.spriteIndex, 
+        { x: CLIENT.game.player.posx, y: CLIENT.game.player.posy }, 
+        CLIENT.game.player.facing, 
+        CLIENT.game.player.weapon,
+        CLIENT.game.player.headIndex
+    )
+});
 
-    elementos.push({
-        tipo: "enemy",
-        y: CLIENT.game.enemy.posy,
-        desenhar: () => CLIENT.drawCharSprite(
-            CLIENT.game.enemy.spriteIndex, 
-            { x: CLIENT.game.enemy.posx, y: CLIENT.game.enemy.posy }, 
-            CLIENT.game.enemy.facing, 
-            CLIENT.game.enemy.weapon,
-            CLIENT.game.enemy.headIndex
-        )
-    });
+elementos.push({
+    tipo: "enemy",
+    y: CLIENT.game.enemy.posy,
+    desenhar: () => CLIENT.drawCharSprite(
+        CLIENT.game.enemy.spriteIndex, 
+        { x: CLIENT.game.enemy.posx, y: CLIENT.game.enemy.posy }, 
+        CLIENT.game.enemy.facing, 
+        CLIENT.game.enemy.weapon,
+        CLIENT.game.enemy.headIndex
+    )
+});
 
-    // Adiciona os obstáculos à lista
-    for (var i = 0; i < CLIENT.game.arena.tiles.length; i++) {
-        for (var j = 0; j < CLIENT.game.arena.tiles[i].length; j++) {
-            var tile = CLIENT.game.arena.tiles[i][j];
+// Adiciona os obstáculos à lista
+for (var i = 0; i < CLIENT.game.arena.tiles.length; i++) {
+    for (var j = 0; j < CLIENT.game.arena.tiles[i].length; j++) {
+        var tile = CLIENT.game.arena.tiles[i][j];
 
-            if (tile.obstacle > 0) { // Se for um obstáculo
-                elementos.push({
-                    tipo: "obstaculo",
-                    y: tile.pos.y,
-                    desenhar: () => {
-                        var spriteX = (tile.obstacle - 1) * CANVAS.obstacle_w;
-                        ctx.drawImage(
-                            ASSETS.SPRITES.obstacles,
-                            spriteX, 0, CANVAS.obstacle_w, CANVAS.obstacle_h,
-                            tile.pos.x * CANVAS.tile_w, (tile.pos.y * CANVAS.tile_h + CANVAS.bfield_offset_y) - 26,
-                            CANVAS.obstacle_w, CANVAS.obstacle_h
-                        );
-                    }
-                });
-            }
+        if (tile.obstacle > 0) { // Se for um obstáculo
+            elementos.push({
+                tipo: "obstaculo",
+                y: tile.pos.y,
+                desenhar: () => {
+                    var spriteX = (tile.obstacle - 1) * CANVAS.obstacle_w;
+                    ctx.drawImage(
+                        ASSETS.SPRITES.obstacles,
+                        spriteX, 0, CANVAS.obstacle_w, CANVAS.obstacle_h,
+                        tile.pos.x * CANVAS.tile_w, (tile.pos.y * CANVAS.tile_h + CANVAS.bfield_offset_y) - 26,
+                        CANVAS.obstacle_w, CANVAS.obstacle_h
+                    );
+                }
+            });
         }
     }
+}
 
-    // Ordena os elementos por profundidade (do topo para baixo)
-    elementos.sort((a, b) => a.y - b.y);
+// Ordena os elementos por profundidade (do topo para baixo)
+elementos.sort((a, b) => a.y - b.y);
 
-    // Desenha todos os elementos na ordem correta
-    elementos.forEach(el => el.desenhar());
+// Desenha todos os elementos na ordem correta
+elementos.forEach(el => el.desenhar());
+
 
       
 

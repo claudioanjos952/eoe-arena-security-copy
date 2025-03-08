@@ -1924,13 +1924,44 @@ SERVER.GameAction.prototype.SKILL = function (type, action) {
     // too close
     this.clientData.data.status = 'close';
   }
-  else if ((this.clientData.type == 'melee' || this.clientData.type == 'range') && this.action != 'toss_bomb' && this.action != 'place_trap' && this.doesEnemyEvade(this.skill_info.precision / 100)) {
+  else if ((this.clientData.type == 'melee' || && this.action != 'toss_bomb' && this.action != 'place_trap' && this.doesEnemyEvade(this.skill_info.precision / 100)) {
     // enemy evaded the attack
     this.clientData.data.status = 'evade';
-  } else {
+  } 
+    else if (this.clientData.type == 'range' || this.clientData.type == 'magic') {
+    if (this.isObstacleInLine(this.playerTile.pos, this.enemyTile.pos)) {
+      this.clientData.data.status = 'blocked'; // O ataque foi bloqueado por um obstáculo
+    } else if (this.doesEnemyEvade(this.skill_info.precision / 100)) {
+      this.clientData.data.status = 'evade'; // O inimigo desviou
+    } else {
+      SKILLS[this.action](this);
+    }
+  }
+ else {
     SKILLS[this.action](this);
   }
 
+};
+SERVER.GameAction.prototype.isObstacleInLine = function (start, end) {
+  var x0 = start.x, y0 = start.y;
+  var x1 = end.x, y1 = end.y;
+
+  var dx = Math.abs(x1 - x0), sx = x0 < x1 ? 1 : -1;
+  var dy = -Math.abs(y1 - y0), sy = y0 < y1 ? 1 : -1;
+  var err = dx + dy, e2;
+
+  while (x0 !== x1 || y0 !== y1) {
+    var tile = this.game.arena.getTileByPos({ x: x0, y: y0 });
+    if (tile.obstacle > 0) {
+      return true; // Obstáculo detectado, interrompe o ataque
+    }
+
+    e2 = 2 * err;
+    if (e2 >= dy) { err += dy; x0 += sx; }
+    if (e2 <= dx) { err += dx; y0 += sy; }
+  }
+  
+  return false;
 };
 
 SERVER.level0char = {

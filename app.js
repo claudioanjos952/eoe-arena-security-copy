@@ -1864,7 +1864,7 @@ SERVER.GameAction.prototype.process = function () {
 }
 
 SERVER.GameAction.prototype.MAGIC = function (action, data) {
-    console.log(`Ação mágica recebida: ${action}`); // Verificar qual ação está sendo enviada
+    console.log(`Ação mágica recebida:`);
 
     if (SPELLS.close_range.includes(action)) {
         this.clientData.data.type = 'close_range';
@@ -1880,25 +1880,27 @@ SERVER.GameAction.prototype.MAGIC = function (action, data) {
         this.time = 1250;
     }
 
-    if (!SHARED.arePositionsTouching(this.playerTile.pos, this.enemyTile.pos) && this.clientData.data.type == 'close_range') {
+    // Verifica se há obstáculos no caminho para magias de longo alcance
+    if (this.clientData.data.type === 'long_range' && 
+        this.isObstacleInLine(this.playerTile.pos, this.enemyTile.pos)) {
+        this.clientData.data.status = 'blocked';
+    } else if (!SHARED.arePositionsTouching(this.playerTile.pos, this.enemyTile.pos) && this.clientData.data.type === 'close_range') {
         this.clientData.data.status = 'far';
-    } else if (SHARED.arePositionsTouching(this.playerTile.pos, this.enemyTile.pos) && this.clientData.data.type == 'long_range') {
+    } else if (SHARED.arePositionsTouching(this.playerTile.pos, this.enemyTile.pos) && this.clientData.data.type === 'long_range') {
         this.clientData.data.status = 'close';
     } else if (this.doesPlayerFizzle(this.skill_info.precision / 100)) {
         this.clientData.data.status = 'fizzle';
-    } else if (this.doesEnemyResist(1) && this.clientData.data.type != 'other') {
+    } else if (this.doesEnemyResist(1) && this.clientData.data.type !== 'other') {
         this.clientData.data.status = 'resist';
     } else {
-	    
-
-	    if (typeof SPELLS[action] === "function") {
-  SPELLS[action](this);
-		    
-} else {
-  console.error("Erro: Ação desconhecida ou não definida em SPELLS:", action);
-	    }
+        if (typeof SPELLS[action] === "function") {
+            SPELLS[action](this);
+        } else {
+            console.error("Erro: Ação desconhecida ou não definida em SPELLS:", action);
+        }
     }
 };
+
 
 
 SERVER.GameAction.prototype.SKILL = function (type, action) {
@@ -1950,19 +1952,33 @@ SERVER.GameAction.prototype.isObstacleInLine = function (start, end) {
   var dy = -Math.abs(y1 - y0), sy = y0 < y1 ? 1 : -1;
   var err = dx + dy, e2;
 
+  var pathTiles = []; // Armazena os tiles percorridos
+
   while (x0 !== x1 || y0 !== y1) {
     var tile = this.game.arena.getTileByPos({ x: x0, y: y0 });
-    if (tile.obstacle > 0) {
-      return true; // Obstáculo detectado, interrompe o ataque
-    }
+
+    // Se for obstáculo do tipo "Pilar" (3), bloqueia sempre
+    if (tile.obstacle === 3) return true; 
+
+    // Adiciona o tile ao caminho percorrido
+    pathTiles.push({ x: x0, y: y0, type: tile.obstacle });
 
     e2 = 2 * err;
     if (e2 >= dy) { err += dy; x0 += sx; }
     if (e2 <= dx) { err += dx; y0 += sy; }
   }
-  
-  return false;
+
+  // Verifica se há uma lança (2) no meio do trajeto reto
+  if (start.x === end.x || start.y === end.y || Math.abs(start.x - end.x) === Math.abs(start.y - end.y)) {
+    let middleIndex = Math.floor(pathTiles.length / 2);
+    if (pathTiles[middleIndex] && pathTiles[middleIndex].type === 2) {
+      return true; // Bloqueia se uma lança estiver no meio
+    }
+  }
+
+  return false; // Se nenhum obstáculo relevante for encontrado, permite o ataque
 };
+
 
 SERVER.level0char = {
   xp: 0,

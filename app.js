@@ -1924,7 +1924,7 @@ SERVER.GameAction.prototype.SKILL = function (type, action) {
     // too close
     this.clientData.data.status = 'close';
   }
-  else if ((this.clientData.type == 'melee' || && this.action != 'toss_bomb' && this.action != 'place_trap' && this.doesEnemyEvade(this.skill_info.precision / 100)) {
+  else if ((this.clientData.type == 'melee' && this.action != 'toss_bomb' && this.action != 'place_trap' && this.doesEnemyEvade(this.skill_info.precision / 100)) {
     // enemy evaded the attack
     this.clientData.data.status = 'evade';
   } 

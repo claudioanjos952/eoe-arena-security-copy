@@ -1889,19 +1889,20 @@ SERVER.GameAction.prototype.MAGIC = function (action, data) {
   } else if (SHARED.arePositionsTouching(this.playerTile.pos, this.enemyTile.pos) && this.clientData.data.type == 'long_range') {
     // too close
     this.clientData.data.status = 'close';
-  } else if (this.doesPlayerFizzle(this.skill_info.precision / 100)) {
-    // player fizzled the spell
-    this.clientData.data.status = 'fizzle';
   } else if (this.clientData.type == 'long_range' ) {
        var obstacleCheck = this.isObstacleInLine(this.playerTile.pos, this.enemyTile.pos);
 if (obstacleCheck.blocked) {
     this.clientData.data.status = "blocked";
     this.clientData.data.blockedPos = obstacleCheck.pos; // Posição do obstáculo
+} else if (this.doesPlayerFizzle(this.skill_info.precision / 100)) {
+    // player fizzled the spell
+    this.clientData.data.status = 'fizzle';
+  } 
   }
 else if (this.doesEnemyResist(1) && this.clientData.data.type != 'other') {
     // enemy resisted the spell
     this.clientData.data.status = 'resist';
- }
+ 
  } else {
 	  SPELLS[this.action](this);
 }

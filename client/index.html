@@ -915,7 +915,7 @@
             CLIENT.game.showStatus(act.playerId, "Too close!", hitDelay);
           }
 
-else if (act.data.status == "blockedByObstacle") {
+else if (act.data.status == 'blocked') {
     var projectileEnd = act.data.blockedPos; // Posição já enviada pelo servidor
 
     setTimeout(function () {
@@ -927,7 +927,7 @@ else if (act.data.status == "blockedByObstacle") {
 
 
           
-        } else if (act.type == 'magic' || act.type == 'magic2') {
+        else if (act.type == 'magic' || act.type == 'magic2') {
           var char = act.playerId == CLIENT.game.player.id ? CLIENT.game.player : CLIENT.game.enemy;
           var target = act.enemyId == CLIENT.game.player.id ? CLIENT.game.player : CLIENT.game.enemy
           if (act.data.type == 'close_range') {
@@ -1018,7 +1018,7 @@ else if (act.data.status == "blockedByObstacle") {
             CLIENT.game.showStatus(act.playerId, "Teleport failed!", hitDelay);
           }
 
-else if (act.data.status == "blockedByObstacle") {
+else if (act.data.status == 'blocked') {
     var projectileEnd = act.data.blockedPos; // Posição já enviada pelo servidor
 
     setTimeout(function () {
@@ -1030,7 +1030,7 @@ else if (act.data.status == "blockedByObstacle") {
 
 
           
-        } else if (act.type == 'move') {
+        else if (act.type == 'move') {
           if (act.data.status == 'success') {
             var char = (act.playerId == CLIENT.game.player.id) ? CLIENT.game.player : CLIENT.game.enemy;
             char.facing = act.data.pos.x == char.posx ? (act.data.pos.y > char.posy ? 2 : 0) : (act.data.pos.x > char.posx ? 1 : 3);

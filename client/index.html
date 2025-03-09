@@ -626,6 +626,40 @@
     }, time);
   };
 
+  CLIENT.getProjectileEndPos = function (start, end) {
+  var x0 = start.x, y0 = start.y;
+  var x1 = end.x, y1 = end.y;
+
+  var dx = Math.abs(x1 - x0), sx = x0 < x1 ? 1 : -1;
+  var dy = -Math.abs(y1 - y0), sy = y0 < y1 ? 1 : -1;
+  var err = dx + dy, e2;
+
+  var pathTiles = [];
+
+  while (x0 !== x1 || y0 !== y1) {
+    var tile = CLIENT.game.arena.getTileByPos({ x: x0, y: y0 });
+
+    // Se for um obstáculo tipo 3 (pilar), sempre bloqueia o projétil
+    if (tile.obstacle === 3) return { x: x0, y: y0 };
+
+    // Armazena os tiles percorridos para verificar depois as lanças (tipo 2)
+    pathTiles.push({ x: x0, y: y0, type: tile.obstacle });
+
+    e2 = 2 * err;
+    if (e2 >= dy) { err += dy; x0 += sx; }
+    if (e2 <= dx) { err += dx; y0 += sy; }
+  }
+
+  // Se o ataque for reto (horizontal, vertical ou diagonal), verificar lanças (tipo 2)
+  if (start.x === end.x || start.y === end.y || Math.abs(start.x - end.x) === Math.abs(start.y - end.y)) {
+    for (let i = 0; i < pathTiles.length; i++) {
+      if (pathTiles[i].type === 2) return { x: pathTiles[i].x, y: pathTiles[i].y };
+    }
+  }
+
+  return { x: x1, y: y1 }; // Se não houver bloqueios, projétil segue normalmente
+};
+
   CLIENT.Game.prototype.calculateFacings = function () {
     // calculate facing direction of player and enemy
     var pt = {x: Math.round(CLIENT.game.player.posx), y: Math.round(CLIENT.game.player.posy)};
@@ -1416,38 +1450,6 @@ document.querySelectorAll("#overlay-action-bar ul").forEach((el) => {
     };
   });
 
-  CLIENT.getProjectileEndPos = function (start, end) {
-  var x0 = start.x, y0 = start.y;
-  var x1 = end.x, y1 = end.y;
-
-  var dx = Math.abs(x1 - x0), sx = x0 < x1 ? 1 : -1;
-  var dy = -Math.abs(y1 - y0), sy = y0 < y1 ? 1 : -1;
-  var err = dx + dy, e2;
-
-  var pathTiles = [];
-
-  while (x0 !== x1 || y0 !== y1) {
-    var tile = CLIENT.game.arena.getTileByPos({ x: x0, y: y0 });
-
-    // Se for um obstáculo tipo 3 (pilar), sempre bloqueia o projétil
-    if (tile.obstacle === 3) return { x: x0, y: y0 };
-
-    // Armazena os tiles percorridos para verificar depois as lanças (tipo 2)
-    pathTiles.push({ x: x0, y: y0, type: tile.obstacle });
-
-    e2 = 2 * err;
-    if (e2 >= dy) { err += dy; x0 += sx; }
-    if (e2 <= dx) { err += dx; y0 += sy; }
-  }
-
-  // Se o ataque for reto (horizontal, vertical ou diagonal), verificar lanças (tipo 2)
-  if (start.x === end.x || start.y === end.y || Math.abs(start.x - end.x) === Math.abs(start.y - end.y)) {
-    for (let i = 0; i < pathTiles.length; i++) {
-      if (pathTiles[i].type === 2) return { x: pathTiles[i].x, y: pathTiles[i].y };
-    }
-  }
-
-  return { x: x1, y: y1 }; // Se não houver bloqueios, projétil segue normalmente
-};
+  
   
 </script>

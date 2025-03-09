@@ -1881,9 +1881,14 @@ SERVER.GameAction.prototype.MAGIC = function (action, data) {
     }
 
     // Verifica se há obstáculos no caminho para magias de longo alcance
-    if (this.clientData.data.type === 'long_range' && 
-        this.isObstacleInLine(this.playerTile.pos, this.enemyTile.pos)) {
-        this.clientData.data.status = 'blocked';
+    if (this.clientData.data.type === 'long_range') {
+    var obstacleCheck = this.isObstacleInLine(this.playerTile.pos, this.enemyTile.pos);
+
+    if (obstacleCheck.blocked) {
+        this.clientData.data.blockedPos = obstacleCheck.pos; // Define a posição primeiro
+        this.clientData.data.status = 'blockedByObstacle'; // Depois define o status
+    }
+}
     } else if (!SHARED.arePositionsTouching(this.playerTile.pos, this.enemyTile.pos) && this.clientData.data.type === 'close_range') {
         this.clientData.data.status = 'far';
     } else if (SHARED.arePositionsTouching(this.playerTile.pos, this.enemyTile.pos) && this.clientData.data.type === 'long_range') {
@@ -1930,9 +1935,14 @@ SERVER.GameAction.prototype.SKILL = function (type, action) {
     // enemy evaded the attack
     this.clientData.data.status = 'evade';
   } 
-    else if (this.clientData.type == 'range' || this.clientData.type == 'magic') {
-    if (this.isObstacleInLine(this.playerTile.pos, this.enemyTile.pos)) {
-      this.clientData.data.status = 'blocked'; // O ataque foi bloqueado por um obstáculo
+    else if (this.clientData.data.type === 'range') {
+    var obstacleCheck = this.isObstacleInLine(this.playerTile.pos, this.enemyTile.pos);
+
+    if (obstacleCheck.blocked) {
+        this.clientData.data.blockedPos = obstacleCheck.pos; // Define a posição primeiro
+        this.clientData.data.status = 'blockedByObstacle'; // Depois define o status
+    }
+}
     } else if (this.doesEnemyEvade(this.skill_info.precision / 100)) {
       this.clientData.data.status = 'evade'; // O inimigo desviou
     } else {
@@ -1952,15 +1962,15 @@ SERVER.GameAction.prototype.isObstacleInLine = function (start, end) {
   var dy = -Math.abs(y1 - y0), sy = y0 < y1 ? 1 : -1;
   var err = dx + dy, e2;
 
-  var pathTiles = []; // Lista de tiles percorridos
+  var pathTiles = [];
 
   while (x0 !== x1 || y0 !== y1) {
     var tile = this.game.arena.getTileByPos({ x: x0, y: y0 });
 
-    // Se for um obstáculo tipo 3 (pilar), bloqueia sempre
-    if (tile.obstacle === 3) return true;
+    // Se for um obstáculo tipo 3 (pilar), sempre bloqueia o projétil
+    if (tile.obstacle === 3) return { blocked: true, pos: { x: x0, y: y0 } };
 
-    // Adiciona à lista para verificação posterior
+    // Armazena os tiles percorridos para verificar depois as lanças (tipo 2)
     pathTiles.push({ x: x0, y: y0, type: tile.obstacle });
 
     e2 = 2 * err;
@@ -1968,15 +1978,16 @@ SERVER.GameAction.prototype.isObstacleInLine = function (start, end) {
     if (e2 <= dx) { err += dx; y0 += sy; }
   }
 
-  // Se o ataque for totalmente reto (horizontal, vertical ou diagonal)
+  // Se o ataque for reto (horizontal, vertical ou diagonal), verificar lanças (tipo 2)
   if (start.x === end.x || start.y === end.y || Math.abs(start.x - end.x) === Math.abs(start.y - end.y)) {
     for (let i = 0; i < pathTiles.length; i++) {
-      if (pathTiles[i].type === 2) return true; // Bloqueia se houver uma lança no caminho
+      if (pathTiles[i].type === 2) return { blocked: true, pos: { x: pathTiles[i].x, y: pathTiles[i].y } };
     }
   }
 
-  return false; // Se nenhum obstáculo relevante for encontrado, permite o ataque
+  return { blocked: false, pos: null }; // Se não houver bloqueios, retorna falso
 };
+
 
 
 

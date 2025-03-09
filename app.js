@@ -1884,13 +1884,13 @@ SERVER.GameAction.prototype.MAGIC = function (action, data) {
         this.clientData.data.status = 'far';
     } else if (SHARED.arePositionsTouching(this.playerTile.pos, this.enemyTile.pos) && this.clientData.data.type == 'long_range') {
         this.clientData.data.status = 'close';
-    }else if (this.clientData.type == 'long_range' ) {
+    }else if ((!SHARED.arePositionsTouching(this.playerTile.pos, this.enemyTile.pos) && this.clientData.type == 'long_range' ) {
        var obstacleCheck = this.isObstacleInLine(this.playerTile.pos, this.enemyTile.pos);
 if (obstacleCheck.blocked) {
     this.clientData.data.status = "blocked";
     this.clientData.data.blockedPos = obstacleCheck.pos; // Posição do obstáculo
   }
-    
+    }
     else if (this.doesPlayerFizzle(this.skill_info.precision / 100)) {
     // player fizzled the spell
     this.clientData.data.status = 'fizzle';
@@ -1901,7 +1901,7 @@ if (obstacleCheck.blocked) {
     // spell didn't fizzle and was not resisted, range is ok
     SPELLS[this.action](this);
   }
-    }
+    
 
 };
 
@@ -1933,18 +1933,19 @@ SERVER.GameAction.prototype.SKILL = function (type, action) {
     // enemy evaded the attack
     this.clientData.data.status = 'evade';
   } 
-    else if (this.clientData.type == 'range' ) {
+    else if ((!SHARED.arePositionsTouching(this.playerTile.pos, this.enemyTile.pos) && this.clientData.type == 'melee' && this.clientData.type == 'range' ) {
        var obstacleCheck = this.isObstacleInLine(this.playerTile.pos, this.enemyTile.pos);
 if (obstacleCheck.blocked) {
     this.clientData.data.status = "blocked";
     this.clientData.data.blockedPos = obstacleCheck.pos; // Posição do obstáculo
   }
+    }
     else if (this.doesEnemyEvade(this.skill_info.precision / 100)) {
       this.clientData.data.status = 'evade'; // O inimigo desviou
     } 
-    }else {
+    else {
       SKILLS[this.action](this);
-    }
+}
 };
 
 

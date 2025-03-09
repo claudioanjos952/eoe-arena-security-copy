@@ -876,8 +876,10 @@
               }
             }, hitDelay);
             setTimeout(function () {
-              CLIENT.animateProperty('ammupos', {x: char.posx, y: char.posy}, {x: target.posx, y: target.posy}, frameTime);
-            }, shootDelay);
+              var projectileEnd = CLIENT.getProjectileEndPos({ x: char.posx, y: char.posy }, { x: target.posx, y: target.posy });
+
+CLIENT.animateProperty('ammupos', { x: char.posx, y: char.posy }, projectileEnd, frameTime);
+  }, shootDelay);
             if (target.id == CLIENT.game.player.id) {
               setTimeout (function () {
                 CLIENT.animateProperty("playerhp", CLIENT.game.player.hp, Math.max(0, CLIENT.game.player.hp - act.data.damage), 1000);
@@ -888,8 +890,10 @@
           } else if (act.data.status == 'double-hit') {
             var crit = act.data.status == 'crit';
             setTimeout(function () {
-              CLIENT.animateProperty('ammupos', {x: char.posx, y: char.posy}, {x: target.posx, y: target.posy}, frameTime / 2);
-            }, shootDelay);
+              var projectileEnd = CLIENT.getProjectileEndPos({ x: char.posx, y: char.posy }, { x: target.posx, y: target.posy });
+
+CLIENT.animateProperty('ammupos', { x: char.posx, y: char.posy }, projectileEnd, frameTime/2);
+   }, shootDelay);
             setTimeout(function () {
               CLIENT.animateProperty(char.id != CLIENT.game.player.id ? 'playersprite' : 'enemysprite', 9, 10, frameTime);
               
@@ -951,8 +955,10 @@ CLIENT.animateProperty('ammupos', { x: char.posx, y: char.posy }, projectileEnd,
               CLIENT.animateProperty(char.id != CLIENT.game.player.id ? 'playersprite' : 'enemysprite', 27, 28, frameTime);
             }, hitDelay);
             setTimeout(function () {
-              CLIENT.animateProperty('ammupos', {x: char.posx, y: char.posy}, {x: target.posx, y: target.posy}, frameTime);
-            }, shootDelay);
+              var projectileEnd = CLIENT.getProjectileEndPos({ x: char.posx, y: char.posy }, { x: target.posx, y: target.posy });
+
+CLIENT.animateProperty('ammupos', { x: char.posx, y: char.posy }, projectileEnd, frameTime);
+      }, shootDelay);
             if (target.id == CLIENT.game.player.id) {
               setTimeout (function () {
                 CLIENT.animateProperty("playerhp", CLIENT.game.player.hp, Math.max(0, CLIENT.game.player.hp - act.data.damage), 1000);
@@ -963,8 +969,10 @@ CLIENT.animateProperty('ammupos', { x: char.posx, y: char.posy }, projectileEnd,
           } else if (act.data.status == 'double-hit') {
             var crit = act.data.status == 'crit';
             setTimeout(function () {
-              CLIENT.animateProperty('ammupos', {x: char.posx, y: char.posy}, {x: target.posx, y: target.posy}, frameTime / 2);
-            }, shootDelay);
+              var projectileEnd = CLIENT.getProjectileEndPos({ x: char.posx, y: char.posy }, { x: target.posx, y: target.posy });
+
+CLIENT.animateProperty('ammupos', { x: char.posx, y: char.posy }, projectileEnd, frameTime/2);
+   }, shootDelay);
             setTimeout(function () {
               CLIENT.animateProperty(char.id != CLIENT.game.player.id ? 'playersprite' : 'enemysprite', 27, 28, frameTime);
               CLIENT.animateProperty('ammupos', {x: char.posx, y: char.posy}, {x: target.posx, y: target.posy}, frameTime / 2);
@@ -995,8 +1003,10 @@ CLIENT.animateProperty('ammupos', { x: char.posx, y: char.posy }, projectileEnd,
             }, hitDelay);
             if (act.data.type != 'debuff') {
               setTimeout(function () {
-                CLIENT.animateProperty('ammupos', {x: char.posx, y: char.posy}, {x: target.posx, y: target.posy}, frameTime);
-              }, shootDelay);
+                var projectileEnd = CLIENT.getProjectileEndPos({ x: char.posx, y: char.posy }, { x: target.posx, y: target.posy });
+
+CLIENT.animateProperty('ammupos', { x: char.posx, y: char.posy }, projectileEnd, frameTime);
+      }, shootDelay);
             }
             CLIENT.game.showStatus(act.playerId, "Resisted!", hitDelay);
           } else if (act.data.status == 'fizzle') {

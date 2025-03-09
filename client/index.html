@@ -919,7 +919,7 @@ else if (act.data.status == 'blocked') {
     var projectileEnd = CLIENT.getProjectileEndPos({ x: char.posx, y: char.posy }, { x: target.posx, y: target.posy });
 
     setTimeout(function () {
-        CLIENT.animateProperty('ammupos', { x: char.posx, y: char.posy }, projectileEnd, frameTime);
+        CLIENT.animateProperty('ammupos', { x: char.posx, y: char.posy }, {x: projectileEnd.x, y: projectileEnd.y}, frameTime);
     }, shootDelay);
 
     CLIENT.game.showStatus(act.playerId, "Blocked!", hitDelay);
@@ -1021,7 +1021,7 @@ else if (act.data.status == 'blocked') {
     var projectileEnd = CLIENT.getProjectileEndPos({ x: char.posx, y: char.posy }, { x: target.posx, y: target.posy });
 
     setTimeout(function () {
-        CLIENT.animateProperty('ammupos', { x: char.posx, y: char.posy }, projectileEnd, frameTime);
+        CLIENT.animateProperty('ammupos', { x: char.posx, y: char.posy }, {x: projectileEnd.x, y: projectileEnd.y}, frameTime);
     }, shootDelay);
 
     CLIENT.game.showStatus(act.playerId, "Blocked!", hitDelay);

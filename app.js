@@ -1864,7 +1864,7 @@ SERVER.GameAction.prototype.process = function () {
 }
 
 SERVER.GameAction.prototype.MAGIC = function (action, data) {
-    console.log(`Ação mágica recebida: ${action}`); // Verificar qual ação está sendo enviada
+    console.log(`Ação mágica recebida:`); // Verificar qual ação está sendo enviada
 
     if (SPELLS.close_range.includes(action)) {
         this.clientData.data.type = 'close_range';
@@ -1884,7 +1884,7 @@ SERVER.GameAction.prototype.MAGIC = function (action, data) {
         this.clientData.data.status = 'far';
     } else if (SHARED.arePositionsTouching(this.playerTile.pos, this.enemyTile.pos) && this.clientData.data.type == 'long_range') {
         this.clientData.data.status = 'close';
-    } else if ((!SHARED.arePositionsTouching(this.playerTile.pos, this.enemyTile.pos) && this.clientData.type == 'long_range' ) {
+    } else if (!SHARED.arePositionsTouching(this.playerTile.pos, this.enemyTile.pos) && this.clientData.type == 'magic' ) {
        var obstacleCheck = this.isObstacleInLine(this.playerTile.pos, this.enemyTile.pos);
 if (obstacleCheck.blocked) {
     this.clientData.data.status = "blocked";
@@ -1913,7 +1913,7 @@ SERVER.GameAction.prototype.SKILL = function (type, action) {
   } else if (type == 'defend') {
     this.clientData.type = 'defend';
     this.time = 0;
-    this.include = false;
+    this.include = true;
   } else if (type == 'melee') {
     this.clientData.type = 'melee';
     this.time = 1250;
@@ -1933,7 +1933,7 @@ SERVER.GameAction.prototype.SKILL = function (type, action) {
     // enemy evaded the attack
     this.clientData.data.status = 'evade';
   } 
-    else if ((!SHARED.arePositionsTouching(this.playerTile.pos, this.enemyTile.pos) && this.clientData.type == 'melee' && this.clientData.type == 'range' ) {
+    else if (!SHARED.arePositionsTouching(this.playerTile.pos, this.enemyTile.pos) && this.clientData.type == 'range' ) {
        var obstacleCheck = this.isObstacleInLine(this.playerTile.pos, this.enemyTile.pos);
 if (obstacleCheck.blocked) {
     this.clientData.data.status = "blocked";

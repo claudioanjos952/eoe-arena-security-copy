@@ -1870,15 +1870,10 @@ SERVER.GameAction.prototype.MAGIC = function (action, data) {
         this.clientData.data.type = 'close_range';
         this.time = 1250;
     } else if (SPELLS.long_range.includes(action)) {
-           var obstacleCheck = this.isObstacleInLine(this.playerTile.pos, this.enemyTile.pos);
 
-    if (obstacleCheck.blocked) {
-        this.clientData.data.blockedPos = obstacleCheck.pos; // Define a posição primeiro
-        this.clientData.data.status = 'blocked'; // Depois define o status
-    } else {
 	    this.clientData.data.type = 'long_range';
         this.time = 2000;
-    } 
+    
     }else if (SPELLS.debuff.includes(action)) {
         this.clientData.data.type = 'debuff';
         this.time = 1250;
@@ -1897,7 +1892,13 @@ SERVER.GameAction.prototype.MAGIC = function (action, data) {
   } else if (this.doesPlayerFizzle(this.skill_info.precision / 100)) {
     // player fizzled the spell
     this.clientData.data.status = 'fizzle';
-  } else if (this.doesEnemyResist(1) && this.clientData.data.type != 'other') {
+  } else if (this.isObstacleInLine(this.playerTile.pos, this.enemyTile.pos)){
+var obstacleCheck = this.isObstacleInLine(this.playerTile.pos, this.enemyTile.pos);
+  if (obstacleCheck.blocked) {
+	    this.clientData.data.blockedPos = obstacleCheck.pos; // Define a posição primeiro
+        this.clientData.data.status = 'blocked'; // Depois define o status
+  }
+    } else if (this.doesEnemyResist(1) && this.clientData.data.type != 'other') {
     // enemy resisted the spell
     this.clientData.data.status = 'resist';
   } else {
@@ -1924,16 +1925,10 @@ SERVER.GameAction.prototype.SKILL = function (type, action) {
     this.clientData.type = 'melee';
     this.time = 1250;
   } else {
-	      var obstacleCheck = this.isObstacleInLine(this.playerTile.pos, this.enemyTile.pos);
 
-    if (obstacleCheck.blocked) {
-        this.clientData.data.blockedPos = obstacleCheck.pos;
-        this.clientData.data.status = 'blocked';
-        return; // Agora a ação para aqui se o ataque for bloqueado
-    } else{
     this.clientData.type = 'range';
     this.time = 2000;
-  }
+  
   }
 if (!SHARED.arePositionsTouching(this.playerTile.pos, this.enemyTile.pos) && this.clientData.type == 'melee' && this.action != 'place_trap') {
     // too far
@@ -1945,8 +1940,15 @@ if (!SHARED.arePositionsTouching(this.playerTile.pos, this.enemyTile.pos) && thi
   else if ((this.clientData.type == 'melee' || this.clientData.type == 'range') && this.action != 'toss_bomb' && this.action != 'place_trap' && this.doesEnemyEvade(this.skill_info.precision / 100)) {
     // enemy evaded the attack
     this.clientData.data.status = 'evade';
-  } else {
-    SKILLS[this.action](this);
+  } else if (this.isObstacleInLine(this.playerTile.pos, this.enemyTile.pos)){
+var obstacleCheck = this.isObstacleInLine(this.playerTile.pos, this.enemyTile.pos);
+    if (obstacleCheck.blocked) {
+        this.clientData.data.blockedPos = obstacleCheck.pos;
+        this.clientData.data.status = 'blocked';
+        }
+  }
+  else{
+   SKILLS[this.action](this);
   }
 
 };

@@ -1313,7 +1313,7 @@ SERVER.Game.prototype.turnEnd = function () { // called when a turn ends
     }
   }
 
-  var energyLeft = 60;
+  var energyLeft = 100;
   var tstamp = Math.random();
   for (var i = 0; i < this.player1_actions.length; ++i) {
     var act = this.player1_actions[i];
@@ -1334,7 +1334,7 @@ SERVER.Game.prototype.turnEnd = function () { // called when a turn ends
     }
   }
   // process all actions of p2 into {timestamp: action, timestamp: action}
-  energyLeft = 60;
+  energyLeft = 100;
   tstamp = Math.random();
   for (var i = 0; i < this.player2_actions.length; ++i) {
     var act = this.player2_actions[i];
@@ -1864,17 +1864,15 @@ SERVER.GameAction.prototype.process = function () {
 }
 
 SERVER.GameAction.prototype.MAGIC = function (action, data) {
-    console.log(`Ação mágica recebida:`);
+    console.log(`Ação mágica recebida: ${action}`); // Verificar qual ação está sendo enviada
 
     if (SPELLS.close_range.includes(action)) {
         this.clientData.data.type = 'close_range';
         this.time = 1250;
     } else if (SPELLS.long_range.includes(action)) {
-
-	    this.clientData.data.type = 'long_range';
+        this.clientData.data.type = 'long_range';
         this.time = 2000;
-    
-    }else if (SPELLS.debuff.includes(action)) {
+    } else if (SPELLS.debuff.includes(action)) {
         this.clientData.data.type = 'debuff';
         this.time = 1250;
     } else {
@@ -1882,41 +1880,31 @@ SERVER.GameAction.prototype.MAGIC = function (action, data) {
         this.time = 1250;
     }
 
-
     if (!SHARED.arePositionsTouching(this.playerTile.pos, this.enemyTile.pos) && this.clientData.data.type == 'close_range') {
-    // too far
-    this.clientData.data.status = 'far';
-  } else if (SHARED.arePositionsTouching(this.playerTile.pos, this.enemyTile.pos) && this.clientData.data.type == 'long_range') {
-    // too close
-    this.clientData.data.status = 'close';
-  } else if (this.doesPlayerFizzle(this.skill_info.precision / 100)) {
-    // player fizzled the spell
-    this.clientData.data.status = 'fizzle';
-  } else if (this.isObstacleInLine(this.playerTile.pos, this.enemyTile.pos)){
-var obstacleCheck = this.isObstacleInLine(this.playerTile.pos, this.enemyTile.pos);
-  if (obstacleCheck.blocked) {
-	    this.clientData.data.blockedPos = obstacleCheck.pos; // Define a posição primeiro
-        this.clientData.data.status = 'blocked'; // Depois define o status
-  }
+        this.clientData.data.status = 'far';
+    } else if (SHARED.arePositionsTouching(this.playerTile.pos, this.enemyTile.pos) && this.clientData.data.type == 'long_range') {
+        this.clientData.data.status = 'close';
+    } else if (this.doesPlayerFizzle(this.skill_info.precision / 100)) {
+        this.clientData.data.status = 'fizzle';
     } else if (this.doesEnemyResist(1) && this.clientData.data.type != 'other') {
-    // enemy resisted the spell
-    this.clientData.data.status = 'resist';
-  } else {
-    // spell didn't fizzle and was not resisted, range is ok
-    SPELLS[this.action](this);
-  }
+        this.clientData.data.status = 'resist';
+    } else {
+	    
 
+	    if (typeof SPELLS[action] === "function") {
+  SPELLS[action](this);
+		    
+} else {
+  console.error("Erro: Ação desconhecida ou não definida em SPELLS:", action);
+	    }
+    }
 };
 
 
-
-
 SERVER.GameAction.prototype.SKILL = function (type, action) {
- 
   if (type == 'move') {
     this.clientData.type = 'move';
     this.time = 1000;
-    return; // Agora a função para aqui se for um movimento, evitando erros
   } else if (type == 'defend') {
     this.clientData.type = 'defend';
     this.time = 0;
@@ -1925,35 +1913,35 @@ SERVER.GameAction.prototype.SKILL = function (type, action) {
     this.clientData.type = 'melee';
     this.time = 1250;
   } else {
-
     this.clientData.type = 'range';
     this.time = 2000;
-  
   }
-if (!SHARED.arePositionsTouching(this.playerTile.pos, this.enemyTile.pos) && this.clientData.type == 'melee' && this.action != 'place_trap') {
+
+  if (!SHARED.arePositionsTouching(this.playerTile.pos, this.enemyTile.pos) && this.clientData.type == 'melee' && this.action != 'place_trap') {
     // too far
     this.clientData.data.status = 'far';
   } else if (SHARED.arePositionsTouching(this.playerTile.pos, this.enemyTile.pos) && this.clientData.type == 'range' && this.action != 'toss_bomb') {
     // too close
     this.clientData.data.status = 'close';
   }
-  else if ((this.clientData.type == 'melee' || this.clientData.type == 'range') && this.action != 'toss_bomb' && this.action != 'place_trap' && this.doesEnemyEvade(this.skill_info.precision / 100)) {
+  else if (this.clientData.type == 'melee' && this.action != 'toss_bomb' && this.action != 'place_trap' && this.doesEnemyEvade(this.skill_info.precision / 100)) {
     // enemy evaded the attack
     this.clientData.data.status = 'evade';
-  } else if (this.isObstacleInLine(this.playerTile.pos, this.enemyTile.pos)){
-var obstacleCheck = this.isObstacleInLine(this.playerTile.pos, this.enemyTile.pos);
-    if (obstacleCheck.blocked) {
-        this.clientData.data.blockedPos = obstacleCheck.pos;
-        this.clientData.data.status = 'blocked';
-        }
+  } 
+    else if (this.clientData.type == 'range' || this.clientData.type == 'magic') {
+    if (this.isObstacleInLine(this.playerTile.pos, this.enemyTile.pos)) {
+      this.clientData.data.status = 'blocked'; // O ataque foi bloqueado por um obstáculo
+    } else if (this.doesEnemyEvade(this.skill_info.precision / 100)) {
+      this.clientData.data.status = 'evade'; // O inimigo desviou
+    } else {
+      SKILLS[this.action](this);
+    }
   }
-  else{
-   SKILLS[this.action](this);
+ else {
+    SKILLS[this.action](this);
   }
 
 };
-
-
 SERVER.GameAction.prototype.isObstacleInLine = function (start, end) {
   var x0 = start.x, y0 = start.y;
   var x1 = end.x, y1 = end.y;
@@ -1962,34 +1950,19 @@ SERVER.GameAction.prototype.isObstacleInLine = function (start, end) {
   var dy = -Math.abs(y1 - y0), sy = y0 < y1 ? 1 : -1;
   var err = dx + dy, e2;
 
-  var pathTiles = [];
-
   while (x0 !== x1 || y0 !== y1) {
     var tile = this.game.arena.getTileByPos({ x: x0, y: y0 });
-
-    // Se for um obstáculo tipo 3 (pilar), sempre bloqueia o projétil
-    if (tile.obstacle === 3) return { blocked: true, pos: { x: x0, y: y0 } };
-
-    // Armazena os tiles percorridos para verificar depois as lanças (tipo 2)
-    pathTiles.push({ x: x0, y: y0, type: tile.obstacle });
+    if (tile.obstacle > 0) {
+      return true; // Obstáculo detectado, interrompe o ataque
+    }
 
     e2 = 2 * err;
     if (e2 >= dy) { err += dy; x0 += sx; }
     if (e2 <= dx) { err += dx; y0 += sy; }
   }
-
-  // Se o ataque for reto (horizontal, vertical ou diagonal), verificar lanças (tipo 2)
-  if (start.x === end.x || start.y === end.y || Math.abs(start.x - end.x) === Math.abs(start.y - end.y)) {
-    for (let i = 0; i < pathTiles.length; i++) {
-      if (pathTiles[i].type === 2) return { blocked: true, pos: { x: pathTiles[i].x, y: pathTiles[i].y } };
-    }
-  }
-
-  return { blocked: false, pos: null }; // Se não houver bloqueios, retorna falso
+  
+  return false;
 };
-
-
-
 
 SERVER.level0char = {
   xp: 0,

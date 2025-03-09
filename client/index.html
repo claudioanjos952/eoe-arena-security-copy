@@ -92,7 +92,7 @@
       end: loadImage("/client/img/action-icons/end.png"),
     },
     SPRITES: {
-      battlefield: loadImage("/client/img/battlefield.png"),
+      battlefield: loadImage("/client/img/battlefield2.png"),
       obstacles: loadImage("/client/img/obstacle.png"),
        check: loadImage("/client/img/check.png"),
       torso: loadImage("/client/img/torso.png"),
@@ -1340,7 +1340,7 @@ CLIENT.getProjectileEndPos = function (start, end) {
   var pathTiles = [];
 
   while (x0 !== x1 || y0 !== y1) {
-    var tile = CLIENT.game.arena.getTileByPos({ x: x0, y: y0 });
+    var tile = SERVER.Arena.prototype.getTileByPos({ x: x0, y: y0 });
 
     // Se for um obstáculo tipo 3 (pilar), sempre bloqueia o projétil
     if (tile.obstacle === 3) return { x: x0, y: y0 };
@@ -1363,9 +1363,7 @@ CLIENT.getProjectileEndPos = function (start, end) {
   return { x: x1, y: y1 }; // Se não houver bloqueios, projétil segue normalmente
 };
 
-  CLIENT.game.arena.getTileByPos = function (pos) {
-  return this.tiles[pos.y][pos.x];
-};
+
   
   CLIENT.animateProperty = function (propName, from, to, duration) {
     if (CLIENT.animatedProperties.hasOwnProperty(propName)) {

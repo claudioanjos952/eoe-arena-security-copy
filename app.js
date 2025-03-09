@@ -1947,12 +1947,8 @@ SERVER.GameAction.prototype.SKILL = function (type, action) {
     } else {
       SKILLS[this.action](this);
     }
-  }
- else {
-    SKILLS[this.action](this);
-  }
-
 };
+
 SERVER.GameAction.prototype.isObstacleInLine = function (start, end) {
   var x0 = start.x, y0 = start.y;
   var x1 = end.x, y1 = end.y;

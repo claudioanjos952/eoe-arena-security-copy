@@ -925,7 +925,7 @@ else if (act.data.status == 'blocked') {
     CLIENT.game.showStatus(act.playerId, "Blocked!", hitDelay);
 }
 
-
+        }
           
         else if (act.type == 'magic' || act.type == 'magic2') {
           var char = act.playerId == CLIENT.game.player.id ? CLIENT.game.player : CLIENT.game.enemy;
@@ -1028,7 +1028,7 @@ else if (act.data.status == 'blocked') {
     CLIENT.game.showStatus(act.playerId, "Blocked!", hitDelay);
 }
 
-
+                     }
           
         else if (act.type == 'move') {
           if (act.data.status == 'success') {

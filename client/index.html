@@ -626,50 +626,6 @@
     }, time);
   };
 
-  CLIENT.getProjectileEndPos = function (start, end) {
-  var x0 = start.x, y0 = start.y;
-  var x1 = end.x, y1 = end.y;
-
-  var dx = Math.abs(x1 - x0), sx = x0 < x1 ? 1 : -1;
-  var dy = -Math.abs(y1 - y0), sy = y0 < y1 ? 1 : -1;
-  var err = dx + dy, e2;
-
-  var pathTiles = [];
-
-  while (x0 !== x1 || y0 !== y1) {
-    var tile = CLIENT.game.arena.getTileByPos({ x: x0, y: y0 });
-
-    // Se for um obstáculo tipo 3 (pilar), sempre bloqueia o projétil
-    if (tile.obstacle === 3) return { x: x0, y: y0 };
-
-    // Armazena os tiles percorridos para verificar depois as lanças (tipo 2)
-    pathTiles.push({ x: x0, y: y0, type: tile.obstacle });
-
-    e2 = 2 * err;
-    if (e2 >= dy) { err += dy; x0 += sx; }
-    if (e2 <= dx) { err += dx; y0 += sy; }
-  }
-
-  // Se o ataque for reto (horizontal, vertical ou diagonal), verificar lanças (tipo 2)
-  if (start.x === end.x || start.y === end.y || Math.abs(start.x - end.x) === Math.abs(start.y - end.y)) {
-    for (let i = 0; i < pathTiles.length; i++) {
-      if (pathTiles[i].type === 2) return { x: pathTiles[i].x, y: pathTiles[i].y };
-    }
-  }
-
-  return { x: x1, y: y1 }; // Se não houver bloqueios, projétil segue normalmente
-};
-
-      CLIENT.stopProjectileAtObstacle = function (char, target) {
-    var projectileEnd = CLIENT.getProjectileEndPos(
-        { x: char.posx, y: char.posy },
-        { x: target.posx, y: target.posy }
-    );
-
-    CLIENT.animateProperty('ammupos', { x: char.posx, y: char.posy }, projectileEnd, frameTime);
-};
-  
-
   CLIENT.Game.prototype.calculateFacings = function () {
     // calculate facing direction of player and enemy
     var pt = {x: Math.round(CLIENT.game.player.posx), y: Math.round(CLIENT.game.player.posy)};
@@ -920,12 +876,8 @@
               }
             }, hitDelay);
             setTimeout(function () {
-if (actionData.status === "blocked") {
-    CLIENT.stopProjectileAtObstacle(char, target);
-} else {
-    CLIENT.animateProperty('ammupos', { x: char.posx, y: char.posy }, { x: target.posx, y: target.posy }, frameTime);
-}
-  }, shootDelay);
+              CLIENT.animateProperty('ammupos', {x: char.posx, y: char.posy}, {x: target.posx, y: target.posy}, frameTime);
+            }, shootDelay);
             if (target.id == CLIENT.game.player.id) {
               setTimeout (function () {
                 CLIENT.animateProperty("playerhp", CLIENT.game.player.hp, Math.max(0, CLIENT.game.player.hp - act.data.damage), 1000);
@@ -936,18 +888,12 @@ if (actionData.status === "blocked") {
           } else if (act.data.status == 'double-hit') {
             var crit = act.data.status == 'crit';
             setTimeout(function () {
-if (actionData.status === "blocked") {
-    CLIENT.stopProjectileAtObstacle(char, target);
-} else {
-    CLIENT.animateProperty('ammupos', { x: char.posx, y: char.posy }, { x: target.posx, y: target.posy }, frameTime/2);
-}
-   }, shootDelay);
+              CLIENT.animateProperty('ammupos', {x: char.posx, y: char.posy}, {x: target.posx, y: target.posy}, frameTime / 2);
+            }, shootDelay);
             setTimeout(function () {
               CLIENT.animateProperty(char.id != CLIENT.game.player.id ? 'playersprite' : 'enemysprite', 9, 10, frameTime);
-              
-              var projectileEnd = CLIENT.getProjectileEndPos({ x: char.posx, y: char.posy }, { x: target.posx, y: target.posy });
-CLIENT.animateProperty('ammupos', { x: char.posx, y: char.posy }, projectileEnd, frameTime);
-  }, hitDelay - frameTime / 2);
+              CLIENT.animateProperty('ammupos', {x: char.posx, y: char.posy}, {x: target.posx, y: target.posy}, frameTime / 2);
+            }, hitDelay - frameTime / 2);
             if (target.id == CLIENT.game.player.id) {
               setTimeout (function () {
                 CLIENT.animateProperty("playerhp", CLIENT.game.player.hp, Math.max(0, CLIENT.game.player.hp - act.data.damage), 1000);
@@ -960,28 +906,14 @@ CLIENT.animateProperty('ammupos', { x: char.posx, y: char.posy }, projectileEnd,
               CLIENT.animateProperty(act.enemyId == CLIENT.game.player.id ? 'playersprite' : 'enemysprite', 11, 12, prevTime - hitDelay);
             }, hitDelay);
             setTimeout(function () {
-if (actionData.status === "blocked") {
-    CLIENT.stopProjectileAtObstacle(char, target);
-} else {
-    CLIENT.animateProperty('ammupos', { x: char.posx, y: char.posy }, { x: target.posx, y: target.posy }, frameTime);
-}
-}, shootDelay);
+              CLIENT.animateProperty('ammupos', {x: char.posx, y: char.posy}, {x: target.posx, y: target.posy}, frameTime);
+            }, shootDelay);
             CLIENT.game.showStatus(act.playerId, "Miss!", hitDelay);
           } else if (act.data.status == 'miss') {
             CLIENT.game.showStatus(act.playerId, "Miss!", hitDelay);
           } else if (act.data.status == 'close') {
             CLIENT.game.showStatus(act.playerId, "Too close!", hitDelay);
           }
-          else if (act.data.status == 'blocked') {
-    var projectileEnd = CLIENT.getProjectileEndPos({ x: char.posx, y: char.posy }, { x: target.posx, y: target.posy });
-
-    setTimeout(function () {
-        CLIENT.animateProperty('ammupos', { x: char.posx, y: char.posy }, projectileEnd, frameTime);
-    }, shootDelay);
-
-    CLIENT.game.showStatus(act.playerId, "Blocked!", hitDelay);
-}
-
         } else if (act.type == 'magic' || act.type == 'magic2') {
           var char = act.playerId == CLIENT.game.player.id ? CLIENT.game.player : CLIENT.game.enemy;
           var target = act.enemyId == CLIENT.game.player.id ? CLIENT.game.player : CLIENT.game.enemy
@@ -1003,18 +935,7 @@ if (actionData.status === "blocked") {
             CLIENT.game.showStatus(act.playerId, act.data.name, 0);
             var frameTime = prevTime / 3;
             var hitDelay = frameTime * 2;
-          } 
-          else if (act.data.status == 'blocked') {
-    var projectileEnd = CLIENT.getProjectileEndPos({ x: char.posx, y: char.posy }, { x: target.posx, y: target.posy });
-
-    setTimeout(function () {
-        CLIENT.animateProperty('ammupos', { x: char.posx, y: char.posy }, projectileEnd, frameTime);
-    }, shootDelay);
-
-    CLIENT.game.showStatus(act.playerId, "Blocked!", hitDelay);
-}
-
-          else {
+          } else {
             CLIENT.game.ammuSprite = [4, 0];
             CLIENT.animateProperty(char.id == CLIENT.game.player.id ? 'playersprite' : 'enemysprite', 25, 26, prevTime);
             CLIENT.animateProperty('ammupos', {x: char.posx, y: char.posy}, {x: char.posx, y: char.posy - 1}, prevTime * 2 / 3);
@@ -1026,12 +947,8 @@ if (actionData.status === "blocked") {
               CLIENT.animateProperty(char.id != CLIENT.game.player.id ? 'playersprite' : 'enemysprite', 27, 28, frameTime);
             }, hitDelay);
             setTimeout(function () {
-if (actionData.status === "blocked") {
-    CLIENT.stopProjectileAtObstacle(char, target);
-} else {
-    CLIENT.animateProperty('ammupos', { x: char.posx, y: char.posy }, { x: target.posx, y: target.posy }, frameTime);
-}
-      }, shootDelay);
+              CLIENT.animateProperty('ammupos', {x: char.posx, y: char.posy}, {x: target.posx, y: target.posy}, frameTime);
+            }, shootDelay);
             if (target.id == CLIENT.game.player.id) {
               setTimeout (function () {
                 CLIENT.animateProperty("playerhp", CLIENT.game.player.hp, Math.max(0, CLIENT.game.player.hp - act.data.damage), 1000);
@@ -1042,20 +959,12 @@ if (actionData.status === "blocked") {
           } else if (act.data.status == 'double-hit') {
             var crit = act.data.status == 'crit';
             setTimeout(function () {
-if (actionData.status === "blocked") {
-    CLIENT.stopProjectileAtObstacle(char, target);
-} else {
-    CLIENT.animateProperty('ammupos', { x: char.posx, y: char.posy }, { x: target.posx, y: target.posy }, frameTime/2);
-}
-   }, shootDelay);
+              CLIENT.animateProperty('ammupos', {x: char.posx, y: char.posy}, {x: target.posx, y: target.posy}, frameTime / 2);
+            }, shootDelay);
             setTimeout(function () {
               CLIENT.animateProperty(char.id != CLIENT.game.player.id ? 'playersprite' : 'enemysprite', 27, 28, frameTime);
-              if (actionData.status === "blocked") {
-    CLIENT.stopProjectileAtObstacle(char, target);
-} else {
-    CLIENT.animateProperty('ammupos', { x: char.posx, y: char.posy }, { x: target.posx, y: target.posy }, frameTime);
-}
-       }, hitDelay - frameTime / 2);
+              CLIENT.animateProperty('ammupos', {x: char.posx, y: char.posy}, {x: target.posx, y: target.posy}, frameTime / 2);
+            }, hitDelay - frameTime / 2);
             if (target.id == CLIENT.game.player.id) {
               setTimeout (function () {
                 CLIENT.animateProperty("playerhp", CLIENT.game.player.hp, Math.max(0, CLIENT.game.player.hp - act.data.damage), 1000);
@@ -1082,12 +991,8 @@ if (actionData.status === "blocked") {
             }, hitDelay);
             if (act.data.type != 'debuff') {
               setTimeout(function () {
-if (actionData.status === "blocked") {
-    CLIENT.stopProjectileAtObstacle(char, target);
-} else {
-    CLIENT.animateProperty('ammupos', { x: char.posx, y: char.posy }, { x: target.posx, y: target.posy }, frameTime);
-}
-  }, shootDelay);
+                CLIENT.animateProperty('ammupos', {x: char.posx, y: char.posy}, {x: target.posx, y: target.posy}, frameTime);
+              }, shootDelay);
             }
             CLIENT.game.showStatus(act.playerId, "Resisted!", hitDelay);
           } else if (act.data.status == 'fizzle') {
@@ -1185,7 +1090,6 @@ if (actionData.status === "blocked") {
 
 
   CLIENT.render = function () {
-    
     var ctx = CLIENT.ctx;
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height); // clear canvas
 
@@ -1214,7 +1118,7 @@ if (actionData.status === "blocked") {
       // paint the battlefield
       ctx.drawImage(ASSETS.SPRITES.battlefield, 0, 0, CANVAS.bfieldfull_w, CANVAS.bfieldfull_h, 0, CANVAS.top_h, CANVAS.canvas.width, CANVAS.bfieldfull_h);
 ctx.imageSmoothingEnabled = false; // Desativa suavização para manter os pixels nítidos
-    
+
 
 
       // whoever is facing South should be drawn first
@@ -1324,10 +1228,6 @@ if (CLIENT.game && CLIENT.game.arena && CLIENT.game.arena.tiles) {
     window.requestAnimationFrame(CLIENT.render);
   }
 
-
-
-
-  
   var sheet1, sheet2, sheet1X, sheet1Y, sheet2X,
       sheet2Y, tileLeft, tileTop, tileCenterX,
       tileCenterY, left1, left2, top1, top2,
@@ -1496,7 +1396,5 @@ document.querySelectorAll("#overlay-action-bar ul").forEach((el) => {
       CLIENT.ui.setMenu(el.dataset.type);
     };
   });
-
-  
   
 </script>

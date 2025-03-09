@@ -1884,29 +1884,25 @@ SERVER.GameAction.prototype.MAGIC = function (action, data) {
         this.clientData.data.status = 'far';
     } else if (SHARED.arePositionsTouching(this.playerTile.pos, this.enemyTile.pos) && this.clientData.data.type == 'long_range') {
         this.clientData.data.status = 'close';
-    } else if (this.doesPlayerFizzle(this.skill_info.precision / 100)) {
-        this.clientData.data.status = 'fizzle';
-    } 
-    
-    else if (this.clientData.type == 'long_range' ) {
+    }else if (this.clientData.type == 'long_range' ) {
        var obstacleCheck = this.isObstacleInLine(this.playerTile.pos, this.enemyTile.pos);
 if (obstacleCheck.blocked) {
     this.clientData.data.status = "blocked";
     this.clientData.data.blockedPos = obstacleCheck.pos; // Posição do obstáculo
   }
     
-    }  else if (this.doesEnemyResist(1) && this.clientData.data.type != 'other') {
-        this.clientData.data.status = 'resist';
-    } else {
-	    
-
-	    if (typeof SPELLS[action] === "function") {
-  SPELLS[action](this);
-		    
-} else {
-  console.error("Erro: Ação desconhecida ou não definida em SPELLS:", action);
-	    }
+    else if (this.doesPlayerFizzle(this.skill_info.precision / 100)) {
+    // player fizzled the spell
+    this.clientData.data.status = 'fizzle';
+  } else if (this.doesEnemyResist(1) && this.clientData.data.type != 'other') {
+    // enemy resisted the spell
+    this.clientData.data.status = 'resist';
+  } else {
+    // spell didn't fizzle and was not resisted, range is ok
+    SPELLS[this.action](this);
+  }
     }
+
 };
 
 
@@ -1943,17 +1939,15 @@ if (obstacleCheck.blocked) {
     this.clientData.data.status = "blocked";
     this.clientData.data.blockedPos = obstacleCheck.pos; // Posição do obstáculo
   }
-    }else if (this.doesEnemyEvade(this.skill_info.precision / 100)) {
+    else if (this.doesEnemyEvade(this.skill_info.precision / 100)) {
       this.clientData.data.status = 'evade'; // O inimigo desviou
-    } else {
+    } 
+    }else {
       SKILLS[this.action](this);
     }
-  }
- else {
-    SKILLS[this.action](this);
-  }
-
 };
+
+
 SERVER.GameAction.prototype.isObstacleInLine = function (start, end) {
   var x0 = start.x, y0 = start.y;
   var x1 = end.x, y1 = end.y;

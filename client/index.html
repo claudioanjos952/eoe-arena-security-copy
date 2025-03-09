@@ -660,6 +660,16 @@
   return { x: x1, y: y1 }; // Se não houver bloqueios, projétil segue normalmente
 };
 
+      CLIENT.stopProjectileAtObstacle = function (char, target) {
+    var projectileEnd = CLIENT.getProjectileEndPos(
+        { x: char.posx, y: char.posy },
+        { x: target.posx, y: target.posy }
+    );
+
+    CLIENT.animateProperty('ammupos', { x: char.posx, y: char.posy }, projectileEnd, frameTime);
+};
+  
+
   CLIENT.Game.prototype.calculateFacings = function () {
     // calculate facing direction of player and enemy
     var pt = {x: Math.round(CLIENT.game.player.posx), y: Math.round(CLIENT.game.player.posy)};
@@ -910,9 +920,11 @@
               }
             }, hitDelay);
             setTimeout(function () {
-              var projectileEnd = CLIENT.getProjectileEndPos({ x: char.posx, y: char.posy }, { x: target.posx, y: target.posy });
-
-CLIENT.animateProperty('ammupos', { x: char.posx, y: char.posy }, projectileEnd, frameTime);
+if (actionData.status === "blocked") {
+    CLIENT.stopProjectileAtObstacle(char, target);
+} else {
+    CLIENT.animateProperty('ammupos', { x: char.posx, y: char.posy }, { x: target.posx, y: target.posy }, frameTime);
+}
   }, shootDelay);
             if (target.id == CLIENT.game.player.id) {
               setTimeout (function () {
@@ -924,9 +936,11 @@ CLIENT.animateProperty('ammupos', { x: char.posx, y: char.posy }, projectileEnd,
           } else if (act.data.status == 'double-hit') {
             var crit = act.data.status == 'crit';
             setTimeout(function () {
-              var projectileEnd = CLIENT.getProjectileEndPos({ x: char.posx, y: char.posy }, { x: target.posx, y: target.posy });
-
-CLIENT.animateProperty('ammupos', { x: char.posx, y: char.posy }, projectileEnd, frameTime/2);
+if (actionData.status === "blocked") {
+    CLIENT.stopProjectileAtObstacle(char, target);
+} else {
+    CLIENT.animateProperty('ammupos', { x: char.posx, y: char.posy }, { x: target.posx, y: target.posy }, frameTime/2);
+}
    }, shootDelay);
             setTimeout(function () {
               CLIENT.animateProperty(char.id != CLIENT.game.player.id ? 'playersprite' : 'enemysprite', 9, 10, frameTime);
@@ -946,9 +960,11 @@ CLIENT.animateProperty('ammupos', { x: char.posx, y: char.posy }, projectileEnd,
               CLIENT.animateProperty(act.enemyId == CLIENT.game.player.id ? 'playersprite' : 'enemysprite', 11, 12, prevTime - hitDelay);
             }, hitDelay);
             setTimeout(function () {
-             
-              var projectileEnd = CLIENT.getProjectileEndPos({ x: char.posx, y: char.posy }, { x: target.posx, y: target.posy });
-CLIENT.animateProperty('ammupos', { x: char.posx, y: char.posy }, projectileEnd, frameTime);
+if (actionData.status === "blocked") {
+    CLIENT.stopProjectileAtObstacle(char, target);
+} else {
+    CLIENT.animateProperty('ammupos', { x: char.posx, y: char.posy }, { x: target.posx, y: target.posy }, frameTime);
+}
 }, shootDelay);
             CLIENT.game.showStatus(act.playerId, "Miss!", hitDelay);
           } else if (act.data.status == 'miss') {
@@ -989,9 +1005,11 @@ CLIENT.animateProperty('ammupos', { x: char.posx, y: char.posy }, projectileEnd,
               CLIENT.animateProperty(char.id != CLIENT.game.player.id ? 'playersprite' : 'enemysprite', 27, 28, frameTime);
             }, hitDelay);
             setTimeout(function () {
-              var projectileEnd = CLIENT.getProjectileEndPos({ x: char.posx, y: char.posy }, { x: target.posx, y: target.posy });
-
-CLIENT.animateProperty('ammupos', { x: char.posx, y: char.posy }, projectileEnd, frameTime);
+if (actionData.status === "blocked") {
+    CLIENT.stopProjectileAtObstacle(char, target);
+} else {
+    CLIENT.animateProperty('ammupos', { x: char.posx, y: char.posy }, { x: target.posx, y: target.posy }, frameTime);
+}
       }, shootDelay);
             if (target.id == CLIENT.game.player.id) {
               setTimeout (function () {
@@ -1003,14 +1021,20 @@ CLIENT.animateProperty('ammupos', { x: char.posx, y: char.posy }, projectileEnd,
           } else if (act.data.status == 'double-hit') {
             var crit = act.data.status == 'crit';
             setTimeout(function () {
-              var projectileEnd = CLIENT.getProjectileEndPos({ x: char.posx, y: char.posy }, { x: target.posx, y: target.posy });
-
-CLIENT.animateProperty('ammupos', { x: char.posx, y: char.posy }, projectileEnd, frameTime/2);
+if (actionData.status === "blocked") {
+    CLIENT.stopProjectileAtObstacle(char, target);
+} else {
+    CLIENT.animateProperty('ammupos', { x: char.posx, y: char.posy }, { x: target.posx, y: target.posy }, frameTime/2);
+}
    }, shootDelay);
             setTimeout(function () {
               CLIENT.animateProperty(char.id != CLIENT.game.player.id ? 'playersprite' : 'enemysprite', 27, 28, frameTime);
-              CLIENT.animateProperty('ammupos', {x: char.posx, y: char.posy}, {x: target.posx, y: target.posy}, frameTime / 2);
-            }, hitDelay - frameTime / 2);
+              if (actionData.status === "blocked") {
+    CLIENT.stopProjectileAtObstacle(char, target);
+} else {
+    CLIENT.animateProperty('ammupos', { x: char.posx, y: char.posy }, { x: target.posx, y: target.posy }, frameTime);
+}
+       }, hitDelay - frameTime / 2);
             if (target.id == CLIENT.game.player.id) {
               setTimeout (function () {
                 CLIENT.animateProperty("playerhp", CLIENT.game.player.hp, Math.max(0, CLIENT.game.player.hp - act.data.damage), 1000);
@@ -1037,10 +1061,12 @@ CLIENT.animateProperty('ammupos', { x: char.posx, y: char.posy }, projectileEnd,
             }, hitDelay);
             if (act.data.type != 'debuff') {
               setTimeout(function () {
-                var projectileEnd = CLIENT.getProjectileEndPos({ x: char.posx, y: char.posy }, { x: target.posx, y: target.posy });
-
-CLIENT.animateProperty('ammupos', { x: char.posx, y: char.posy }, projectileEnd, frameTime);
-      }, shootDelay);
+if (actionData.status === "blocked") {
+    CLIENT.stopProjectileAtObstacle(char, target);
+} else {
+    CLIENT.animateProperty('ammupos', { x: char.posx, y: char.posy }, { x: target.posx, y: target.posy }, frameTime);
+}
+  }, shootDelay);
             }
             CLIENT.game.showStatus(act.playerId, "Resisted!", hitDelay);
           } else if (act.data.status == 'fizzle') {

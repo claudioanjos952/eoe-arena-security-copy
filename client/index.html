@@ -915,7 +915,7 @@
             CLIENT.game.showStatus(act.playerId, "Too close!", hitDelay);
           }
 
-else if (act.data.status == "blocked") {
+else if (act.data.status == "blockedByObstacle") {
     var projectileEnd = act.data.blockedPos; // Posição já enviada pelo servidor
 
     setTimeout(function () {
@@ -1018,7 +1018,7 @@ else if (act.data.status == "blocked") {
             CLIENT.game.showStatus(act.playerId, "Teleport failed!", hitDelay);
           }
 
-else if (act.data.status == "blocked") {
+else if (act.data.status == "blockedByObstacle") {
     var projectileEnd = act.data.blockedPos; // Posição já enviada pelo servidor
 
     setTimeout(function () {

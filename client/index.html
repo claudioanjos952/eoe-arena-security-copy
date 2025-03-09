@@ -972,6 +972,16 @@ if (actionData.status === "blocked") {
           } else if (act.data.status == 'close') {
             CLIENT.game.showStatus(act.playerId, "Too close!", hitDelay);
           }
+          else if (act.data.status == 'blocked') {
+    var projectileEnd = CLIENT.getProjectileEndPos({ x: char.posx, y: char.posy }, { x: target.posx, y: target.posy });
+
+    setTimeout(function () {
+        CLIENT.animateProperty('ammupos', { x: char.posx, y: char.posy }, projectileEnd, frameTime);
+    }, shootDelay);
+
+    CLIENT.game.showStatus(act.playerId, "Blocked!", hitDelay);
+}
+
         } else if (act.type == 'magic' || act.type == 'magic2') {
           var char = act.playerId == CLIENT.game.player.id ? CLIENT.game.player : CLIENT.game.enemy;
           var target = act.enemyId == CLIENT.game.player.id ? CLIENT.game.player : CLIENT.game.enemy
@@ -993,7 +1003,18 @@ if (actionData.status === "blocked") {
             CLIENT.game.showStatus(act.playerId, act.data.name, 0);
             var frameTime = prevTime / 3;
             var hitDelay = frameTime * 2;
-          } else {
+          } 
+          else if (act.data.status == 'blocked') {
+    var projectileEnd = CLIENT.getProjectileEndPos({ x: char.posx, y: char.posy }, { x: target.posx, y: target.posy });
+
+    setTimeout(function () {
+        CLIENT.animateProperty('ammupos', { x: char.posx, y: char.posy }, projectileEnd, frameTime);
+    }, shootDelay);
+
+    CLIENT.game.showStatus(act.playerId, "Blocked!", hitDelay);
+}
+
+          else {
             CLIENT.game.ammuSprite = [4, 0];
             CLIENT.animateProperty(char.id == CLIENT.game.player.id ? 'playersprite' : 'enemysprite', 25, 26, prevTime);
             CLIENT.animateProperty('ammupos', {x: char.posx, y: char.posy}, {x: char.posx, y: char.posy - 1}, prevTime * 2 / 3);

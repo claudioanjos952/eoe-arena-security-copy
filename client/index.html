@@ -919,7 +919,7 @@ else if (act.data.status == 'blocked') {
     var projectileEnd = CLIENT.getProjectileEndPos({ x: char.posx, y: char.posy }, { x: target.posx, y: target.posy });
 
     setTimeout(function () {
-        CLIENT.animateProperty('ammupos', { x: char.posx, y: char.posy }, {x: projectileEnd.x, y: projectileEnd.y}, frameTime);
+        CLIENT.animateProperty('ammupos', { x: char.posx, y: char.posy }, projectileEnd, frameTime);
     }, shootDelay);
 
     CLIENT.game.showStatus(act.playerId, "Blocked!", hitDelay);
@@ -1021,7 +1021,7 @@ else if (act.data.status == 'blocked') {
     var projectileEnd = CLIENT.getProjectileEndPos({ x: char.posx, y: char.posy }, { x: target.posx, y: target.posy });
 
     setTimeout(function () {
-        CLIENT.animateProperty('ammupos', { x: char.posx, y: char.posy }, {x: projectileEnd.x, y: projectileEnd.y}, frameTime);
+        CLIENT.animateProperty('ammupos', { x: char.posx, y: char.posy }, projectileEnd, frameTime);
     }, shootDelay);
 
     CLIENT.game.showStatus(act.playerId, "Blocked!", hitDelay);
@@ -1363,6 +1363,9 @@ CLIENT.getProjectileEndPos = function (start, end) {
   return { x: x1, y: y1 }; // Se não houver bloqueios, projétil segue normalmente
 };
 
+  CLIENT.game.arena.getTileByPos = function (pos) {
+  return this.tiles[pos.y][pos.x];
+};
   
   CLIENT.animateProperty = function (propName, from, to, duration) {
     if (CLIENT.animatedProperties.hasOwnProperty(propName)) {

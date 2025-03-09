@@ -1881,14 +1881,13 @@ SERVER.GameAction.prototype.MAGIC = function (action, data) {
     }
 
     // Verifica se há obstáculos no caminho para magias de longo alcance
-    if (this.clientData.data.type === 'long_range') {
+    else if (this.clientData.data.type === 'long_range') {
     var obstacleCheck = this.isObstacleInLine(this.playerTile.pos, this.enemyTile.pos);
 
     if (obstacleCheck.blocked) {
         this.clientData.data.blockedPos = obstacleCheck.pos; // Define a posição primeiro
         this.clientData.data.status = 'blockedByObstacle'; // Depois define o status
     }
-}
     } else if (!SHARED.arePositionsTouching(this.playerTile.pos, this.enemyTile.pos) && this.clientData.data.type === 'close_range') {
         this.clientData.data.status = 'far';
     } else if (SHARED.arePositionsTouching(this.playerTile.pos, this.enemyTile.pos) && this.clientData.data.type === 'long_range') {
@@ -1942,7 +1941,7 @@ SERVER.GameAction.prototype.SKILL = function (type, action) {
         this.clientData.data.blockedPos = obstacleCheck.pos; // Define a posição primeiro
         this.clientData.data.status = 'blockedByObstacle'; // Depois define o status
     }
-}
+
     } else if (this.doesEnemyEvade(this.skill_info.precision / 100)) {
       this.clientData.data.status = 'evade'; // O inimigo desviou
     } else {

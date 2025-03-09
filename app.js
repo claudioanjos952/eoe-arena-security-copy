@@ -1898,7 +1898,7 @@ if (obstacleCheck.blocked) {
   } else if (this.doesEnemyResist(1) && this.clientData.data.type != 'other') {
     // enemy resisted the spell
     this.clientData.data.status = 'resist';
-  } else {
+  } else if (!obstacleCheck.blocked){
     // spell didn't fizzle and was not resisted, range is ok
     SPELLS[this.action](this);
   }
@@ -1940,7 +1940,7 @@ if (obstacleCheck.blocked) {
   else if ((this.clientData.type == 'melee' || this.clientData.type == 'range') && this.action != 'toss_bomb' && this.action != 'place_trap' && this.doesEnemyEvade(this.skill_info.precision / 100)) {
     // enemy evaded the attack
     this.clientData.data.status = 'evade';
-  } else {
+  } else if (!obstacleCheck.blocked){
     SKILLS[this.action](this);
   }
 

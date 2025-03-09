@@ -1908,9 +1908,11 @@ SERVER.GameAction.prototype.MAGIC = function (action, data) {
 
 
 SERVER.GameAction.prototype.SKILL = function (type, action) {
+ 
   if (type == 'move') {
     this.clientData.type = 'move';
     this.time = 1000;
+    return; // Agora a função para aqui se for um movimento, evitando erros
   } else if (type == 'defend') {
     this.clientData.type = 'defend';
     this.time = 0;
@@ -1924,30 +1926,26 @@ SERVER.GameAction.prototype.SKILL = function (type, action) {
   }
 
   if (!SHARED.arePositionsTouching(this.playerTile.pos, this.enemyTile.pos) && this.clientData.type == 'melee' && this.action != 'place_trap') {
-    // too far
     this.clientData.data.status = 'far';
   } else if (SHARED.arePositionsTouching(this.playerTile.pos, this.enemyTile.pos) && this.clientData.type == 'range' && this.action != 'toss_bomb') {
-    // too close
     this.clientData.data.status = 'close';
-  }
-  else if (this.clientData.type == 'melee' && this.action != 'toss_bomb' && this.action != 'place_trap' && this.doesEnemyEvade(this.skill_info.precision / 100)) {
-    // enemy evaded the attack
+  } else if (this.clientData.type == 'melee' && this.action != 'toss_bomb' && this.action != 'place_trap' && this.doesEnemyEvade(this.skill_info.precision / 100)) {
     this.clientData.data.status = 'evade';
-  } 
-    else if (this.clientData.data.type === 'range') {
+  } else if (this.clientData.type === 'range') {
     var obstacleCheck = this.isObstacleInLine(this.playerTile.pos, this.enemyTile.pos);
 
     if (obstacleCheck.blocked) {
-        this.clientData.data.blockedPos = obstacleCheck.pos; // Define a posição primeiro
-        this.clientData.data.status = 'blocked'; // Depois define o status
+        this.clientData.data.blockedPos = obstacleCheck.pos;
+        this.clientData.data.status = 'blocked';
+        return; // Agora a ação para aqui se o ataque for bloqueado
     }
-
-    } else if (this.doesEnemyEvade(this.skill_info.precision / 100)) {
-      this.clientData.data.status = 'evade'; // O inimigo desviou
-    } else {
-      SKILLS[this.action](this);
-    }
+  } else if (this.doesEnemyEvade(this.skill_info.precision / 100)) {
+    this.clientData.data.status = 'evade';
+  } else {
+    SKILLS[this.action](this);
+  }
 };
+
 
 SERVER.GameAction.prototype.isObstacleInLine = function (start, end) {
   var x0 = start.x, y0 = start.y;

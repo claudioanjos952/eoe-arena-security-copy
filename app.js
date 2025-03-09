@@ -1886,7 +1886,7 @@ SERVER.GameAction.prototype.MAGIC = function (action, data) {
 
     if (obstacleCheck.blocked) {
         this.clientData.data.blockedPos = obstacleCheck.pos; // Define a posição primeiro
-        this.clientData.data.status = 'blockedByObstacle'; // Depois define o status
+        this.clientData.data.status = 'blocked'; // Depois define o status
     }
     } else if (!SHARED.arePositionsTouching(this.playerTile.pos, this.enemyTile.pos) && this.clientData.data.type === 'close_range') {
         this.clientData.data.status = 'far';
@@ -1939,7 +1939,7 @@ SERVER.GameAction.prototype.SKILL = function (type, action) {
 
     if (obstacleCheck.blocked) {
         this.clientData.data.blockedPos = obstacleCheck.pos; // Define a posição primeiro
-        this.clientData.data.status = 'blockedByObstacle'; // Depois define o status
+        this.clientData.data.status = 'blocked'; // Depois define o status
     }
 
     } else if (this.doesEnemyEvade(this.skill_info.precision / 100)) {

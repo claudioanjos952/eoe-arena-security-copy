@@ -1879,19 +1879,20 @@ SERVER.GameAction.prototype.MAGIC = function (action, data) {
         this.clientData.data.type = 'other';
         this.time = 1250;
     }
-
-    if (!SHARED.arePositionsTouching(this.playerTile.pos, this.enemyTile.pos) && this.clientData.data.type == 'close_range') {
-        this.clientData.data.status = 'far';
-    } else if (SHARED.arePositionsTouching(this.playerTile.pos, this.enemyTile.pos) && this.clientData.data.type == 'long_range') {
-        this.clientData.data.status = 'close';
-    } else if (!SHARED.arePositionsTouching(this.playerTile.pos, this.enemyTile.pos) && this.clientData.type == 'magic' ) {
+ if (!SHARED.arePositionsTouching(this.playerTile.pos, this.enemyTile.pos) && this.clientData.type == 'long_range' ) {
        var obstacleCheck = this.isObstacleInLine(this.playerTile.pos, this.enemyTile.pos);
 if (obstacleCheck.blocked) {
     this.clientData.data.status = "blocked";
     this.clientData.data.blockedPos = obstacleCheck.pos; // Posição do obstáculo
   }
-    }
-    else if (this.doesPlayerFizzle(this.skill_info.precision / 100)) {
+}
+  if (!SHARED.arePositionsTouching(this.playerTile.pos, this.enemyTile.pos) && this.clientData.data.type == 'close_range') {
+    // too far
+    this.clientData.data.status = 'far';
+  } else if (SHARED.arePositionsTouching(this.playerTile.pos, this.enemyTile.pos) && this.clientData.data.type == 'long_range') {
+    // too close
+    this.clientData.data.status = 'close';
+  } else if (this.doesPlayerFizzle(this.skill_info.precision / 100)) {
     // player fizzled the spell
     this.clientData.data.status = 'fizzle';
   } else if (this.doesEnemyResist(1) && this.clientData.data.type != 'other') {
@@ -1901,7 +1902,6 @@ if (obstacleCheck.blocked) {
     // spell didn't fizzle and was not resisted, range is ok
     SPELLS[this.action](this);
   }
-    
 
 };
 
@@ -1922,6 +1922,14 @@ SERVER.GameAction.prototype.SKILL = function (type, action) {
     this.time = 2000;
   }
 
+	if (!SHARED.arePositionsTouching(this.playerTile.pos, this.enemyTile.pos) && this.clientData.type == 'range' ) {
+       var obstacleCheck = this.isObstacleInLine(this.playerTile.pos, this.enemyTile.pos);
+if (obstacleCheck.blocked) {
+    this.clientData.data.status = "blocked";
+    this.clientData.data.blockedPos = obstacleCheck.pos; // Posição do obstáculo
+  }
+    }
+	
   if (!SHARED.arePositionsTouching(this.playerTile.pos, this.enemyTile.pos) && this.clientData.type == 'melee' && this.action != 'place_trap') {
     // too far
     this.clientData.data.status = 'far';
@@ -1929,23 +1937,13 @@ SERVER.GameAction.prototype.SKILL = function (type, action) {
     // too close
     this.clientData.data.status = 'close';
   }
-  else if (this.clientData.type == 'melee' && this.action != 'toss_bomb' && this.action != 'place_trap' && this.doesEnemyEvade(this.skill_info.precision / 100)) {
+  else if ((this.clientData.type == 'melee' || this.clientData.type == 'range') && this.action != 'toss_bomb' && this.action != 'place_trap' && this.doesEnemyEvade(this.skill_info.precision / 100)) {
     // enemy evaded the attack
     this.clientData.data.status = 'evade';
-  } 
-    else if (!SHARED.arePositionsTouching(this.playerTile.pos, this.enemyTile.pos) && this.clientData.type == 'range' ) {
-       var obstacleCheck = this.isObstacleInLine(this.playerTile.pos, this.enemyTile.pos);
-if (obstacleCheck.blocked) {
-    this.clientData.data.status = "blocked";
-    this.clientData.data.blockedPos = obstacleCheck.pos; // Posição do obstáculo
+  } else {
+    SKILLS[this.action](this);
   }
-    }
-    else if (this.doesEnemyEvade(this.skill_info.precision / 100)) {
-      this.clientData.data.status = 'evade'; // O inimigo desviou
-    } 
-    else {
-      SKILLS[this.action](this);
-}
+
 };
 
 

@@ -1313,7 +1313,7 @@ SERVER.Game.prototype.turnEnd = function () { // called when a turn ends
     }
   }
 
-  var energyLeft = 100;
+  var energyLeft = 60;
   var tstamp = Math.random();
   for (var i = 0; i < this.player1_actions.length; ++i) {
     var act = this.player1_actions[i];
@@ -1334,7 +1334,7 @@ SERVER.Game.prototype.turnEnd = function () { // called when a turn ends
     }
   }
   // process all actions of p2 into {timestamp: action, timestamp: action}
-  energyLeft = 100;
+  energyLeft = 60;
   tstamp = Math.random();
   for (var i = 0; i < this.player2_actions.length; ++i) {
     var act = this.player2_actions[i];

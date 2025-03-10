@@ -1894,7 +1894,7 @@ SERVER.GameAction.prototype.MAGIC = function (action, data) {
     this.clientData.data.status = 'fizzle';
   } 
   
-else if (this.clientData.type == 'magic' ) {
+else if (this.clientData.data.type == 'long_range') {
        var obstacleCheck = this.isObstacleInLine(this.playerTile.pos, this.enemyTile.pos);
 if (obstacleCheck.blocked) {
     this.clientData.data.status = "blocked";

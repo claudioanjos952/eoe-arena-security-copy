@@ -1023,8 +1023,15 @@ SERVER.Arena.prototype.getRandomAdjacentTile = function (pos) {
 };
 
 SERVER.Arena.prototype.getTileByPos = function (pos) {
+  if (
+    pos.x < 0 || pos.x >= this.tiles[0].length || 
+    pos.y < 0 || pos.y >= this.tiles.length
+  ) {
+    return null; // Evita acessar posição inválida
+  }
   return this.tiles[pos.y][pos.x];
 };
+
 
 SERVER.Game = function (challenge) {
   this.id = SERVER.counter++;
@@ -1443,7 +1450,7 @@ SERVER.Game.prototype.turnEnd = function () { // called when a turn ends
 };
 
 SERVER.Game.prototype.getBattleReport = function (winner, loser) {
-  var xp_per_win = 100;
+  var xp_per_win = 5;
 
   var w_lvl_info = SHARED.getLvlInfo(winner.user.character.xp);
   var l_lvl_info = SHARED.getLvlInfo(loser.user.character.xp);
@@ -1864,8 +1871,11 @@ SERVER.GameAction.prototype.process = function () {
 }
 
 SERVER.GameAction.prototype.MAGIC = function (action, data) {
-    console.log(`Ação mágica recebida:`); // Verificar qual ação está sendo enviada
-
+	if (!SPELLS[this.action] || !this.skill_info.enabled) {
+    console.log(`Erro: A magia ${this.action} não está ativada ou não existe.`);
+    return;
+	}
+    
     if (SPELLS.close_range.includes(action)) {
         this.clientData.data.type = 'close_range';
         this.time = 1250;

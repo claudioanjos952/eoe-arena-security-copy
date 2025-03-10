@@ -118,26 +118,44 @@ module.exports.lethal_claw = function (ga) {
 // spectral
 module.exports.blink = function (ga) {
   var newPos = ga.game.arena.getRandomEmptyTile().pos;
+ 
+  if (!newPos || ga.game.isTileOccupied(newPos)) { 
+    ga.clientData.data.status = 'teleport-fail';
+    return;
+}
+else{
   ga.player.moveToPosition(newPos);
   ga.clientData.data.status = 'teleport';
   ga.clientData.data.pos = newPos;
   console.log((Math.round(ga.timestamp * 100) / 100).toString().padStart(7) + " > " + ga.player.user.name.padStart(20) + ": BLINK (" + newPos.x + ", " + newPos.y + ")");
+}
 };
 
 module.exports.shift = function (ga) {
   var newPos = ga.game.arena.getRandomEmptyTile().pos;
+
+  if (!newPos || ga.game.isTileOccupied(newPos)) { 
+    ga.clientData.data.status = 'teleport-fail';
+    return;
+}
+else{
+  
   ga.player.moveToPosition(newPos);
   ga.clientData.data.status = 'teleport';
   ga.clientData.data.pos = newPos;
   console.log((Math.round(ga.timestamp * 100) / 100).toString().padStart(7) + " > " + ga.player.user.name.padStart(20) + ": SHIFT (" + newPos.x + ", " + newPos.y + ")");
+
+}
 };
 
 module.exports.ghost_walk = function (ga) {
   var newPos = ga.data;
   var targetTile = ga.game.arena.getTileByPos(newPos);
-  if (ga.game.isTileOccupied(targetTile)) {
+if (!targetTile || ga.game.isTileOccupied(targetTile)) { 
     ga.clientData.data.status = 'teleport-fail';
-  } else {
+    return;
+}
+ else {
     ga.player.moveToPosition(newPos);
     ga.clientData.data.status = 'teleport';
     ga.clientData.data.pos = newPos;
@@ -148,9 +166,11 @@ module.exports.ghost_walk = function (ga) {
 module.exports.wraith_walk = function (ga) {
   var newPos = ga.data;
   var targetTile = ga.game.arena.getTileByPos(newPos);
-  if (ga.game.isTileOccupied(targetTile)) {
+if (!targetTile || ga.game.isTileOccupied(targetTile)) { 
     ga.clientData.data.status = 'teleport-fail';
-  } else {
+    return;
+}
+ else {
     ga.player.moveToPosition(newPos);
     ga.clientData.data.status = 'teleport';
     ga.clientData.data.pos = newPos;

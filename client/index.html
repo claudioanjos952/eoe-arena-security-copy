@@ -1426,42 +1426,46 @@ document.querySelectorAll("#overlay-action-bar ul").forEach((el) => {
     };
   });
 
-  var backgroundMusic = new Audio("/client/audio/menu.mp3"); // Música padrão
-var battleMusic = new Audio("/client/audio/battle.mp3"); // Música de batalha
+  var backgroundMusic = new Audio("/client/audio/menu.mp3");
+var battleMusic = new Audio("/client/audio/battle.mp3");
 
 backgroundMusic.loop = true;
 battleMusic.loop = true;
 
-function playMusic() {
-    if (CLIENT.ingame && CLIENT.game.state === 'action_input') {
-        if (backgroundMusic.paused && !battleMusic.paused) return; // Se já está tocando, não faz nada
+// Garante que o áudio só toque após interação do usuário
+document.addEventListener("click", function enableAudio() {
+    backgroundMusic.play().catch(() => {}); // Tenta tocar a música do menu
+    document.removeEventListener("click", enableAudio); // Remove o evento após a primeira interação
+});
+
+// Função para alternar a música corretamente
+function playMusic(isBattle) {
+    if (isBattle) {
+        if (!battleMusic.paused) return; // Se a música de batalha já está tocando, não faz nada
         backgroundMusic.pause();
-        backgroundMusic.currentTime = 0;
+        battleMusic.currentTime = 0;
         battleMusic.play();
     } else {
-        if (!backgroundMusic.paused && battleMusic.paused) return;
+        if (!backgroundMusic.paused) return;
         battleMusic.pause();
-        battleMusic.currentTime = 0;
+        backgroundMusic.currentTime = 0;
         backgroundMusic.play();
     }
 }
 
-// Chama a função sempre que o estado do jogo muda
+// Quando entra na batalha
+var originalGameStart = CLIENT.gameStart;
 CLIENT.gameStart = function (data) {
-    var gameDiv = document.getElementById("arena");
-    gameDiv.style.display = "inline-block";
-
-    CLIENT.game = new CLIENT.Game(data);
-    CLIENT.game.initActionBar();
-    CLIENT.game.calculateFacings();
-    CLIENT.townDiv.style.display = "none";
-
-    playMusic(); // Troca a música quando a batalha começa
+    originalGameStart.call(this, data); // Chama a função original
+    playMusic(true); // Muda para a música de batalha
 };
 
-// Quando a batalha termina, volta para a música normal
+// Quando a batalha termina
+var originalGameEnd = CLIENT.gameEnd;
 CLIENT.gameEnd = function () {
-    playMusic();
+    originalGameEnd.call(this); // Chama a função original para evitar travamentos
+    playMusic(false); // Volta para a música do menu
 };
+
   
 </script>

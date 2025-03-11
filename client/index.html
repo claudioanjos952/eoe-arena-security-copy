@@ -1434,7 +1434,7 @@ battleMusic.loop = true;
 
 // Garante que o áudio só toque após interação do usuário
 document.addEventListener("click", function enableAudio() {
-    backgroundMusic.play().catch(() => {}); // Tenta tocar a música do menu
+    playMusic(true); // Força a tocar a música de batalha ao iniciar o jogo
     document.removeEventListener("click", enableAudio); // Remove o evento após a primeira interação
 });
 

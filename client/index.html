@@ -70,47 +70,6 @@
 <script src="/client/js/smw.js"></script>
 <script src="/client/js/ui.js"></script>
 <script>
-
-var backgroundMusic = new Audio("/client/audio/menu.mp3"); // Música padrão
-var battleMusic = new Audio("/client/audio/battle.mp3"); // Música de batalha
-
-backgroundMusic.loop = true;
-battleMusic.loop = true;
-
-function playMusic() {
-    if (CLIENT.ingame && CLIENT.game.state === 'action_input') {
-        if (backgroundMusic.paused && !battleMusic.paused) return; // Se já está tocando, não faz nada
-        backgroundMusic.pause();
-        backgroundMusic.currentTime = 0;
-        battleMusic.play();
-    } else {
-        if (!backgroundMusic.paused && battleMusic.paused) return;
-        battleMusic.pause();
-        battleMusic.currentTime = 0;
-        backgroundMusic.play();
-    }
-}
-
-// Chama a função sempre que o estado do jogo muda
-CLIENT.gameStart = function (data) {
-    var gameDiv = document.getElementById("arena");
-    gameDiv.style.display = "inline-block";
-
-    CLIENT.game = new CLIENT.Game(data);
-    CLIENT.game.initActionBar();
-    CLIENT.game.calculateFacings();
-    CLIENT.townDiv.style.display = "none";
-
-    playMusic(); // Troca a música quando a batalha começa
-};
-
-// Quando a batalha termina, volta para a música normal
-CLIENT.gameEnd = function () {
-    playMusic();
-};
-
-  
-
   
  if (!window.fetch) {
     document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/fetch/3.6.2/fetch.min.js"><\/script>');
@@ -1466,5 +1425,43 @@ document.querySelectorAll("#overlay-action-bar ul").forEach((el) => {
       CLIENT.ui.setMenu(el.dataset.type);
     };
   });
+
+  var backgroundMusic = new Audio("/client/audio/menu.mp3"); // Música padrão
+var battleMusic = new Audio("/client/audio/battle.mp3"); // Música de batalha
+
+backgroundMusic.loop = true;
+battleMusic.loop = true;
+
+function playMusic() {
+    if (CLIENT.ingame && CLIENT.game.state === 'action_input') {
+        if (backgroundMusic.paused && !battleMusic.paused) return; // Se já está tocando, não faz nada
+        backgroundMusic.pause();
+        backgroundMusic.currentTime = 0;
+        battleMusic.play();
+    } else {
+        if (!backgroundMusic.paused && battleMusic.paused) return;
+        battleMusic.pause();
+        battleMusic.currentTime = 0;
+        backgroundMusic.play();
+    }
+}
+
+// Chama a função sempre que o estado do jogo muda
+CLIENT.gameStart = function (data) {
+    var gameDiv = document.getElementById("arena");
+    gameDiv.style.display = "inline-block";
+
+    CLIENT.game = new CLIENT.Game(data);
+    CLIENT.game.initActionBar();
+    CLIENT.game.calculateFacings();
+    CLIENT.townDiv.style.display = "none";
+
+    playMusic(); // Troca a música quando a batalha começa
+};
+
+// Quando a batalha termina, volta para a música normal
+CLIENT.gameEnd = function () {
+    playMusic();
+};
   
 </script>

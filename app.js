@@ -2060,42 +2060,23 @@ if (obstacleCheck.blocked) {
 
 
 SERVER.GameAction.prototype.isObstacleInLine = function (start, end) {
-  var x0 = start.x, y0 = start.y;
-  var x1 = end.x, y1 = end.y;
+  function checkPath(start, end) {
+    var x0 = start.x, y0 = start.y;
+    var x1 = end.x, y1 = end.y;
 
-  var dx = Math.abs(x1 - x0), sx = x0 < x1 ? 1 : -1;
-  var dy = -Math.abs(y1 - y0), sy = y0 < y1 ? 1 : -1;
-  var err = dx + dy, e2;
+    var dx = Math.abs(x1 - x0), sx = x0 < x1 ? 1 : -1;
+    var dy = -Math.abs(y1 - y0), sy = y0 < y1 ? 1 : -1;
+    var err = dx + dy, e2;
 
-  var pathTiles = [];
+    var pathTiles = [];
 
-  while (x0 !== x1 || y0 !== y1) {
-    var tile = this.game.arena.getTileByPos({ x: x0, y: y0 });
+    while (x0 !== x1 || y0 !== y1) {
+      var tile = this.game.arena.getTileByPos({ x: x0, y: y0 });
 
-    // 🛑 **Correção: Pilar (`3`) agora bloqueia sempre, independentemente da direção**
-    if (tile.obstacle === 3) return { blocked: true, pos: { x: x0, y: y0 } };
+      // Se for um obstáculo tipo 3 (pilar), sempre bloqueia o projétil
+      if (tile.obstacle === 3) return { blocked: true, pos: { x: x0, y: y0 } };
 
-    e2 = 2 * err;
-
-    if (e2 >= dy) { 
-      err += dy; 
-      x0 += sx;
-
-      // 🛑 **Se houver empate na decisão de trajetória, verificar outro tile**
-      var extraTile = this.game.arena.getTileByPos({ x: x0, y: y0 - sy });
-      if (extraTile && extraTile.obstacle === 3) return { blocked: true, pos: { x: x0, y: y0 - sy } };
-    }
-
-    if (e2 <= dx) { 
-      err += dx; 
-      y0 += sy;
-
-      // 🛑 **Se houver empate, verificar outro tile**
-      var extraTile = this.game.arena.getTileByPos({ x: x0 - sx, y: y0 });
-      if (extraTile && extraTile.obstacle === 3) return { blocked: true, pos: { x: x0 - sx, y: y0 } };
-    }
-
-    // **Armazena os tiles percorridos para verificar depois as lanças (tipo `2`)**
+      // **Armazena os tiles percorridos para verificar depois as lanças (tipo `2`)**
     pathTiles.push({ x: x0, y: y0, type: tile.obstacle });
   }
 
@@ -2116,6 +2097,18 @@ SERVER.GameAction.prototype.isObstacleInLine = function (start, end) {
 
   return { blocked: false, pos: null }; // **Se não houver bloqueios, retorna falso**
 };
+
+  // Primeiro tenta normalmente
+  var result = checkPath(start, end);
+  
+  // Se não houver bloqueio, inverte os pontos e tenta novamente
+  if (!result.blocked) {
+    result = checkPath(end, start);
+  }
+
+  return result;
+};
+
 
 
 

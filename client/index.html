@@ -1456,16 +1456,18 @@ function playMusic(isBattle) {
 // Quando entra na batalha
 var originalGameStart = CLIENT.gameStart;
 CLIENT.gameStart = function (data) {
-    originalGameStart.call(this, data); // Chama a função original
-    playMusic(true); // Muda para a música de batalha
+    originalGameStart.call(this, data);
+    setTimeout(() => playMusic(true), 500); // Aguarda meio segundo e troca a música
 };
+
 
 // Quando a batalha termina
 var originalGameEnd = CLIENT.gameEnd;
-CLIENT.gameEnd = function () {
-    originalGameEnd.call(this); // Chama a função original para evitar travamentos
-    playMusic(false); // Volta para a música do menu
+CLIENT.gameStart = function (data) {
+    originalGameEnd.call(this, data);
+    setTimeout(() => playMusic(false), 500); // Aguarda meio segundo e troca a música
 };
+
 
   
 </script>

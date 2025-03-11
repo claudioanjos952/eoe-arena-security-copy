@@ -2075,12 +2075,30 @@ SERVER.GameAction.prototype.isObstacleInLine = function (start, end) {
     // Se for um obstáculo tipo 3 (pilar), sempre bloqueia o projétil
     if (tile.obstacle === 3) return { blocked: true, pos: { x: x0, y: y0 } };
 
+    e2 = 2 * err;
+
+    if (e2 >= dy) { 
+      err += dy; 
+      x0 += sx;
+      // Verifica a segunda casa possível se houver empate no deslocamento
+      if (e2 === dy) {
+        var extraTile = this.game.arena.getTileByPos({ x: x0, y: y0 - sy });
+        if (extraTile && extraTile.obstacle === 3) return { blocked: true, pos: { x: x0, y: y0 - sy } };
+      }
+    }
+
+    if (e2 <= dx) { 
+      err += dx; 
+      y0 += sy;
+      // Verifica a segunda casa possível se houver empate no deslocamento
+      if (e2 === dx) {
+        var extraTile = this.game.arena.getTileByPos({ x: x0 - sx, y: y0 });
+        if (extraTile && extraTile.obstacle === 3) return { blocked: true, pos: { x: x0 - sx, y: y0 } };
+      }
+    }
+
     // Armazena os tiles percorridos para verificar depois as lanças (tipo 2)
     pathTiles.push({ x: x0, y: y0, type: tile.obstacle });
-
-    e2 = 2 * err;
-    if (e2 >= dy) { err += dy; x0 += sx; }
-    if (e2 <= dx) { err += dx; y0 += sy; }
   }
 
   // Se o ataque for reto (horizontal, vertical ou diagonal), verificar lanças (tipo 2)
@@ -2092,6 +2110,7 @@ SERVER.GameAction.prototype.isObstacleInLine = function (start, end) {
 
   return { blocked: false, pos: null }; // Se não houver bloqueios, retorna falso
 };
+
 
 
 SERVER.level0char = {

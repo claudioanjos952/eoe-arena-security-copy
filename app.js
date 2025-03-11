@@ -2060,54 +2060,47 @@ if (obstacleCheck.blocked) {
 
 
 SERVER.GameAction.prototype.isObstacleInLine = function (start, end) {
-  function checkPath(start, end) {
-    var x0 = start.x, y0 = start.y;
-    var x1 = end.x, y1 = end.y;
+  var x0 = start.x, y0 = start.y;
+  var x1 = end.x, y1 = end.y;
 
-    var dx = Math.abs(x1 - x0), sx = x0 < x1 ? 1 : -1;
-    var dy = -Math.abs(y1 - y0), sy = y0 < y1 ? 1 : -1;
-    var err = dx + dy, e2;
+  var dx = Math.abs(x1 - x0), sx = x0 < x1 ? 1 : -1;
+  var dy = -Math.abs(y1 - y0), sy = y0 < y1 ? 1 : -1;
+  var err = dx + dy, e2;
 
-    var pathTiles = [];
+  var pathTiles = [];
 
-    while (x0 !== x1 || y0 !== y1) {
-      var tile = this.game.arena.getTileByPos({ x: x0, y: y0 });
+  while (x0 !== x1 || y0 !== y1) {
+    var tile = this.game.arena.getTileByPos({ x: x0, y: y0 });
 
-      // Se for um obstáculo tipo 3 (pilar), sempre bloqueia o projétil
-      if (tile.obstacle === 3) return { blocked: true, pos: { x: x0, y: y0 } };
+    // Se for um obstáculo tipo 3 (pilar), sempre bloqueia o projétil
+    if (tile.obstacle === 3) return { blocked: true, pos: { x: x0, y: y0 } };
 
-      // **Armazena os tiles percorridos para verificar depois as lanças (tipo `2`)**
+    // Armazena os tiles percorridos para verificar depois as lanças (tipo 2)
     pathTiles.push({ x: x0, y: y0, type: tile.obstacle });
+
+    e2 = 2 * err;
+    if (e2 >= dy) { err += dy; x0 += sx; }
+    if (e2 <= dx) { err += dx; y0 += sy; }
   }
 
-  // **Correção: Agora a lança (`2`) bloqueia se estiver exatamente no meio do trajeto**
+// **Correção: Agora a lança (`2`) bloqueia se estiver exatamente no meio do trajeto**
   if (pathTiles.length % 2 === 1) { // Verifica se a distância é ímpar
     let middleIndex = Math.floor(pathTiles.length / 2);
     if (pathTiles[middleIndex].type === 2) {
       return { blocked: true, pos: { x: pathTiles[middleIndex].x, y: pathTiles[middleIndex].y } };
     }
   }
-
-  // **Se o ataque for completamente reto (horizontal, vertical ou diagonal), mantemos a verificação original da lança**
+	
+  // Se o ataque for reto (horizontal, vertical ou diagonal), verificar lanças (tipo 2)
   if (start.x === end.x || start.y === end.y || Math.abs(start.x - end.x) === Math.abs(start.y - end.y)) {
     for (let i = 0; i < pathTiles.length; i++) {
       if (pathTiles[i].type === 2) return { blocked: true, pos: { x: pathTiles[i].x, y: pathTiles[i].y } };
     }
   }
 
-  return { blocked: false, pos: null }; // **Se não houver bloqueios, retorna falso**
+  return { blocked: false, pos: null }; // Se não houver bloqueios, retorna falso
 };
 
-  // Primeiro tenta normalmente
-  var result = checkPath(start, end);
-  
-  // Se não houver bloqueio, inverte os pontos e tenta novamente
-  if (!result.blocked) {
-    result = checkPath(end, start);
-  }
-
-  return result;
-};
 
 
 

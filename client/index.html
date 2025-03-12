@@ -539,6 +539,8 @@
   };
 
   CLIENT.Game = function (data) {
+    playMusic(true); // Toca música de batalha
+
     this.player = {
       id: data.p.id,
       name: data.p.name,
@@ -1066,6 +1068,7 @@ else if (act.data.status == 'blocked') {
   };
 
   CLIENT.gameEnd = function (data, isWinner) {
+    playMusic(false); // Volta para música do menu
     delete CLIENT.game;
     CLIENT.game == null;
     CLIENT.ingame = false;
@@ -1432,41 +1435,35 @@ var battleMusic = new Audio("/client/audio/battle.mp3");
 backgroundMusic.loop = true;
 battleMusic.loop = true;
 
-// Garante que o áudio só toque após interação do usuário
 document.addEventListener("click", function enableAudio() {
-    playMusic(true); // Força a tocar a música de batalha ao iniciar o jogo
-    document.removeEventListener("click", enableAudio); // Remove o evento após a primeira interação
+    playMusic(false); // Começa com a música do menu
+    document.removeEventListener("click", enableAudio);
 });
 
-// Função para alternar a música corretamente
+
+// 🔹 Função para trocar a música corretamente
 function playMusic(isBattle) {
     if (isBattle) {
-        if (!battleMusic.paused) return; // Se a música de batalha já está tocando, não faz nada
         backgroundMusic.pause();
         battleMusic.currentTime = 0;
         battleMusic.play();
     } else {
-        if (!backgroundMusic.paused) return;
         battleMusic.pause();
         backgroundMusic.currentTime = 0;
         backgroundMusic.play();
     }
 }
 
-// Quando entra na batalha
-var originalGameStart = CLIENT.gameStart;
-CLIENT.gameStart = function (data) {
-    originalGameStart.call(this, data);
-    setTimeout(() => playMusic(true), 500); // Aguarda meio segundo e troca a música
-};
+// 🔹 Quando a música chega ao fim, reinicia automaticamente
+backgroundMusic.addEventListener("ended", function () {
+    this.currentTime = 0;
+    this.play();
+});
 
-
-// Quando a batalha termina
-var originalGameEnd = CLIENT.gameEnd;
-CLIENT.gameStart = function (data) {
-    originalGameEnd.call(this, data);
-    setTimeout(() => playMusic(false), 500); // Aguarda meio segundo e troca a música
-};
+battleMusic.addEventListener("ended", function () {
+    this.currentTime = 0;
+    this.play();
+});
 
 
   

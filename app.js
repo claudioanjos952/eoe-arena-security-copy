@@ -268,7 +268,7 @@ loadDatabase();
 
 // 🔹 Ping automático para manter o servidor ativo com intervalo aleatório
 function keepServerAwake() {
-    fetch("https://SEU-LINK-DO-RENDER.onrender.com/ping")
+    fetch("https://eoe-arena-security-copy.onrender.com/ping")
         .catch(error => console.log("Erro ao manter o servidor ativo:", error));
 
     // Escolhe um tempo aleatório entre 7 e 14 minutos para a próxima execução

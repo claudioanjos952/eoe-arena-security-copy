@@ -587,7 +587,8 @@
     this.state = 'action_input';
     this.status = {};
 
-    window.requestAnimationFrame(CLIENT.render);
+    setInterval(CLIENT.render, 1000 / 30); // Atualiza 30 vezes por segundo
+
   };
 
   CLIENT.Game.prototype.initActionBar = function () {
@@ -1255,7 +1256,8 @@ if (CLIENT.game && CLIENT.game.arena && CLIENT.game.arena.tiles) {
       }
     }
 
-    window.requestAnimationFrame(CLIENT.render);
+    setInterval(CLIENT.render, 1000 / 30); // Atualiza 30 vezes por segundo
+
   }
 
   var sheet1, sheet2, sheet1X, sheet1Y, sheet2X,

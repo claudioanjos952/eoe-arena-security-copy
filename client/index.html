@@ -587,8 +587,7 @@
     this.state = 'action_input';
     this.status = {};
 
-    setInterval(CLIENT.render, 1000 / 30); // Atualiza 30 vezes por segundo
-
+    window.requestAnimationFrame(CLIENT.render);
   };
 
   CLIENT.Game.prototype.initActionBar = function () {
@@ -719,7 +718,7 @@
     CLIENT.game.status.show = false;
     CLIENT.game.currentActions = [];
     CLIENT.game.energyLeft = 60;
-    CLIENT.animatedProperties.energy = 100;
+    CLIENT.animatedProperties.energy = CLIENT.game.energyLeft;
     CLIENT.moveTiles = [];
 
     // synchronize client side with the data received from SERVER
@@ -1136,7 +1135,7 @@ else if (act.data.status == 'blocked') {
 
       // hp, energy, time bar foregrounds
       ctx.fillStyle="#e87777"; ctx.fillRect(10, 10, (CANVAS.canvas.width - 20) * (CLIENT.animatedProperties.hp / CLIENT.game.player.maxHp), 6); // hp e87777
-      ctx.fillStyle="#f9e0b4"; ctx.fillRect(10, 23, (CANVAS.canvas.width - 20) * CLIENT.animatedProperties.energy / 100, 6);  // energy f9e0b4
+      ctx.fillStyle="#f9e0b4"; ctx.fillRect(10, 23, (CANVAS.canvas.width - 20) * CLIENT.animatedProperties.energy / 60, 6);  // energy f9e0b4
       ctx.fillStyle="#f7b94a"; ctx.fillRect(10, 23, (CANVAS.canvas.width - 20) * CLIENT.game.energyLeft / 60, 6);  // energy f7b94a
       ctx.fillStyle="#91b2ff"; ctx.fillRect(10, 36, (CANVAS.canvas.width - 20) * CLIENT.game.turnLeft, 6); // time 91b2ff
 
@@ -1256,8 +1255,7 @@ if (CLIENT.game && CLIENT.game.arena && CLIENT.game.arena.tiles) {
       }
     }
 
-    setInterval(CLIENT.render, 1000 / 30); // Atualiza 30 vezes por segundo
-
+    window.requestAnimationFrame(CLIENT.render);
   }
 
   var sheet1, sheet2, sheet1X, sheet1Y, sheet2X,

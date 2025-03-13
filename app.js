@@ -1599,7 +1599,7 @@ SERVER.Game.prototype.getBattleReport = function (winner, loser) {
 
         console.log("Inserindo batalha no banco de dados...");
 
-        SERVER.db.finished_battles.insert({ 
+        SERVER.db.finished_battles.insertOne({ 
             winner: winner.user.id, 
             loser: loser.user.id, 
             w_lvl: w_lvl_info.lvl, 

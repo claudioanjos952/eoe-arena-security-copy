@@ -1570,6 +1570,10 @@ SERVER.Game.prototype.getBattleReport = function (winner, loser) {
     l_lvlup = 1;
     loser.user.character.points += 2;
   }
+	console.log(`XP perdedor antes: ${loser.user.character.xp}, depois: ${loser.user.character.xp + xp_per_win / 2}`);
+console.log(`Respeito perdedor antes: ${loser.user.character.respect}, depois: ${loser.user.character.respect + respect_gain.l}`);
+	      
+     
 	
   SERVER.db.characters.updateOne({ _id: winner.user.char_id }, { $inc: {
     xp: xp_per_win,
@@ -1584,10 +1588,7 @@ SERVER.Game.prototype.getBattleReport = function (winner, loser) {
       SERVER.db.finished_battles.insert({ winner: winner.user.id, loser: loser.user.id, w_lvl: w_lvl_info.lvl, l_lvl: l_lvl_info.lvl, w_res: winner.user.character.respect, l_res: loser.user.character.respect }, function (err3, res3) {
        
 
-	      console.log(`XP perdedor antes: ${loser.user.character.xp}, depois: ${loser.user.character.xp + xp_per_win / 2}`);
-console.log(`Respeito perdedor antes: ${loser.user.character.respect}, depois: ${loser.user.character.respect + respect_gain.l}`);
 	      
-     
 	      winner.user.character.xp += xp_per_win;
         winner.user.character.respect += respect_gain.w;
         loser.user.character.xp += xp_per_win / 2;

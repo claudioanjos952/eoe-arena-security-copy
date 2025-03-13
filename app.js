@@ -121,8 +121,7 @@ SERVER.init = function () {
  if (SERVER.Sessions.hasOwnProperty(token)) {
           var user = SERVER.Sessions[token];
 		   req.query._user = user;
-		   console.log(">>> Sessões ativas:");
-
+		   
         } else {
           res.end(JSON.stringify({ status: -1 }));
           return;
@@ -147,8 +146,7 @@ SERVER.init = function () {
                     var parsed = JSON.parse(body);
                     res.writeHead(200, { 'Content-Type': 'application/json' });
 
-                    console.log("Requisição AJAX recebida:");
-
+                    
                     // Verifica se a ação não é login, registro ou autenticação
                     if (parsed.ajax_action != "login" && parsed.ajax_action != "register" && parsed.ajax_action != "authenticate") {
                         var token = req.headers.cookie?.match(/(?:^|;\s*)token=([^;]*)/)?.[1];
@@ -157,8 +155,7 @@ SERVER.init = function () {
                             var user = SERVER.Sessions[token];
                             parsed._user = user;
 
-                            console.log("Sessão encontrada para o token");
-                        } else {
+                                } else {
                             console.error("Erro: Sessão não encontrada para o token.");
                             return res.end(JSON.stringify({ status: -1, msg: "Sessão inválida ou expirada." }));
                         }
@@ -175,8 +172,7 @@ SERVER.init = function () {
                     // Processa a requisição de forma assíncrona
                     try {
                         let response = await SERVER.getPOSTResponse(parsed);
-                        console.log("Resposta enviada pelo servidor:");
-                        return res.end(JSON.stringify(response));
+                               return res.end(JSON.stringify(response));
                     } catch (err) {
                         console.error("Erro no processamento de `getPOSTResponse`:", err);
                         return res.end(JSON.stringify({ status: 0, msg: "Erro interno do servidor." }));
@@ -210,9 +206,7 @@ console.log("conectado na porta " + PORT);
   // MongoDB init
 	
 var uri = process.env.MONGO_URI;	
-  console.log(">>> uri encontrada: ",uri);
   
- 
 	//cuidado aqui
 async function connectToDatabase() {
   try {
@@ -220,8 +214,7 @@ async function connectToDatabase() {
     var client = new MongoClient(uri, { serverApi: ServerApiVersion.v1 });
     await client.connect();
 
-    console.log('Conectado ao MongoDB');
-
+    
     // Acessa o banco de dados
     var db = client.db("sample_mflix"); // Nome do banco de dados
     SERVER.db = db;  // Atribui o banco de dados a SERVER.db
@@ -1589,11 +1582,18 @@ SERVER.Game.prototype.getBattleReport = function (winner, loser) {
       pts: l_lvlup ? 2 : 0,
     }}, function (err2, res2) {
       SERVER.db.finished_battles.insert({ winner: winner.user.id, loser: loser.user.id, w_lvl: w_lvl_info.lvl, l_lvl: l_lvl_info.lvl, w_res: winner.user.character.respect, l_res: loser.user.character.respect }, function (err3, res3) {
-        winner.user.character.xp += xp_per_win;
+       
+
+	      console.log(`XP perdedor antes: ${loser.user.character.xp}, depois: ${loser.user.character.xp + xp_per_win / 2}`);
+console.log(`Respeito perdedor antes: ${loser.user.character.respect}, depois: ${loser.user.character.respect + respect_gain.l}`);
+	      
+     
+	      winner.user.character.xp += xp_per_win;
         winner.user.character.respect += respect_gain.w;
         loser.user.character.xp += xp_per_win / 2;
         loser.user.character.respect += respect_gain.l;
-      });
+	      
+	       });
     });
   });
 

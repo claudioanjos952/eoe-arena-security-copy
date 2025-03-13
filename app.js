@@ -1548,94 +1548,81 @@ SERVER.Game.prototype.turnEnd = function () { // called when a turn ends
 
 };
 
-SERVER.Game.prototype.getBattleReport = function (winner, loser) {
-  var xp_per_win = 10;
+SERVER.Game.prototype.getBattleReport = async function (winner, loser) {
+    var xp_per_win = 5;
 
-  var w_lvl_info = SHARED.getLvlInfo(winner.user.character.xp);
-  var l_lvl_info = SHARED.getLvlInfo(loser.user.character.xp);
-  var w_lvl_info_a = SHARED.getLvlInfo(winner.user.character.xp + xp_per_win);
-  var l_lvl_info_a = SHARED.getLvlInfo(loser.user.character.xp + xp_per_win / 2);
-  var respect_gain = this.getRespectGain(w_lvl_info.lvl, l_lvl_info.lvl);
-  if (loser.user.character.respect + respect_gain.l < 0) {
-    respect_gain.l = -loser.user.character.respect;
-  }
-
-
-  var w_lvlup = l_lvlup = 0;
-  if (w_lvl_info_a.lvl > w_lvl_info.lvl) {
-    w_lvlup = 1;
-    winner.user.character.points += 2;
-  }
-  if (l_lvl_info_a.lvl > l_lvl_info.lvl) {
-    l_lvlup = 1;
-    loser.user.character.points += 2;
-  }
-	  
-     
-	
-  SERVER.db.characters.updateOne({ _id: winner.user.char_id }, { $inc: {
-    xp: xp_per_win,
-    respect: respect_gain.w,
-    pts: w_lvlup ? 2 : 0,
-}}, function (err, res) {
-    if (err) {
-        console.log("Erro ao atualizar vencedor:", err);
-    } else {
-        console.log(`XP vencedor atualizado: ${winner.user.character.xp + xp_per_win}`);
-        console.log(`Respeito vencedor atualizado: ${winner.user.character.respect + respect_gain.w}`);
+    var w_lvl_info = SHARED.getLvlInfo(winner.user.character.xp);
+    var l_lvl_info = SHARED.getLvlInfo(loser.user.character.xp);
+    var w_lvl_info_a = SHARED.getLvlInfo(winner.user.character.xp + xp_per_win);
+    var l_lvl_info_a = SHARED.getLvlInfo(loser.user.character.xp + xp_per_win / 2);
+    var respect_gain = this.getRespectGain(w_lvl_info.lvl, l_lvl_info.lvl);
+    
+    if (loser.user.character.respect + respect_gain.l < 0) {
+        respect_gain.l = -loser.user.character.respect;
     }
 
-    SERVER.db.characters.updateOne({ _id: loser.user.char_id }, { $inc: {
-        xp: xp_per_win / 2,
-        respect: respect_gain.l,
-        pts: l_lvlup ? 2 : 0,
-    }}, function (err2, res2) {
-        if (err2) {
-            console.log("Erro ao atualizar perdedor:", err2);
-        } else {
-            console.log(`XP perdedor atualizado: ${loser.user.character.xp + (xp_per_win / 2)}`);
-            console.log(`Respeito perdedor atualizado: ${loser.user.character.respect + respect_gain.l}`);
-        }
+    var w_lvlup = 0, l_lvlup = 0;
+    if (w_lvl_info_a.lvl > w_lvl_info.lvl) {
+        w_lvlup = 1;
+        winner.user.character.points += 2;
+    }
+    if (l_lvl_info_a.lvl > l_lvl_info.lvl) {
+        l_lvlup = 1;
+        loser.user.character.points += 2;
+    }
 
-        console.log("Inserindo batalha no banco de dados...");
+    try {
+        console.log(`Atualizando XP e respeito do vencedor: ${winner.user.char_id}`);
+        await SERVER.db.characters.updateOne({ _id: winner.user.char_id }, { $inc: {
+            xp: xp_per_win,
+            respect: respect_gain.w,
+            pts: w_lvlup ? 2 : 0
+        }});
 
-        SERVER.db.finished_battles.insertOne({ 
-            winner: winner.user.id, 
-            loser: loser.user.id, 
-            w_lvl: w_lvl_info.lvl, 
-            l_lvl: l_lvl_info.lvl, 
-            w_res: winner.user.character.respect, 
-            l_res: loser.user.character.respect 
-        }, function (err3, res3) {
-            if (err3) {
-                console.log("Erro ao inserir batalha:", err3);
-            } else {
-                console.log("Batalha registrada com sucesso!");
-            }
+        console.log(`Atualizando XP e respeito do perdedor: ${loser.user.char_id}`);
+        await SERVER.db.characters.updateOne({ _id: loser.user.char_id }, { $inc: {
+            xp: xp_per_win / 2,
+            respect: respect_gain.l,
+            pts: l_lvlup ? 2 : 0
+        }});
 
-            // Atualiza os valores locais após as operações no banco de dados
-            winner.user.character.xp += xp_per_win;
-            winner.user.character.respect += respect_gain.w;
-            loser.user.character.xp += xp_per_win / 2;
-            loser.user.character.respect += respect_gain.l;
+        console.log("Registrando batalha no banco de dados...");
+        await SERVER.db.finished_battles.insertOne({
+            winner: winner.user.id,
+            loser: loser.user.id,
+            w_lvl: w_lvl_info.lvl,
+            l_lvl: l_lvl_info.lvl,
+            w_res: winner.user.character.respect,
+            l_res: loser.user.character.respect
         });
-    });
-});
+
+        console.log("Batalha registrada com sucesso!");
+
+        // Atualiza os valores locais apenas após salvar no banco
+        winner.user.character.xp += xp_per_win;
+        winner.user.character.respect += respect_gain.w;
+        loser.user.character.xp += xp_per_win / 2;
+        loser.user.character.respect += respect_gain.l;
+
+    } catch (error) {
+        console.error("Erro ao atualizar banco de dados:", error);
+    }
+
+    return {
+        w: {
+            r: respect_gain.w,
+            p: w_lvl_info_a.progress - w_lvl_info.progress,
+            l: w_lvlup,
+        },
+        l: {
+            r: respect_gain.l,
+            p: l_lvl_info_a.progress - l_lvl_info.progress,
+            l: l_lvlup,
+        },
+    };
+};
 
 
-  return {
-    w: {
-      r: respect_gain.w,
-      p: w_lvl_info_a.progress - w_lvl_info.progress,
-      l: w_lvlup,
-    },
-    l: {
-      r: respect_gain.l,
-      p: l_lvl_info_a.progress - l_lvl_info.progress,
-      l: l_lvlup,
-    },
-  };
-	};
 
 SERVER.Game.prototype.getRespectGain = function (w_lvl, l_lvl) {
   var respect = {

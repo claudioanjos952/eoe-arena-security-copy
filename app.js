@@ -1556,7 +1556,7 @@ SERVER.Game.prototype.turnEnd = function () { // called when a turn ends
 };
 
 SERVER.Game.prototype.getBattleReport = function (winner, loser) {
-  var xp_per_win = 5;
+  var xp_per_win = 10;
 
   var w_lvl_info = SHARED.getLvlInfo(winner.user.character.xp);
   var l_lvl_info = SHARED.getLvlInfo(loser.user.character.xp);

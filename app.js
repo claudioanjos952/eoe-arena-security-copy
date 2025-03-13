@@ -1560,12 +1560,8 @@ SERVER.Game.prototype.getBattleReport = function (winner, loser) {
 
   var w_lvl_info = SHARED.getLvlInfo(winner.user.character.xp);
   var l_lvl_info = SHARED.getLvlInfo(loser.user.character.xp);
-
-winner.user.character.xp += xp_per_win; // Atualiza o XP primeiro
-loser.user.character.xp += xp_per_win/2;
-	
-  var w_lvl_info_a = SHARED.getLvlInfo(winner.user.character.xp);
-  var l_lvl_info_a = SHARED.getLvlInfo(loser.user.character.xp);
+  var w_lvl_info_a = SHARED.getLvlInfo(winner.user.character.xp + xp_per_win);
+  var l_lvl_info_a = SHARED.getLvlInfo(loser.user.character.xp + xp_per_win / 2);
   var respect_gain = this.getRespectGain(w_lvl_info.lvl, l_lvl_info.lvl);
   if (loser.user.character.respect + respect_gain.l < 0) {
     respect_gain.l = -loser.user.character.respect;
@@ -1581,7 +1577,6 @@ loser.user.character.xp += xp_per_win/2;
     l_lvlup = 1;
     loser.user.character.points += 2;
   }
-console.log(`Antes: ${w_lvl_info.lvl}, Depois: ${w_lvl_info_a.lvl}, XP: ${winner.user.character.xp}, w_lvlup: ${w_lvlup},  l_lvlup: ${l_lvlup}`);
 	
   SERVER.db.characters.updateOne({ _id: winner.user.char_id }, { $inc: {
     xp: xp_per_win,

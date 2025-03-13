@@ -1567,6 +1567,7 @@ SERVER.Game.prototype.getBattleReport = function (winner, loser) {
     respect_gain.l = -loser.user.character.respect;
   }
 
+
   var w_lvlup = l_lvlup = 0;
   if (w_lvl_info_a.lvl > w_lvl_info.lvl) {
     w_lvlup = 1;
@@ -1576,7 +1577,8 @@ SERVER.Game.prototype.getBattleReport = function (winner, loser) {
     l_lvlup = 1;
     loser.user.character.points += 2;
   }
-
+console.log(`Antes: ${w_lvl_info.lvl}, Depois: ${w_lvl_info_a.lvl}, XP: ${winner.user.character.xp}, w_lvlup: ${w_lvlup},  l_lvlup: ${l_lvlup}`);
+	
   SERVER.db.characters.updateOne({ _id: winner.user.char_id }, { $inc: {
     xp: xp_per_win,
     respect: respect_gain.w,
@@ -1608,8 +1610,7 @@ SERVER.Game.prototype.getBattleReport = function (winner, loser) {
       l: l_lvlup,
     },
   };
-	console.log(`Antes: ${w_lvl_info.lvl}, Depois: ${w_lvl_info_a.lvl}, XP: ${winner.user.character.xp}`);
-};
+	};
 
 SERVER.Game.prototype.getRespectGain = function (w_lvl, l_lvl) {
   var respect = {

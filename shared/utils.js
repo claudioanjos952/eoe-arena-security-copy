@@ -32,7 +32,7 @@ module.exports = {
         lvl: lvl,
         progress: progress
     };
-}
+},
 
 
   getStatPlusAmount: function (stat) {

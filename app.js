@@ -1560,8 +1560,12 @@ SERVER.Game.prototype.getBattleReport = function (winner, loser) {
 
   var w_lvl_info = SHARED.getLvlInfo(winner.user.character.xp);
   var l_lvl_info = SHARED.getLvlInfo(loser.user.character.xp);
+
+winner.user.character.xp += xp_per_win; // Atualiza o XP primeiro
+
+	
   var w_lvl_info_a = SHARED.getLvlInfo(winner.user.character.xp + xp_per_win);
-  var l_lvl_info_a = SHARED.getLvlInfo(loser.user.character.xp + xp_per_win / 2);
+  var l_lvl_info_a = SHARED.getLvlInfo(loser.user.character.xp - xp_per_win / 2);
   var respect_gain = this.getRespectGain(w_lvl_info.lvl, l_lvl_info.lvl);
   if (loser.user.character.respect + respect_gain.l < 0) {
     respect_gain.l = -loser.user.character.respect;

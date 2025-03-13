@@ -25,17 +25,15 @@ module.exports = {
   },
 
   getLvlInfo: function (xp) {
-  	var cxp = 0, clvl = 0, pxp = 0;
-  	while (cxp <= xp) {
-  		pxp = cxp;
-  		cxp += 100 + 20*clvl;
-  		clvl++;
-  	}
-  	return {
-      lvl: Math.max(0, clvl - 1),
-      progress: Math.floor((xp - pxp) / (cxp - pxp) * 100),
+    var lvl = Math.floor(xp / 100); // Calcula o nível arredondando para baixo
+    var progress = xp - (lvl * 100); // Progresso dentro do nível atual
+
+    return {
+        lvl: lvl,
+        progress: progress
     };
-  },
+}
+
 
   getStatPlusAmount: function (stat) {
     if      (stat < 42) return 3;

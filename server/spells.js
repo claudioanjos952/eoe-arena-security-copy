@@ -14,8 +14,7 @@ module.exports = {
 // bane
 module.exports.zap = function (ga) {
   
-    console.log("SPELLS.zap foi chamado!", ga);
-  
+    
   var damage = ga.calculateSpellDamage(); // calculate real damage depending on the skill, mastery, weapon, etc.
   ga.enemy.gameState.hp -= damage;
   ga.clientData.data.status = 'hit';

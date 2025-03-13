@@ -1608,6 +1608,7 @@ SERVER.Game.prototype.getBattleReport = function (winner, loser) {
       l: l_lvlup,
     },
   };
+	console.log(`Antes: ${w_lvl_info.lvl}, Depois: ${w_lvl_info_a.lvl}, XP: ${winner.user.character.xp}`);
 };
 
 SERVER.Game.prototype.getRespectGain = function (w_lvl, l_lvl) {

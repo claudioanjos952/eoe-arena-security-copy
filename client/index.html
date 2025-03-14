@@ -283,7 +283,6 @@
         }
       });
     });
-    
   };
 
   CLIENT.authenticateUser = function (callback) {
@@ -719,7 +718,7 @@
     CLIENT.game.status.show = false;
     CLIENT.game.currentActions = [];
     CLIENT.game.energyLeft = 60;
-    CLIENT.animatedProperties.energy = CLIENT.game.energyLeft;
+    CLIENT.animatedProperties.energy = 100;
     CLIENT.moveTiles = [];
 
     // synchronize client side with the data received from SERVER
@@ -1118,14 +1117,6 @@ else if (act.data.status == 'blocked') {
   CLIENT.socket.on('challenges-update', CLIENT.updateChallenges);
   CLIENT.socket.on('alert', CLIENT.alert);
   CLIENT.socket.on('auth-failure', CLIENT.authFailure);  // game
-CLIENT.socket.on("updateStats", function (data) {
-    CLIENT.game.player.xp = data.xp;
-    CLIENT.game.player.respect = data.respect;
-    CLIENT.game.player.level = data.level;
-    CLIENT.game.player.points = data.points;
-
-    CLIENT.updateUI(); // Atualiza a interface com os novos valores
-});
 
 
   CLIENT.render = function () {
@@ -1144,7 +1135,7 @@ CLIENT.socket.on("updateStats", function (data) {
 
       // hp, energy, time bar foregrounds
       ctx.fillStyle="#e87777"; ctx.fillRect(10, 10, (CANVAS.canvas.width - 20) * (CLIENT.animatedProperties.hp / CLIENT.game.player.maxHp), 6); // hp e87777
-      ctx.fillStyle="#f9e0b4"; ctx.fillRect(10, 23, (CANVAS.canvas.width - 20) * CLIENT.animatedProperties.energy / 60, 6);  // energy f9e0b4
+      ctx.fillStyle="#f9e0b4"; ctx.fillRect(10, 23, (CANVAS.canvas.width - 20) * CLIENT.animatedProperties.energy / 100, 6);  // energy f9e0b4
       ctx.fillStyle="#f7b94a"; ctx.fillRect(10, 23, (CANVAS.canvas.width - 20) * CLIENT.game.energyLeft / 60, 6);  // energy f7b94a
       ctx.fillStyle="#91b2ff"; ctx.fillRect(10, 36, (CANVAS.canvas.width - 20) * CLIENT.game.turnLeft, 6); // time 91b2ff
 

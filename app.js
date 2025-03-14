@@ -158,7 +158,8 @@ SERVER.init = function () {
                             var user = SERVER.Sessions[token];
                             parsed._user = user;
 
-                                   } else {
+                            
+                        } else {
                             console.error("Erro: Sessão não encontrada para o token.");
                             return res.end(JSON.stringify({ status: -1, msg: "Sessão inválida ou expirada." }));
                         }
@@ -175,7 +176,8 @@ SERVER.init = function () {
                     // Processa a requisição de forma assíncrona
                     try {
                         let response = await SERVER.getPOSTResponse(parsed);
-                                   return res.end(JSON.stringify(response));
+                        
+                        return res.end(JSON.stringify(response));
                     } catch (err) {
                         console.error("Erro no processamento de `getPOSTResponse`:", err);
                         return res.end(JSON.stringify({ status: 0, msg: "Erro interno do servidor." }));
@@ -209,7 +211,7 @@ console.log("conectado na porta " + PORT);
   // MongoDB init
 	
 var uri = process.env.MONGO_URI;	
-  console.log(">>> uri encontrada <<<");
+  console.log(">>> uri encontrada: ");
   
  
 	//cuidado aqui
@@ -220,6 +222,7 @@ async function connectToDatabase() {
     await client.connect();
 
     
+
     // Acessa o banco de dados
     var db = client.db("sample_mflix"); // Nome do banco de dados
     SERVER.db = db;  // Atribui o banco de dados a SERVER.db
@@ -241,7 +244,8 @@ async function connectToDatabase() {
 
 // Chama a função para conectar
 connectToDatabase().then(() => {
-  }).catch((error) => {
+  console.log("Banco de dados carregado com sucesso!");
+}).catch((error) => {
   console.error("Erro ao carregar o banco de dados:", error);
 });
 
@@ -349,7 +353,8 @@ SERVER.handleSocketMessage = function (socket, evt, data) {
     case 'turn-actions':
       var game = SERVER.getGameByPlayer(player);
    
-		  
+		  console.log("Recebendo ações do jogador:", player ? player.id : "Jogador não identificado");
+
 		  if (game) {
         game.comitActions(player, data.actions);
       }
@@ -422,8 +427,9 @@ SERVER.createUser = async function (data) {
       return { status: 0, msg: "Cannot create an account with this username." };
     }
 
-    console.log("usuario criado: ", data.username);
-    
+    console.log("name recebeu 346: ", data.username);
+    console.log("pass recebeu 348: ", data.password);
+
     return { status: 1, token: token };
   } catch (err) {
     console.error(err);
@@ -456,12 +462,14 @@ if (!SERVER.db || !SERVER.db.users) {
       username: data.username,
       char_id: userRes.char_id,
     });
-console.log("usuario logado: ", data.username);
-	     SERVER.Sessions[token] = user;
+console.log("name login recebeu 394: ", data.username);
+	  console.log("pass login recebeu 395: ", data.password);
+    SERVER.Sessions[token] = user;
 
     let obj = await user.getObject();
    obj.token = token; // Adiciona o token ao objeto
- return {
+console.log(">>>loginuser obj recebeu user.getObject()");
+    return {
       status: 1,
       token: token,
       user: obj,
@@ -551,29 +559,36 @@ SERVER.getPOSTResponse = async function (obj) {
   try {
     switch (obj.ajax_action) {
       case "login":
-		    
+		    console.log("Requisição para login  recebida:", );
+      
         return await SERVER.loginUser(obj);
       case "register":
-		    
+		    console.log("Requisição para registrar  recebida:", );
+      
         return await SERVER.createUser(obj);
       case "authenticate":
-		    
+		    console.log("Requisição para autenticar  recebida:", );
+      
         return await SERVER.getUser(obj);
       case "equip-item":
-		    
+		    console.log("Requisição para equipar item recebida:", );
+      
         return await SERVER.equipItem(obj);
       case "get-character":
-		    
+		    console.log("Requisição para get character recebida:", );
+      
         return await obj._user.getCharacter();
       case "activate-skill":
-		    
+		    console.log("Requisição para activate skill recebida:", );
+      
         return await SERVER.activateSkill(obj);
       case "deactivate-skill":
-		    
+		    console.log("Requisição para desactivate skill recebida:", );
       
         return await SERVER.deactivateSkill(obj);
       case "level-stat":
-		    
+		    console.log("Requisição para level stat recebida:", );
+      
         return await SERVER.levelUpStat(obj);
       default:
         return {};
@@ -1542,7 +1557,7 @@ SERVER.Game.prototype.turnEnd = function () { // called when a turn ends
 };
 
 SERVER.Game.prototype.getBattleReport = function (winner, loser) {
-  var xp_per_win = 10;
+  var xp_per_win = 5;
 
   var w_lvl_info = SHARED.getLvlInfo(winner.user.character.xp);
   var l_lvl_info = SHARED.getLvlInfo(loser.user.character.xp);
@@ -1642,7 +1657,7 @@ SERVER.Game.prototype.comitActions = function (player, actions) {
   if (this.player1 == player) this.player1_actions = actions;
   else if (this.player2 == player) this.player2_actions = actions;
 
-  
+  console.log("Received actions from " + player.name + ": " + actions);
 };
 
 SERVER.Game.prototype.isTileOccupied = function (tile) {

@@ -1565,19 +1565,19 @@ SERVER.Game.prototype.getBattleReport = function (winner, loser) {
     xp: xp_per_win,
     respect: respect_gain.w,
     pts: w_lvlup ? 2 : 0,
-  }}, function (err, res) {
+  }});
     SERVER.db.characters.updateOne({ _id: loser.user.char_id }, { $inc: {
       xp: xp_per_win / 2,
       respect: respect_gain.l,
       pts: l_lvlup ? 2 : 0,
-    }}, function (err2, res2) {
-      SERVER.db.finished_battles.insert({ winner: winner.user.id, loser: loser.user.id, w_lvl: w_lvl_info.lvl, l_lvl: l_lvl_info.lvl, w_res: winner.user.character.respect, l_res: loser.user.character.respect }, function (err3, res3) {
+    }    });
+      SERVER.db.finished_battles.insertOne({ winner: winner.user.id, loser: loser.user.id, w_lvl: w_lvl_info.lvl, l_lvl: l_lvl_info.lvl, w_res: winner.user.character.respect, l_res: loser.user.character.respect }, function (err3, res3) {
         winner.user.character.xp += xp_per_win;
         winner.user.character.respect += respect_gain.w;
         loser.user.character.xp += xp_per_win / 2;
         loser.user.character.respect += respect_gain.l;
-      });
-    });
+
+
   });
 
   return {

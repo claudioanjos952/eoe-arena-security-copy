@@ -109,9 +109,6 @@ SERVER.init = function () {
   app.get('/shared/utils.js', function (req, res) {
     res.sendFile(__dirname + '/shared/utils.js');
   });
-	app.get('/ping', function (req, res) { 
-        res.status(200).send("OK"); 
-    }); // 🔹 Rota para manter o servidor ativo
   app.get('/ajax', function (req, res) {
     if (req.headers['x-requested-with'] === 'XMLHttpRequest') {
       if (Object.keys(req.query).length > 0) {
@@ -121,7 +118,8 @@ SERVER.init = function () {
  if (SERVER.Sessions.hasOwnProperty(token)) {
           var user = SERVER.Sessions[token];
 		   req.query._user = user;
-		   
+		   console.log(">>> Sessões ativas:");
+
         } else {
           res.end(JSON.stringify({ status: -1 }));
           return;
@@ -146,7 +144,8 @@ SERVER.init = function () {
                     var parsed = JSON.parse(body);
                     res.writeHead(200, { 'Content-Type': 'application/json' });
 
-                    
+                    console.log("Requisição AJAX recebida:");
+
                     // Verifica se a ação não é login, registro ou autenticação
                     if (parsed.ajax_action != "login" && parsed.ajax_action != "register" && parsed.ajax_action != "authenticate") {
                         var token = req.headers.cookie?.match(/(?:^|;\s*)token=([^;]*)/)?.[1];
@@ -155,7 +154,8 @@ SERVER.init = function () {
                             var user = SERVER.Sessions[token];
                             parsed._user = user;
 
-                                } else {
+                            console.log("Sessão encontrada para o token");
+                        } else {
                             console.error("Erro: Sessão não encontrada para o token.");
                             return res.end(JSON.stringify({ status: -1, msg: "Sessão inválida ou expirada." }));
                         }
@@ -172,7 +172,8 @@ SERVER.init = function () {
                     // Processa a requisição de forma assíncrona
                     try {
                         let response = await SERVER.getPOSTResponse(parsed);
-                               return res.end(JSON.stringify(response));
+                        console.log("Resposta enviada pelo servidor:");
+                        return res.end(JSON.stringify(response));
                     } catch (err) {
                         console.error("Erro no processamento de `getPOSTResponse`:", err);
                         return res.end(JSON.stringify({ status: 0, msg: "Erro interno do servidor." }));
@@ -206,7 +207,9 @@ console.log("conectado na porta " + PORT);
   // MongoDB init
 	
 var uri = process.env.MONGO_URI;	
+  console.log(">>> uri encontrada: ",uri);
   
+ 
 	//cuidado aqui
 async function connectToDatabase() {
   try {
@@ -214,7 +217,8 @@ async function connectToDatabase() {
     var client = new MongoClient(uri, { serverApi: ServerApiVersion.v1 });
     await client.connect();
 
-    
+    console.log('Conectado ao MongoDB');
+
     // Acessa o banco de dados
     var db = client.db("sample_mflix"); // Nome do banco de dados
     SERVER.db = db;  // Atribui o banco de dados a SERVER.db
@@ -259,24 +263,11 @@ connectToDatabase().then(() => {
 loadDatabase();
 
 
-// 🔹 Ping automático para manter o servidor ativo com intervalo aleatório
-function keepServerAwake() {
-    fetch("https://eoe-arena-security-copy.onrender.com/ping")
-        .catch(error => console.log("Erro ao manter o servidor ativo:", error));
 
-    // Escolhe um tempo aleatório entre 7 e 14 minutos para a próxima execução
-    let nextPing = Math.floor(Math.random() * (840000 - 420000 + 1)) + 420000;
 
-    setTimeout(keepServerAwake, nextPing);
-}
-
-// Inicia o loop de pings após 5 segundos do servidor iniciar
-setTimeout(keepServerAwake, 5000);
 
 
 }
-
-
 
 SERVER.onSocketConnection = function (socket) {
   SERVER.Sockets[socket.id] = socket;
@@ -1548,99 +1539,60 @@ SERVER.Game.prototype.turnEnd = function () { // called when a turn ends
 
 };
 
-SERVER.Game.prototype.getBattleReport = async function (winner, loser) {
-    var xp_per_win = 10;
+SERVER.Game.prototype.getBattleReport = function (winner, loser) {
+  var xp_per_win = 5;
 
-    var w_lvl_info = SHARED.getLvlInfo(winner.user.character.xp);
-    var l_lvl_info = SHARED.getLvlInfo(loser.user.character.xp);
-    var w_lvl_info_a = SHARED.getLvlInfo(winner.user.character.xp + xp_per_win);
-    var l_lvl_info_a = SHARED.getLvlInfo(loser.user.character.xp + xp_per_win / 2);
-    var respect_gain = this.getRespectGain(w_lvl_info.lvl, l_lvl_info.lvl);
-    
-    if (loser.user.character.respect + respect_gain.l < 0) {
-        respect_gain.l = -loser.user.character.respect;
-    }
+  var w_lvl_info = SHARED.getLvlInfo(winner.user.character.xp);
+  var l_lvl_info = SHARED.getLvlInfo(loser.user.character.xp);
+  var w_lvl_info_a = SHARED.getLvlInfo(winner.user.character.xp + xp_per_win);
+  var l_lvl_info_a = SHARED.getLvlInfo(loser.user.character.xp + xp_per_win / 2);
+  var respect_gain = this.getRespectGain(w_lvl_info.lvl, l_lvl_info.lvl);
+  if (loser.user.character.respect + respect_gain.l < 0) {
+    respect_gain.l = -loser.user.character.respect;
+  }
 
-    var w_lvlup = 0, l_lvlup = 0;
-    if (w_lvl_info_a.lvl > w_lvl_info.lvl) {
-        w_lvlup = 1;
-        winner.user.character.points += 2;
-    }
-    if (l_lvl_info_a.lvl > l_lvl_info.lvl) {
-        l_lvlup = 1;
-        loser.user.character.points += 2;
-    }
+  var w_lvlup = l_lvlup = 0;
+  if (w_lvl_info_a.lvl > w_lvl_info.lvl) {
+    w_lvlup = 1;
+    winner.user.character.points += 2;
+  }
+  if (l_lvl_info_a.lvl > l_lvl_info.lvl) {
+    l_lvlup = 1;
+    loser.user.character.points += 2;
+  }
 
-    try {
-        
-        await SERVER.db.characters.updateOne({ _id: winner.user.char_id }, { $inc: {
-            xp: xp_per_win,
-            respect: respect_gain.w,
-            pts: w_lvlup ? 2 : 0
-        }});
-
-           await SERVER.db.characters.updateOne({ _id: loser.user.char_id }, { $inc: {
-            xp: xp_per_win / 2,
-            respect: respect_gain.l,
-            pts: l_lvlup ? 2 : 0
-        }});
-
-// Atualiza o nível antes de salvar no histórico
-w_lvl_info = SHARED.getLvlInfo(winner.user.character.xp);
-l_lvl_info = SHARED.getLvlInfo(loser.user.character.xp);
-
-
-
-           await SERVER.db.finished_battles.insertOne({
-            winner: winner.user.id,
-            loser: loser.user.id,
-            w_lvl: w_lvl_info.lvl,
-            l_lvl: l_lvl_info.lvl,
-            w_res: winner.user.character.respect,
-            l_res: loser.user.character.respect
-        });
-
-// Envia os novos valores para o cliente
-winner.socket.emit("updateStats", {
-    xp: winner.user.character.xp,
-    respect: winner.user.character.respect,
-    level: SHARED.getLvlInfo(winner.user.character.xp).lvl,
-    points: winner.user.character.points
-});
-
-loser.socket.emit("updateStats", {
-    xp: loser.user.character.xp,
-    respect: loser.user.character.respect,
-    level: SHARED.getLvlInfo(loser.user.character.xp).lvl,
-    points: loser.user.character.points
-});
-
-        
-        // Atualiza os valores locais apenas após salvar no banco
+  SERVER.db.characters.updateOne({ _id: winner.user.char_id }, { $inc: {
+    xp: xp_per_win,
+    respect: respect_gain.w,
+    pts: w_lvlup ? 2 : 0,
+  }}, function (err, res) {
+    SERVER.db.characters.updateOne({ _id: loser.user.char_id }, { $inc: {
+      xp: xp_per_win / 2,
+      respect: respect_gain.l,
+      pts: l_lvlup ? 2 : 0,
+    }}, function (err2, res2) {
+      SERVER.db.finished_battles.insert({ winner: winner.user.id, loser: loser.user.id, w_lvl: w_lvl_info.lvl, l_lvl: l_lvl_info.lvl, w_res: winner.user.character.respect, l_res: loser.user.character.respect }, function (err3, res3) {
         winner.user.character.xp += xp_per_win;
         winner.user.character.respect += respect_gain.w;
         loser.user.character.xp += xp_per_win / 2;
         loser.user.character.respect += respect_gain.l;
+      });
+    });
+  });
 
-    } catch (error) {
-        console.error("Erro ao atualizar banco de dados:", error);
-    }
-
-    return {
-        w: {
-            r: respect_gain.w,
-            p: w_lvl_info_a.progress - w_lvl_info.progress,
-            l: w_lvlup,
-        },
-        l: {
-            r: respect_gain.l,
-            p: l_lvl_info_a.progress - l_lvl_info.progress,
-            l: l_lvlup,
-        },
-    };
+  return {
+    w: {
+      r: respect_gain.w,
+      p: w_lvl_info_a.progress - w_lvl_info.progress,
+      l: w_lvlup,
+    },
+    l: {
+      r: respect_gain.l,
+      p: l_lvl_info_a.progress - l_lvl_info.progress,
+      l: l_lvlup,
+    },
+  };
 };
-
-
 
 SERVER.Game.prototype.getRespectGain = function (w_lvl, l_lvl) {
   var respect = {
@@ -1677,7 +1629,7 @@ SERVER.Game.prototype.comitActions = function (player, actions) {
   if (this.player1 == player) this.player1_actions = actions;
   else if (this.player2 == player) this.player2_actions = actions;
 
-  
+  console.log("Received actions from " + player.name + ": " + actions);
 };
 
 SERVER.Game.prototype.isTileOccupied = function (tile) {

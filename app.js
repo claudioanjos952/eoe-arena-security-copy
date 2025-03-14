@@ -1547,11 +1547,12 @@ SERVER.Game.prototype.getBattleReport = function (winner, loser) {
   var w_lvl_info_a = SHARED.getLvlInfo(winner.user.character.xp + xp_per_win);
   var l_lvl_info_a = SHARED.getLvlInfo(loser.user.character.xp + xp_per_win / 2);
   var respect_gain = this.getRespectGain(w_lvl_info.lvl, l_lvl_info.lvl);
+  
   if (loser.user.character.respect + respect_gain.l < 0) {
     respect_gain.l = -loser.user.character.respect;
   }
 
-  var w_lvlup = l_lvlup = 0;
+  var w_lvlup = 0, l_lvlup = 0;
   if (w_lvl_info_a.lvl > w_lvl_info.lvl) {
     w_lvlup = 1;
     winner.user.character.points += 2;
@@ -1561,38 +1562,48 @@ SERVER.Game.prototype.getBattleReport = function (winner, loser) {
     loser.user.character.points += 2;
   }
 
+  // Atualiza os valores no banco independentemente
   SERVER.db.characters.updateOne({ _id: winner.user.char_id }, { $inc: {
     xp: xp_per_win,
     respect: respect_gain.w,
-    pts: w_lvlup ? 2 : 0,
+    pts: w_lvlup ? 2 : 0
   }});
-    SERVER.db.characters.updateOne({ _id: loser.user.char_id }, { $inc: {
-      xp: xp_per_win / 2,
-      respect: respect_gain.l,
-      pts: l_lvlup ? 2 : 0,
-    }    });
-      SERVER.db.finished_battles.insertOne({ winner: winner.user.id, loser: loser.user.id, w_lvl: w_lvl_info.lvl, l_lvl: l_lvl_info.lvl, w_res: winner.user.character.respect, l_res: loser.user.character.respect }, function (err3, res3) {
-        winner.user.character.xp += xp_per_win;
-        winner.user.character.respect += respect_gain.w;
-        loser.user.character.xp += xp_per_win / 2;
-        loser.user.character.respect += respect_gain.l;
 
+  SERVER.db.characters.updateOne({ _id: loser.user.char_id }, { $inc: {
+    xp: xp_per_win / 2,
+    respect: respect_gain.l,
+    pts: l_lvlup ? 2 : 0
+  }});
 
+  SERVER.db.finished_battles.insertOne({
+    winner: winner.user.id,
+    loser: loser.user.id,
+    w_lvl: w_lvl_info.lvl,
+    l_lvl: l_lvl_info.lvl,
+    w_res: winner.user.character.respect,
+    l_res: loser.user.character.respect
   });
+
+  // Atualiza os valores locais imediatamente
+  winner.user.character.xp += xp_per_win;
+  winner.user.character.respect += respect_gain.w;
+  loser.user.character.xp += xp_per_win / 2;
+  loser.user.character.respect += respect_gain.l;
 
   return {
     w: {
       r: respect_gain.w,
       p: w_lvl_info_a.progress - w_lvl_info.progress,
-      l: w_lvlup,
+      l: w_lvlup
     },
     l: {
       r: respect_gain.l,
       p: l_lvl_info_a.progress - l_lvl_info.progress,
-      l: l_lvlup,
-    },
+      l: l_lvlup
+    }
   };
 };
+
 
 SERVER.Game.prototype.getRespectGain = function (w_lvl, l_lvl) {
   var respect = {

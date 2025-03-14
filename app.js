@@ -1549,7 +1549,7 @@ SERVER.Game.prototype.turnEnd = function () { // called when a turn ends
 };
 
 SERVER.Game.prototype.getBattleReport = async function (winner, loser) {
-    var xp_per_win = 5;
+    var xp_per_win = 10;
 
     var w_lvl_info = SHARED.getLvlInfo(winner.user.character.xp);
     var l_lvl_info = SHARED.getLvlInfo(loser.user.character.xp);
@@ -1572,22 +1572,26 @@ SERVER.Game.prototype.getBattleReport = async function (winner, loser) {
     }
 
     try {
-        console.log(`Atualizando XP e respeito do vencedor: ${winner.user.char_id}`);
+        
         await SERVER.db.characters.updateOne({ _id: winner.user.char_id }, { $inc: {
             xp: xp_per_win,
             respect: respect_gain.w,
             pts: w_lvlup ? 2 : 0
         }});
 
-        console.log(`Atualizando XP e respeito do perdedor: ${loser.user.char_id}`);
-        await SERVER.db.characters.updateOne({ _id: loser.user.char_id }, { $inc: {
+           await SERVER.db.characters.updateOne({ _id: loser.user.char_id }, { $inc: {
             xp: xp_per_win / 2,
             respect: respect_gain.l,
             pts: l_lvlup ? 2 : 0
         }});
 
-        console.log("Registrando batalha no banco de dados...");
-        await SERVER.db.finished_battles.insertOne({
+// Atualiza o nível antes de salvar no histórico
+w_lvl_info = SHARED.getLvlInfo(winner.user.character.xp);
+l_lvl_info = SHARED.getLvlInfo(loser.user.character.xp);
+
+
+
+           await SERVER.db.finished_battles.insertOne({
             winner: winner.user.id,
             loser: loser.user.id,
             w_lvl: w_lvl_info.lvl,
@@ -1596,8 +1600,22 @@ SERVER.Game.prototype.getBattleReport = async function (winner, loser) {
             l_res: loser.user.character.respect
         });
 
-        console.log("Batalha registrada com sucesso!");
+// Envia os novos valores para o cliente
+winner.socket.emit("updateStats", {
+    xp: winner.user.character.xp,
+    respect: winner.user.character.respect,
+    level: SHARED.getLvlInfo(winner.user.character.xp).lvl,
+    points: winner.user.character.points
+});
 
+loser.socket.emit("updateStats", {
+    xp: loser.user.character.xp,
+    respect: loser.user.character.respect,
+    level: SHARED.getLvlInfo(loser.user.character.xp).lvl,
+    points: loser.user.character.points
+});
+
+        
         // Atualiza os valores locais apenas após salvar no banco
         winner.user.character.xp += xp_per_win;
         winner.user.character.respect += respect_gain.w;
@@ -1659,7 +1677,7 @@ SERVER.Game.prototype.comitActions = function (player, actions) {
   if (this.player1 == player) this.player1_actions = actions;
   else if (this.player2 == player) this.player2_actions = actions;
 
-  console.log("Received actions from " + player.name + ": " + actions);
+  
 };
 
 SERVER.Game.prototype.isTileOccupied = function (tile) {

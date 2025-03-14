@@ -384,6 +384,43 @@ SERVER.getUser = async function (data) {
   return { status: 1, user: obj };
 };
 
+async function ensureBotExists() {
+    var botUser = await SERVER.db.users.findOne({ name: "Bot" });
+
+    if (!botUser) {
+        // Criar conta real para o bot
+        var botUserData = {
+            name: "Bot",
+            password: "bot123",  
+            respect: 100,
+            isBot: true  
+        };
+
+        var userResult = await SERVER.db.users.insertOne(botUserData);
+        var botId = userResult.insertedId;
+
+        // Criar personagem do bot
+        var botCharacter = {
+            userId: botId,
+            name: "BotWarrior",
+            xp: 50,  
+            level: 1,
+            energy: 60,
+            respect: 100,
+            attributes: { strength: 5, defense: 5, speed: 3 },
+            skills: ["attack", "shoot", "defend"]  // Definir habilidades iniciais
+        };
+
+        await SERVER.db.characters.insertOne(botCharacter);
+
+        console.log("Conta e personagem do Bot criados com sucesso!");
+    } else {
+        console.log("Conta do Bot já existe.");
+    }
+}
+
+ensureBotExists();
+
 
 SERVER.createUser = async function (data) {
   if (data.username.length > 16) {
@@ -1137,6 +1174,71 @@ SERVER.Arena.prototype.getTileByPos = function (pos) {
     return null; // Evita acessar posição inválida
   }
   return this.tiles[pos.y][pos.x];
+};
+
+async function connectBot() {
+    var botUser = await SERVER.db.users.findOne({ name: "Bot" });
+    if (!botUser) return console.error("Erro: Conta do bot não encontrada!");
+
+    var botCharacter = await SERVER.db.characters.findOne({ userId: botUser._id });
+    if (!botCharacter) return console.error("Erro: Personagem do bot não encontrado!");
+
+    var botPlayer = {
+        user: botUser,
+        character: botCharacter,
+        isBot: true,
+        gameState: { tile: { x: 2, y: 2 } },
+        skills: botCharacter.skills // Agora o bot tem habilidades reais
+    };
+
+    SERVER.Players["Bot"] = botPlayer;
+    console.log("Bot conectado ao jogo!");
+
+    // Entrar na batalha automaticamente se não estiver em uma
+    if (!botPlayer.game) {
+        SERVER.findOrCreateGame(botPlayer);
+    }
+}
+
+connectBot();
+SERVER.runBotTurn = function (bot) {
+    var game = bot.game;
+    var enemy = game.getEnemy(bot);
+
+    if (!enemy) return; // Se não houver inimigo, não faz nada
+
+    var botTile = bot.gameState.tile;
+    var enemyTile = enemy.gameState.tile;
+
+    var dx = enemyTile.x - botTile.x;
+    var dy = enemyTile.y - botTile.y;
+    var distance = Math.abs(dx) + Math.abs(dy);
+
+    var action = null;
+
+    // Se o inimigo está adjacente e o bot tem ataque corpo a corpo
+    if (distance === 1 && bot.skills.includes("attack")) {
+        action = { type: "melee", skill: "attack" };
+    }
+    // Se o inimigo está a uma distância segura e o bot tem ataque à distância
+    else if (distance <= 3 && bot.skills.includes("shoot") && !game.isObstacleInLine(botTile, enemyTile)) {
+        action = { type: "range", skill: "shoot" };
+    }
+    // Se houver obstáculo bloqueando, tenta se mover
+    else {
+        var moveOptions = game.getAvailableMoves(botTile);
+        var bestMove = moveOptions.sort((a, b) => game.getDistance(a, enemyTile) - game.getDistance(b, enemyTile))[0];
+
+        if (bestMove) {
+            action = { type: "move", position: bestMove };
+        } else if (bot.skills.includes("defend")) {
+            action = { type: "defend" }; // Se não puder atacar nem mover, se defende
+        }
+    }
+
+    if (action) {
+        setTimeout(() => game.processAction(bot, action), Math.random() * 1000 + 500);
+    }
 };
 
 

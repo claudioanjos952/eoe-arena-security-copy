@@ -283,6 +283,7 @@
         }
       });
     });
+    
   };
 
   CLIENT.authenticateUser = function (callback) {
@@ -1117,6 +1118,14 @@ else if (act.data.status == 'blocked') {
   CLIENT.socket.on('challenges-update', CLIENT.updateChallenges);
   CLIENT.socket.on('alert', CLIENT.alert);
   CLIENT.socket.on('auth-failure', CLIENT.authFailure);  // game
+CLIENT.socket.on("updateStats", function (data) {
+    CLIENT.game.player.xp = data.xp;
+    CLIENT.game.player.respect = data.respect;
+    CLIENT.game.player.level = data.level;
+    CLIENT.game.player.points = data.points;
+
+    CLIENT.updateUI(); // Atualiza a interface com os novos valores
+});
 
 
   CLIENT.render = function () {

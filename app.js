@@ -427,8 +427,8 @@ SERVER.createUser = async function (data) {
       return { status: 0, msg: "Cannot create an account with this username." };
     }
 
-    console.log("name recebeu 346: ", data.username);
-    console.log("pass recebeu 348: ", data.password);
+    console.log("User criado: ", data.username);
+    
 
     return { status: 1, token: token };
   } catch (err) {
@@ -462,8 +462,8 @@ if (!SERVER.db || !SERVER.db.users) {
       username: data.username,
       char_id: userRes.char_id,
     });
-console.log("name login recebeu 394: ", data.username);
-	  console.log("pass login recebeu 395: ", data.password);
+console.log("Usuario Entrou: ", data.username);
+	  
     SERVER.Sessions[token] = user;
 
     let obj = await user.getObject();
@@ -554,40 +554,40 @@ SERVER.getGETResponse = async function (obj) {
 
 SERVER.getPOSTResponse = async function (obj) {
   var time = new Date();
-  console.log("[" + time.toString().substring(16, 24) + "|" + obj.ajax_action + "]" + " T:" + obj.token);
+  
 
   try {
     switch (obj.ajax_action) {
       case "login":
-		    console.log("Requisição para login  recebida:", );
+		    
       
         return await SERVER.loginUser(obj);
       case "register":
-		    console.log("Requisição para registrar  recebida:", );
+		    
       
         return await SERVER.createUser(obj);
       case "authenticate":
-		    console.log("Requisição para autenticar  recebida:", );
+		    
       
         return await SERVER.getUser(obj);
       case "equip-item":
-		    console.log("Requisição para equipar item recebida:", );
+		    
       
         return await SERVER.equipItem(obj);
       case "get-character":
-		    console.log("Requisição para get character recebida:", );
+		    
       
         return await obj._user.getCharacter();
       case "activate-skill":
-		    console.log("Requisição para activate skill recebida:", );
+		    
       
         return await SERVER.activateSkill(obj);
       case "deactivate-skill":
-		    console.log("Requisição para desactivate skill recebida:", );
+		    
       
         return await SERVER.deactivateSkill(obj);
       case "level-stat":
-		    console.log("Requisição para level stat recebida:", );
+		    
       
         return await SERVER.levelUpStat(obj);
       default:
@@ -1557,7 +1557,7 @@ SERVER.Game.prototype.turnEnd = function () { // called when a turn ends
 };
 
 SERVER.Game.prototype.getBattleReport = function (winner, loser) {
-  var xp_per_win = 5;
+  var xp_per_win = 10;
 
   var w_lvl_info = SHARED.getLvlInfo(winner.user.character.xp);
   var l_lvl_info = SHARED.getLvlInfo(loser.user.character.xp);

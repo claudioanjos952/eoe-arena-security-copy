@@ -483,42 +483,7 @@ console.log(">>>loginuser obj recebeu user.getObject()");
   }
 };
 
-async function ensureBotExists() {
-    var botUser = await SERVER.db.users.findOne({ name: "Bot" });
 
-    if (!botUser) {
-        // Criar conta real para o bot
-        var botUserData = {
-            name: "Bot",
-            password: "bot123",  
-            respect: 100,
-            isBot: true  
-        };
-
-        var userResult = await SERVER.db.users.insertOne(botUserData);
-        var botId = userResult.insertedId;
-
-        // Criar personagem do bot
-        var botCharacter = {
-            userId: botId,
-            name: "BotWarrior",
-            xp: 50,  
-            level: 1,
-            energy: 60,
-            respect: 100,
-            attributes: { strength: 5, defense: 5, speed: 3 },
-            skills: ["attack", "shoot", "defend"]  // Definir habilidades iniciais
-        };
-
-        await SERVER.db.characters.insertOne(botCharacter);
-
-        console.log("Conta e personagem do Bot criados com sucesso!");
-    } else {
-        console.log("Conta do Bot já existe.");
-    }
-}
-
-ensureBotExists();
 
 SERVER.getItems = async function (type, order) {
   try {
@@ -1888,6 +1853,43 @@ SERVER.getGameByPlayer = function (player) {
 
 SERVER.init();
 SERVER.io.sockets.on('connection', SERVER.onSocketConnection);
+
+async function ensureBotExists() {
+    var botUser = await SERVER.db.users.findOne({ name: "Bot" });
+
+    if (!botUser) {
+        // Criar conta real para o bot
+        var botUserData = {
+            name: "Bot",
+            password: "bot123",  
+            respect: 100,
+            isBot: true  
+        };
+
+        var userResult = await SERVER.db.users.insertOne(botUserData);
+        var botId = userResult.insertedId;
+
+        // Criar personagem do bot
+        var botCharacter = {
+            userId: botId,
+            name: "BotWarrior",
+            xp: 50,  
+            level: 1,
+            energy: 60,
+            respect: 100,
+            attributes: { strength: 5, defense: 5, speed: 3 },
+            skills: ["attack", "shoot", "defend"]  // Definir habilidades iniciais
+        };
+
+        await SERVER.db.characters.insertOne(botCharacter);
+
+        console.log("Conta e personagem do Bot criados com sucesso!");
+    } else {
+        console.log("Conta do Bot já existe.");
+    }
+}
+
+ensureBotExists();
 
 
 SERVER.getOnlineUsers = function () {

@@ -110,9 +110,9 @@ SERVER.init = function () {
     res.sendFile(__dirname + '/shared/utils.js');
   });
   
-  app.get('/ping', function (req, res) { 
-        res.status(200).send("OK"); 
-    }); // 🔹 Rota para manter o servidor ativo
+ // app.get('/ping', function (req, res) { 
+      //  res.status(200).send("OK"); 
+   // }); // 🔹 Rota para manter o servidor ativo
 
   
   app.get('/ajax', function (req, res) {
@@ -272,18 +272,18 @@ loadDatabase();
 
 
 // 🔹 Ping automático para manter o servidor ativo com intervalo aleatório
-function keepServerAwake() {
-    fetch("https://eoe-arena-security-copy.onrender.com/ping")
-        .catch(error => console.log("Erro ao manter o servidor ativo:", error));
+// function keepServerAwake() {
+ //   fetch("https://eoe-arena-security-copy.onrender.com/ping")
+     //   .catch(error => console.log("Erro ao manter o servidor ativo:", error));
 
     // Escolhe um tempo aleatório entre 7 e 14 minutos para a próxima execução
-    let nextPing = Math.floor(Math.random() * (840000 - 420000 + 1)) + 420000;
+  //  let nextPing = Math.floor(Math.random() * (840000 - 420000 + 1)) + 420000;
 
-    setTimeout(keepServerAwake, nextPing);
-}
+ //   setTimeout(keepServerAwake, nextPing);
+// }
 
 // Inicia o loop de pings após 5 segundos do servidor iniciar
-setTimeout(keepServerAwake, 5000);
+//setTimeout(keepServerAwake, 5000);
 }
 
 SERVER.onSocketConnection = function (socket) {
